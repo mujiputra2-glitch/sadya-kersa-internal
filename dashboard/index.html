@@ -4,7 +4,7 @@
 <base target="_top">
 <meta name="robots" content="noindex">
 <link rel="icon" href="assets/icon.png">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client?hl=id" async defer></script>
 <style>
 .skd-login { position: fixed; inset: 0; z-index: 9999; background: #F4F2EC; display: flex; align-items: center; justify-content: center; padding: 20px; font-family: inherit; }
 .skd-login[hidden] { display: none; }
@@ -387,10 +387,10 @@ a{color:inherit}
   <div class="skd-card">
     <img src="assets/wordmark.svg" width="150" height="44" alt="Sadya Kersa">
     <p class="skd-title" id="skdTitle">Dashboard Sadya Kersa</p>
-    <p>Masuk dengan akun Google yang sudah terdaftar.</p>
-    <div class="skd-btn" id="skdBtn"></div>
+    <p>Masuk sekali dengan akun Google yang terdaftar. Setelah itu dashboard terbuka otomatis di browser ini.</p>
     <p class="skd-msg" id="skdMsg" role="status" hidden></p>
-    <p class="skd-foot">Belum terdaftar? Minta Mas Firman menambahkan email Anda di tab Akses Dashboard.</p>
+    <div class="skd-btn" id="skdBtn"></div>
+    <p class="skd-foot">Tidak punya akses? Minta Mas Firman menambahkan email Anda di tab Akses Dashboard.</p>
   </div>
 </div>
 
@@ -668,7 +668,8 @@ a{color:inherit}
 // Web version (dashboard.sadyakersa.com): google.script.run goes to the dashboard API, behind Sign in with Google.
 (function () {
   var CFG = {"api":"https://script.google.com/macros/s/AKfycbzYGYkdSKhkw48H_IDpvIGr997_NQLbkJFz80Xq3rOf5A6C4i5isMhZCxW6Nnm9zRsI/exec","clientId":"68726268672-6qpag1kepeu3nqc168en6cr7na6rbf2i.apps.googleusercontent.com"};
-  var KEY = 'skd_token', started = false, ready = false;
+  // asking: a Google prompt is open, so calls that end together on SESI_HABIS ask only once.
+  var KEY = 'skd_token', started = false, ready = false, asking = false;
   function token() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem(KEY, t); else localStorage.removeItem(KEY); } catch (e) {} }
   function $(id) { return document.getElementById(id); }
@@ -682,8 +683,9 @@ a{color:inherit}
         var err = new Error((j && j.error) || 'Server tidak menjawab.');
         if (j && (j.error === 'SESI_HABIS' || j.error === 'TIDAK_TERDAFTAR')) {
           err.auth = true; setToken('');
-          showLogin(j.error === 'SESI_HABIS' ? 'Sesi sudah habis. Silakan masuk lagi.' :
-            (j.email || 'Email ini') + ' belum terdaftar untuk dashboard. Minta Mas Firman menambahkan email ini di tab "Akses Dashboard", lalu masuk lagi.');
+          // Not on the list: say so and stop (no automatic retry with the same account).
+          if (j.error === 'SESI_HABIS') showLogin('Sesi sudah habis. Silakan masuk lagi.', true);
+          else showLogin((j.email || 'Email ini') + ' tidak punya akses ke dashboard ini. Pakai akun Google lain lewat tombol di bawah.', false);
         }
         throw err;
       });
@@ -709,21 +711,29 @@ a{color:inherit}
   var SCRIPT = { run: runner(null, null, undefined), host: { close: function () {}, setHeight: function () {} }, url: { getLocation: getLocation } };
   window.google = window.google || {};
   window.google.script = SCRIPT;
-  function showLogin(msg) {
+  function showLogin(msg, auto) {
     $('skdLogin').hidden = false;
     $('skdMsg').textContent = msg || '';
     $('skdMsg').hidden = !msg;
-    drawButton();
+    drawButton(auto);
   }
-  // Google's script loads on its own; the button is drawn as soon as it is there.
-  function drawButton() {
+  // Google's script loads on its own; the button is drawn as soon as it is there. auto: also ask Google
+  // for the account already signed in to this browser (One Tap). The first time, Google shows "Lanjutkan
+  // sebagai ..." for one click; after that it signs in by itself (auto_select) until Keluar.
+  function drawButton(auto) {
     var g = window.google && window.google.accounts && window.google.accounts.id;
-    if (!g) { setTimeout(drawButton, 250); return; }
+    if (!g) { setTimeout(function () { drawButton(auto); }, 250); return; }
     if (!window.google.script) window.google.script = SCRIPT;
-    if (!ready) { g.initialize({ client_id: CFG.clientId, callback: onCredential, ux_mode: 'popup', context: 'signin' }); ready = true; }
+    if (!ready) {
+      g.initialize({ client_id: CFG.clientId, callback: onCredential, ux_mode: 'popup', context: 'signin',
+        auto_select: true, use_fedcm_for_prompt: true, itp_support: true, cancel_on_tap_outside: false });
+      ready = true;
+    }
     g.renderButton($('skdBtn'), { theme: 'filled_blue', size: 'large', text: 'signin_with', shape: 'rectangular', locale: 'id', width: 280 });
+    if (auto && !asking) { asking = true; g.prompt(); }
   }
   function onCredential(resp) {
+    asking = false;
     $('skdMsg').hidden = false;
     $('skdMsg').textContent = 'Memeriksa akun...';
     post('skdLogin', [resp.credential], '').then(function (d) {
@@ -742,7 +752,7 @@ a{color:inherit}
       (t ? post('skdLogout', [], t) : Promise.resolve()).then(function () { location.reload(); }, function () { location.reload(); });
     });
     var av = $('avatar'); if (av) av.insertAdjacentElement('afterend', out);
-    if (token()) { started = true; skStart(); } else showLogin('');
+    if (token()) { started = true; skStart(); } else showLogin('', true);
   };
 })();
 </script>
