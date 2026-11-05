@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.0","mode":"prod","privacy":"https://mujiputra2-glitch.github.io/sadya-kersa-sales-privacy/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.1","mode":"prod","privacy":"https://mujiputra2-glitch.github.io/sadya-kersa-sales-privacy/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -1945,7 +1945,7 @@ function kpReason(k) {
 // ---------- customers and delivery notes (Admin, app 1.4.0, server Pelanggan.js) ----------
 // Pelanggan: every client with where it stands; a school opens its login, profile, invoices and
 // delivery notes. The Admin makes a delivery note from an invoice, marks it sent with a photo, and
-// the school confirms the goods and the invoice in its own app (sn.app, the customer app).
+// the school confirms the goods and the invoice in its own app (SNAPP, the customer app).
 var SKA_SJ = { Disiapkan: '', Dikirim: 'amber', Diterima: 'green', Batal: 'grey' };
 var SKA_STEP = { invoice: 'amber', disiapkan: '', dikirim: 'amber', diterima: 'green', masalah: 'red', lunas: 'green' };
 function loadCust() {
@@ -1995,7 +1995,7 @@ function vACustD(d) {
   if (!x) { loadCustD(key); return '<p class="muted" style="margin-top:16px">Memuat data sekolah...</p>'; }
   if (x.err) return '<div class="note amber">' + esc(x.err) + '</div><button class="btn block" style="margin-top:12px" onclick="delete SKA.custD[SKA.key];render()">Coba lagi</button>';
   var a = x.account, p = x.profile || {}, h = '';
-  h += '<div class="caption">Akun sn.app</div><div class="card">' + (a ? '<dl class="kv"><dt>Username</dt><dd>' + esc(a.user) + '</dd><dt>Status</dt><dd>' + (a.active ? 'Aktif' : 'Nonaktif') + '</dd>' +
+  h += '<div class="caption">Akun SNAPP</div><div class="card">' + (a ? '<dl class="kv"><dt>Username</dt><dd>' + esc(a.user) + '</dd><dt>Status</dt><dd>' + (a.active ? 'Aktif' : 'Nonaktif') + '</dd>' +
     '<dt>Terakhir masuk</dt><dd>' + esc(stampTxt(a.lastLogin) || 'belum pernah') + '</dd></dl><div class="btnrow"><button class="btn" onclick="custAccount(\'reset\')">Buat PIN baru</button>' +
     '<button class="btn" onclick="custAccount(\'' + (a.active ? 'off' : 'on') + '\')">' + (a.active ? 'Nonaktifkan' : 'Aktifkan') + '</button></div>'
     : '<p class="muted small" style="margin:0">Sekolah ini belum punya akun. Dengan akun, sekolah bisa melihat status order, surat jalan dan invoice, lalu mengonfirmasi barang diterima.</p>' +
@@ -2038,9 +2038,9 @@ function custAccount(action) {
 // The new login, shown once, with a WhatsApp message to the PIC.
 function pinSheet(x, r) {
   var p = (x && x.profile) || {}, ph = phoneOk(p.phone || x.trackerPhone), link = (SKA.data.settings || {}).custLink || '';
-  var msg = 'Selamat ' + waktu() + ' Bapak/Ibu' + (p.pic ? ' ' + p.pic : '') + ', berikut akun aplikasi sn.app dari Sadya Kersa untuk ' + (x.name || 'sekolah') + ':\nUsername: ' + r.user + '\nPIN: ' + r.pin +
+  var msg = 'Selamat ' + waktu() + ' Bapak/Ibu' + (p.pic ? ' ' + p.pic : '') + ', berikut akun aplikasi SNAPP untuk ' + (x.name || 'sekolah') + ':\nUsername: ' + r.user + '\nPIN: ' + r.pin +
     (link ? '\nAplikasi: ' + link : '') + '\nDi aplikasi ini Bapak/Ibu bisa melihat status order, surat jalan dan invoice, lalu mengonfirmasi barang yang diterima. Terima kasih.';
-  openSheet('<h2>Akun sn.app</h2><p class="muted small" style="margin-top:-4px">Berikan ke sekolah. PIN hanya tampil sekali ini; bila lupa, buat PIN baru.</p>' +
+  openSheet('<h2>Akun SNAPP</h2><p class="muted small" style="margin-top:-4px">Berikan ke sekolah. PIN hanya tampil sekali ini; bila lupa, buat PIN baru.</p>' +
     '<dl class="kv"><dt>Username</dt><dd>' + esc(r.user) + '</dd><dt>PIN</dt><dd class="pinv">' + esc(r.pin) + '</dd></dl>' +
     (ph ? '<a class="btn wa block" style="margin-top:14px" href="https://wa.me/62' + esc(ph.slice(1)) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Kirim ke PIC lewat WhatsApp</a>'
       : '<p class="muted small">Nomor PIC belum ada; isi di profil agar bisa dikirim lewat WhatsApp.</p>') +
@@ -2172,7 +2172,7 @@ function vASj(d) {
         return c.ok ? '' : esc((s.lines[i] || {}).item) + ': ' + esc(c.ket.toLowerCase()) + ' ' + esc(c.diff);
       }).filter(String).join('; ') + '</div>' : '') +
       (s.schoolNote ? '<div class="note"><b>Catatan sekolah:</b> ' + esc(s.schoolNote) + '</div>' : '') +
-      (s.photo ? sjPhotoBox(s.no) : '') + (s.status === 'Dikirim' ? '<p class="muted small" style="margin:10px 0 0">Menunggu sekolah mengonfirmasi barang diterima di aplikasi sn.app.</p>' : '') + '</div>' +
+      (s.photo ? sjPhotoBox(s.no) : '') + (s.status === 'Dikirim' ? '<p class="muted small" style="margin:10px 0 0">Menunggu sekolah mengonfirmasi barang diterima di aplikasi SNAPP.</p>' : '') + '</div>' +
       (s.status === 'Dikirim' ? '<button class="btn block" style="margin-top:10px" onclick="cancelSj()">Batalkan surat jalan</button>' : '');
   } else h += '<div class="note" style="margin-top:12px">Surat jalan ini dibatalkan. ' + esc(s.note) + '</div>';
   return h;
