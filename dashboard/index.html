@@ -145,6 +145,16 @@ a{color:inherit}
 .grid{display:grid;gap:16px}
 .kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
 .kpis.k4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kpis.k2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sname{border:0;background:none;padding:6px 0;min-height:32px;font:inherit;font-weight:700;color:var(--ink);text-align:left;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.sname::after{content:'';width:7px;height:7px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(-45deg);opacity:.55;transition:transform .2s}
+.sname[aria-expanded="true"]::after{transform:rotate(45deg)}
+.sname:hover{color:var(--brand)}
+.sinv td{background:var(--soft,#f6f7fb)}
+.sinv table{width:100%;border-collapse:collapse;font-size:12px}
+.sinv th,.sinv table td{padding:6px 8px;text-align:left}
+.sinv .num{text-align:right}
+.sinv .items{color:var(--muted);font-size:11.5px}
 .row2{grid-template-columns:2fr 1fr;margin-top:16px}
 .row3{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:16px}
 .half{grid-template-columns:1fr 1fr;margin-top:16px}
@@ -939,7 +949,7 @@ function skBuildGroups() {
     { key: 'type', label: 'Tipe sekolah', col: SKI.TYPE, values: keysBy(tc, function (a, b) { return SK_TYPE_ORDER.indexOf(P.dict.type[a]) - SK_TYPE_ORDER.indexOf(P.dict.type[b]); }), name: function (v) { return P.dict.type[v]; } },
     { key: 'mkt', label: 'Marketplace', col: SKI.MKT, values: keysBy(mc, function (a, b) { return mc[b] - mc[a]; }), name: function (v) { var m = P.dict.mkt[v]; return SK_MKT_LABEL[m] || m; } },
     { key: 'status', label: 'Status', col: SKI.LUNAS, values: [1, 0], name: function (v) { return v ? 'Lunas' : 'Belum lunas'; } }
-  ];
+  ].filter(function (g) { return !(SKD.inv && g.key === 'status'); });
   SKD.groups.forEach(function (g) { if (!SKD.sel[g.key]) SKD.sel[g.key] = {}; });
 }
 function skRenderFilters() {
@@ -982,7 +992,7 @@ function skRenderFilters() {
     });
     seg.appendChild(b);
   });
-  end.appendChild(seg);
+  if (!SKD.inv) end.appendChild(seg);
   end.appendChild(reset);
   outer.appendChild(end);
 }
@@ -1170,6 +1180,11 @@ function skRenderSummary(rows) {
   var nInv = Object.keys(s.inv).length, nSch = Object.keys(s.schools).length;
   skKpi(box, 'inv', { label: 'Nilai invoice', icon: 'invoice', bg: '#e8f0fc', fg: '#1c5cab', value: s.invoice, fmt: skRp, spark: mo.inv,
     sub: [{ bold: skNum(nInv), after: ' invoice' }, { text: 'rata-rata ', bold: skRp(nInv ? s.invoice / nInv : 0) }], delta: d && { v: d.invoice, vs: d.vs } }, 0);
+  if (SKD.inv) {
+    skKpi(box, 'sch', { label: 'Sekolah pembeli', icon: 'school', bg: '#fdf4dc', fg: '#8a5d00', value: nSch, spark: mo.sch,
+      fmt: function (v) { return skNum(Math.round(v)); },
+      sub: [{ text: 'rata-rata ', bold: skRp(nSch ? s.invoice / nSch : 0), after: ' per sekolah' }] }, 1);
+  } else {
   skKpi(box, 'mar', { label: 'Margin', icon: 'margin', bg: '#ececfb', fg: '#1e1f9c', value: s.margin, fmt: skRp, spark: mo.mar,
     sub: [{ text: 'HPP ', bold: skRp(s.hpp) }], delta: d && { v: d.margin, vs: d.vs } }, 1);
   skKpi(box, 'pct', { label: 'Margin terhadap invoice', icon: 'pct', bg: '#efeafb', fg: '#4a3aa7', value: s.invoice ? s.margin / s.invoice : 0, spark: mo.pct,
@@ -1179,6 +1194,7 @@ function skRenderSummary(rows) {
   skKpi(box, 'sch', { label: 'Sekolah pembeli', icon: 'school', bg: '#fdf4dc', fg: '#8a5d00', value: nSch, spark: mo.sch,
     fmt: function (v) { return skNum(Math.round(v)); },
     sub: [{ text: 'rata-rata ', bold: skRp(nSch ? s.invoice / nSch : 0), after: ' per sekolah' }] }, 4);
+  }
   skTrendChart(rows);
   skYearChart(rows);
   skBarChart('cCv', 'eCv', rows, SKI.CV, function (v) { return skDict('cv', v); }, 8);
@@ -1401,6 +1417,7 @@ function skSchoolAgg(rows) {
   return Object.keys(by).map(function (k) { var o = by[k]; o.count = Object.keys(o.inv).length; o.value = SKD.metric === 'invoice' ? o.invoice : o.margin; return o; });
 }
 function skRenderSchools(rows) {
+  SKD.schoolRows = rows; // for the invoice list under a school's row
   var list = skSchoolAgg(rows);
   var total = list.reduce(function (s, o) { return s + o.value; }, 0);
   var sorted = list.slice().sort(function (a, b) { return b.value - a.value; });
@@ -1486,32 +1503,77 @@ function skSchoolTable(list, total) {
   var max = list.reduce(function (m, o) { return Math.max(m, o.value); }, 0);
   var table = document.getElementById('tblSchool');
   table.textContent = '';
-  skSortHead(table, [
+  var cols = [
     { label: '#' }, { label: 'Sekolah', key: 'name' }, { label: 'Tipe', key: 'type' },
     { label: skMetricLabel() + ' (porsi)', key: 'value', num: true }, { label: 'Invoice', key: 'invoice', num: true },
-    { label: 'Margin', key: 'margin', num: true }, { label: 'Margin %', key: 'pct', num: true }, { label: 'Jml invoice', key: 'count', num: true },
-    { label: 'Transaksi terakhir', key: 'last', num: true }, { label: 'Piutang', key: 'unpaid', num: true }
-  ], st, function () { skSchoolTable(list, total); });
+    { label: 'Margin', key: 'margin', num: true, cost: true }, { label: 'Margin %', key: 'pct', num: true, cost: true }, { label: 'Jml invoice', key: 'count', num: true },
+    { label: 'Transaksi terakhir', key: 'last', num: true }, { label: 'Piutang', key: 'unpaid', num: true, cost: true }
+  ].filter(function (c) { return !(SKD.inv && c.cost); });
+  skSortHead(table, cols, st, function () { skSchoolTable(list, total); });
   var tb = skEl('tbody');
   rows.forEach(function (o, i) {
     var tr = skEl('tr');
     tr.appendChild(skEl('td', 'muted', String(i + 1)));
-    tr.appendChild(skEl('td', '', skDict('school', o.id)));
+    // The school's name opens its invoices in a row underneath (Firman, 5 Nov).
+    var nameTd = skEl('td'), nameBtn = skEl('button', 'sname', skDict('school', o.id));
+    nameBtn.type = 'button';
+    nameBtn.setAttribute('aria-expanded', st.open === o.id ? 'true' : 'false');
+    nameBtn.addEventListener('click', function () { st.open = st.open === o.id ? null : o.id; skSchoolTable(list, total); });
+    nameTd.appendChild(nameBtn);
+    tr.appendChild(nameTd);
     var tt = skEl('td'); tt.appendChild(skEl('span', 'tag', skDict('type', o.type))); tr.appendChild(tt);
     var sh = skEl('td', 'num share');
     var bar = skEl('div', 'bar'); bar.style.width = (max ? Math.max(2, o.value / max * 100) : 0) + '%'; sh.appendChild(bar);
     sh.appendChild(skEl('span', '', skRp(o.value) + '  (' + skPct(total ? o.value / total : 0) + ')'));
     tr.appendChild(sh);
     tr.appendChild(skEl('td', 'num', skRpFull(o.invoice)));
-    tr.appendChild(skEl('td', 'num', skRpFull(o.margin)));
-    tr.appendChild(skEl('td', 'num', skPct(o.invoice ? o.margin / o.invoice : 0)));
+    if (!SKD.inv) {
+      tr.appendChild(skEl('td', 'num', skRpFull(o.margin)));
+      tr.appendChild(skEl('td', 'num', skPct(o.invoice ? o.margin / o.invoice : 0)));
+    }
     tr.appendChild(skEl('td', 'num', skNum(o.count)));
     tr.appendChild(skEl('td', 'num', skDate(o.last)));
-    tr.appendChild(skEl('td', 'num' + (o.unpaid ? '' : ' muted'), o.unpaid ? skRpFull(o.unpaid) : '-'));
+    if (!SKD.inv) tr.appendChild(skEl('td', 'num' + (o.unpaid ? '' : ' muted'), o.unpaid ? skRpFull(o.unpaid) : '-'));
     tb.appendChild(tr);
+    if (st.open === o.id) tb.appendChild(skSchoolInvoices(o.id, cols.length));
   });
   table.appendChild(tb);
   document.getElementById('infoSchool').textContent = skNum(rows.length) + ' sekolah' + (q ? ' cocok dengan pencarian' : '');
+}
+
+// One school's invoices (current filters), newest first: date, number, items, value, and for
+// everyone but an investor whether it is paid.
+function skSchoolInvoices(id, span) {
+  var by = {}, list = [];
+  (SKD.schoolRows || []).forEach(function (r) {
+    if (r[SKI.SCHOOL] !== id) return;
+    var k = skInvKey(r), o = by[k];
+    if (!o) { o = by[k] = { date: r[SKI.DATE], inv: skDict('inv', r[SKI.INV]), amount: 0, paid: true, items: [] }; list.push(o); }
+    o.amount += r[SKI.INVOICE];
+    if (!r[SKI.LUNAS]) o.paid = false;
+    if (r[SKI.DATE] && (!o.date || r[SKI.DATE] < o.date)) o.date = r[SKI.DATE];
+    var it = skDict('item', r[SKI.ITEM]);
+    if (it) o.items.push(it + (r[SKI.QTY] ? ' (' + skNum(r[SKI.QTY]) + (r[SKI.UNIT] !== undefined ? ' ' + skDict('unit', r[SKI.UNIT]) : '') + ')' : ''));
+  });
+  list.sort(function (a, b) { return b.date - a.date; });
+  var tr = skEl('tr', 'sinv'), td = skEl('td');
+  td.colSpan = span;
+  var t = skEl('table'), head = skEl('tr');
+  ['Tanggal', 'No. invoice', 'Barang', 'Nilai'].concat(SKD.inv ? [] : ['Status']).forEach(function (h, i) { head.appendChild(skEl('th', i === 3 ? 'num' : '', h)); });
+  t.appendChild(head);
+  list.forEach(function (o) {
+    var r = skEl('tr');
+    r.appendChild(skEl('td', '', skDate(o.date)));
+    r.appendChild(skEl('td', '', o.inv || '-'));
+    r.appendChild(skEl('td', 'items', o.items.slice(0, 4).join(', ') + (o.items.length > 4 ? ' dan ' + (o.items.length - 4) + ' barang lain' : '')));
+    r.appendChild(skEl('td', 'num', skRpFull(o.amount)));
+    if (!SKD.inv) r.appendChild(skEl('td', '', o.paid ? 'Lunas' : 'Belum lunas'));
+    t.appendChild(r);
+  });
+  if (!list.length) { var e = skEl('tr'), c = skEl('td', 'muted', 'Tidak ada invoice untuk filter ini.'); c.colSpan = 5; e.appendChild(c); t.appendChild(e); }
+  td.appendChild(t);
+  tr.appendChild(td);
+  return tr;
 }
 
 // ---------- Aging invoice ----------
@@ -1681,6 +1743,10 @@ function skRenderData(rows) {
 // Returns the tab to open instead of the current one, '' when no tab is open to it, null otherwise.
 function skAccess(a) {
   SKD.allow = null;
+  // Investor (column Tab = Investor): sales value only; the server already zeroed cost, margin and payment.
+  SKD.inv = !!(a && a.investor);
+  if (SKD.inv) SKD.metric = 'invoice';
+  document.getElementById('kpis').classList.toggle('k2', SKD.inv);
   if (a && a.tabs) { SKD.allow = {}; a.tabs.forEach(function (t) { SKD.allow[t] = 1; }); }
   var first = null;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
@@ -1805,7 +1871,7 @@ function skHero(h) {
   hl.appendChild(document.createTextNode(h.prevOmzet ? ', ' + h.change + ' dari ' + h.prevLabel + '.' : '.'));
   var chips = document.getElementById('hchips');
   chips.textContent = '';
-  [['Margin ' + skRp(h.margin) + ' (' + skPct(h.pct) + ')'], [skNum(h.invoices) + ' invoice'], [skNum(h.newSchools) + ' sekolah baru']]
+  (h.margin === undefined ? [] : [['Margin ' + skRp(h.margin) + ' (' + skPct(h.pct) + ')']]).concat([[skNum(h.invoices) + ' invoice'], [skNum(h.newSchools) + ' sekolah baru']])
     .forEach(function (c) { chips.appendChild(skEl('span', 'hchip', c[0])); });
   document.getElementById('podTitle').textContent = 'Sekolah teratas ' + h.label;
   var pod = document.getElementById('podium');
