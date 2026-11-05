@@ -61,6 +61,7 @@ a{color:inherit}
 .brand small{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
 .tabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(15,23,42,.05);margin-left:8px;overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
+[hidden]{display:none!important}
 .tab{border:0;background:transparent;color:var(--ink2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .25s,color .25s,box-shadow .25s}
 .tab:hover{color:var(--ink)}
 .tab.on,.tab.on:hover{background:#fff;color:var(--brand-ink);box-shadow:0 2px 8px rgba(15,23,42,.12)}
@@ -885,6 +886,12 @@ function skOnData(p) {
   }
   SKD.P = p;
   SKD.rows = p.rows;
+  var firstTab = skAccess(p.access);
+  if (firstTab === '') {
+    skLoader(true, 'Belum ada bagian yang dibuka', 'Akun ' + who + ' sudah terdaftar, tetapi belum ada bagian dashboard yang dibuka. Minta Mas Firman mengisi kolom Tab di tab Akses Dashboard.');
+    document.querySelector('.lbar').style.display = 'none';
+    return;
+  }
   skLinks(p);
   skHero(p.hero);
   SKIN.cache = {};
@@ -894,7 +901,8 @@ function skOnData(p) {
   var y = {}, years;
   p.rows.forEach(function (r) { y[r[SKI.YEAR]] = 1; });
   years = Object.keys(y).sort();
-  document.getElementById('subtitle').textContent = 'Penjualan sekolah ' + years[0] + ' to ' + years[years.length - 1];
+  document.getElementById('subtitle').textContent = (p.access && p.access.sales ? 'Penjualan ' + p.access.sales + ' saja' : 'Penjualan sekolah') +
+    (years.length ? ' ' + years[0] + ' to ' + years[years.length - 1] : '');
   document.getElementById('updated').textContent = p.checked2026 ? 'Data 2026 dicek ' + p.checked2026 : 'Data siap';
   var banner = document.getElementById('banner');
   if (p.err2026) { banner.textContent = 'Data 2026 tidak bisa dibaca ulang (' + p.err2026 + '). Yang tampil adalah data 2026 terakhir yang tersimpan.'; banner.classList.add('on'); }
@@ -905,9 +913,10 @@ function skOnData(p) {
   document.getElementById('page').classList.remove('dim');
   document.getElementById('btnRefresh').classList.remove('spin');
   skLoader(false);
+  if (firstTab) skShowTab(firstTab);
   if (!SKD.linked) {
     SKD.linked = true;
-    skApOpen(true); // badge on the Approval tab
+    if (skMay('approval')) skApOpen(true); // badge on the Approval tab
     // ?tab=piutang (the button in the reminder email) opens the aging view directly
     try {
       google.script.url.getLocation(function (loc) {
@@ -1665,7 +1674,31 @@ function skRenderData(rows) {
 }
 
 // ---------- wiring ----------
+// ---------- access (web version only) ----------
+// p.access comes from the dashboard API (dashboard.sadyakersa.com): the tabs this email may open
+// (tabs null = all) and, when its data is limited to some sales people, their names. The server
+// already left out what this email may not see; this only hides the empty tabs.
+// Returns the tab to open instead of the current one, '' when no tab is open to it, null otherwise.
+function skAccess(a) {
+  SKD.allow = null;
+  if (a && a.tabs) { SKD.allow = {}; a.tabs.forEach(function (t) { SKD.allow[t] = 1; }); }
+  var first = null;
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
+    var name = t.getAttribute('data-tab'), ok = skMay(name);
+    t.hidden = !ok;
+    if (ok && first === null) first = name;
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-goto]'), function (b) { b.hidden = !skMay(b.getAttribute('data-goto')); });
+  if (!SKD.allow) return null;
+  if (first === null) return '';
+  if (skMay(SKD.tab)) return null;
+  SKD.tab = first; // so the first render skips the tabs this email cannot open
+  return first;
+}
+function skMay(name) { return !SKD.allow || !!SKD.allow[name]; }
+
 function skShowTab(name) {
+  if (!skMay(name)) return;
   SKD.tab = name;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) { t.classList.toggle('on', t.getAttribute('data-tab') === name); });
   Array.prototype.forEach.call(document.querySelectorAll('.view'), function (v) {
@@ -1756,6 +1789,8 @@ function skViewer(v) {
 }
 function skLinks(p) {
   var base = p.sheetUrl || '#';
+  // No link to the spreadsheet for an email the web version limits (it gets no sheetUrl).
+  ['btnSheet', 'btnData', 'btnCheck'].forEach(function (id) { document.getElementById(id).hidden = !p.sheetUrl; });
   document.getElementById('btnSheet').href = base;
   document.getElementById('btnData').href = base + '#gid=' + (p.gids ? p.gids.data : 0);
   document.getElementById('btnCheck').href = base + '#gid=' + (p.gids ? p.gids.check : 0);
@@ -2576,7 +2611,8 @@ function sktRenderTim(d) {
   skKpi(box, 'tim4', { label: 'Kegiatan dengan lokasi', icon: 'pct', bg: '#efeafb', fg: '#4a3aa7', value: t.acts30 ? t.gps30 / t.acts30 : 0, fmt: function (v) { return skPct(v, 0); },
     sub: [{ bold: skNum(t.photo30), after: ' dengan foto, 30 hari terakhir' }] }, 3);
 
-  document.getElementById('timTracker').href = d.trackerUrl;
+  document.getElementById('timTracker').href = d.trackerUrl || '#';
+  document.getElementById('timTracker').hidden = !d.trackerUrl;
   document.getElementById('timSub').textContent = 'Omzet dari order admin (tahun ' + d.today.slice(0, 4) + '), kegiatan dari aplikasi sales. Lewat tempo = belum lunas lebih dari ' + d.overdueDays + ' hari.';
   var tb = document.getElementById('tTim');
   tb.textContent = '';
