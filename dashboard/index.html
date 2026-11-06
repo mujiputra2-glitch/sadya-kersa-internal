@@ -233,17 +233,50 @@ a{color:inherit}
 .ins-loading{padding:60px 0;text-align:center;color:var(--muted);font-size:13px}
 .foot{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:18px;font-size:12px;color:var(--muted)}
 
-/* loader */
-.loader{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(242,245,249,.94);backdrop-filter:blur(6px);transition:opacity .4s}
-.loader.off{opacity:0;pointer-events:none}
-.lcard{text-align:center;max-width:440px;padding:0 20px}
-.lmark{width:68px;height:68px;margin:0 auto 18px;border-radius:20px;overflow:hidden;background:var(--brand);animation:pulse 1.6s ease-in-out infinite}
-@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(39,40,192,.35)}50%{transform:scale(1.06);box-shadow:0 0 0 16px rgba(39,40,192,0)}}
-.ltext{font-size:15px;font-weight:700}
-.lsub{font-size:12.5px;color:var(--muted);margin-top:6px;min-height:18px;line-height:1.5}
-.lbar{height:4px;border-radius:4px;background:#e2e8f0;overflow:hidden;margin-top:16px}
-.lbar i{display:block;height:100%;width:35%;border-radius:4px;background:linear-gradient(90deg,var(--brand),var(--brand2));animation:slide 1.2s ease-in-out infinite}
-@keyframes slide{from{transform:translateX(-110%)}to{transform:translateX(320%)}}
+/* loader: full-screen intro while the data loads (6 Nov, Muji: not boring). Twelve bars grow like a year
+   of monthly sales with this month in orange, the mark assembles from its pieces, and the line under the
+   steps creeps forward until the data is drawn; then the screen slides up. Every element's resting state
+   is its final state, so reduced motion (rule at the end) shows the same screen without movement. */
+.loader{position:fixed;inset:0;z-index:60;display:grid;place-items:center;overflow:hidden;background:var(--brand3);color:#fff;
+  transition:transform .75s cubic-bezier(.76,0,.24,1) .1s,visibility 0s linear .9s}
+.loader.off{transform:translateY(-100%);visibility:hidden;pointer-events:none}
+html:has(.loader:not(.off)){overflow:hidden}
+.lbars{position:absolute;left:0;right:0;bottom:0;height:46vh;display:flex;align-items:flex-end;gap:clamp(6px,1.2vw,16px);padding:0 clamp(16px,4vw,56px);transition:opacity .4s}
+.lbars i{flex:1;height:var(--h);border-radius:6px 6px 0 0;background:var(--brand);transform-origin:bottom;
+  animation:lgrow .7s cubic-bezier(.2,.9,.3,1.15) calc(var(--n) * 45ms) both,lbreathe calc(2.2s + var(--n) * 130ms) ease-in-out calc(.8s + var(--n) * 45ms) infinite alternate}
+.lbars i:last-child{background:var(--accent)}
+@keyframes lgrow{from{transform:scaleY(0)}}
+@keyframes lbreathe{to{transform:scaleY(.8)}}
+.lcard{position:relative;text-align:center;width:min(460px,100%);padding:0 16px;margin-bottom:12vh}
+.lmark{width:92px;height:92px;margin:0 auto 22px;border-radius:26px;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.2),0 24px 50px -18px rgba(0,0,0,.55);animation:lpop .8s cubic-bezier(.2,.9,.3,1.25) .15s both}
+.lmark svg{display:block;width:100%;height:100%}
+.lmark .lm-b{transform-box:fill-box;transform-origin:0 0;animation:lin-b .6s cubic-bezier(.2,.9,.3,1) .45s both}
+.lmark .lm-o{transform-box:fill-box;transform-origin:100% 100%;animation:lin-o .6s cubic-bezier(.2,.9,.3,1) .55s both}
+.lmark .lm-st{animation:lwipe .55s ease-out .75s both}
+@keyframes lpop{from{opacity:0;transform:scale(.5) rotate(-8deg)}}
+@keyframes lin-b{from{opacity:0;transform:translate(-45%,-45%)}}
+@keyframes lin-o{from{opacity:0;transform:translate(45%,45%)}}
+@keyframes lwipe{from{clip-path:inset(0 100% 0 0)}}
+.lword{display:flex;justify-content:center;font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.lword span{display:inline-block;animation:lletter .6s cubic-bezier(.2,.9,.3,1.2) calc(.8s + var(--n) * 40ms) both}
+.lword .sp{width:.26em}
+@keyframes lletter{from{opacity:0;transform:translateY(.6em) rotate(6deg)}}
+.ltext{font-size:14px;font-weight:600;color:rgba(255,255,255,.8);margin-top:8px;animation:lfade .5s ease 1.15s both}
+.lsub{font-size:13px;color:rgba(255,255,255,.8);margin-top:18px;min-height:20px;line-height:1.5;animation:lfade .5s ease 1.3s both}
+.lsub.swap{animation:lstep .45s ease both}
+@keyframes lfade{from{opacity:0;transform:translateY(8px)}}
+@keyframes lstep{from{opacity:0;transform:translateY(10px)}}
+.lbar{width:min(240px,70%);height:3px;margin:12px auto 0;border-radius:3px;background:rgba(255,255,255,.18);overflow:hidden;animation:lfade .5s ease 1.3s both}
+.lbar i{display:block;height:100%;border-radius:3px;background:#fff;transform-origin:left;transform:scaleX(var(--p,.06));transition:transform .45s ease}
+.loader.off .lbar i{transform:scaleX(1);transition-duration:.15s}
+/* A message instead of the intro (no access, error, no tab open): the steps stop and the text leads. */
+.loader.msg .lbars{opacity:.3}
+.loader.msg .ltext{font-size:20px;font-weight:800;color:#fff;margin-top:20px}
+.loader.msg .lsub{color:rgba(255,255,255,.88);margin-top:8px}
+.loader .lbtn2{border-color:rgba(255,255,255,.55);background:transparent;color:#fff}
+.loader .lbtn2.primary{background:#fff;border-color:#fff;color:var(--brand3);box-shadow:none}
+.loader .lerr{color:#ffd9cc}
+.loader .lnote{color:rgba(255,255,255,.75)}
 .lerr{color:var(--down);font-size:12.5px;margin-top:12px;white-space:pre-wrap}
 .lact{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
 .lact:empty{display:none}
@@ -382,14 +415,8 @@ a{color:inherit}
   .apt tbody td.it::before{display:none}
   .apt tfoot{display:none}
 }
-.tnote{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;font-size:13.5px;line-height:1.55;color:var(--ink2)}
-.tnote b{color:var(--ink)}
-.akbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 12px}
-.aksel{border:1px solid var(--line2);border-radius:11px;padding:7px 10px;font:inherit;font-size:12.5px;background:#fff;color:var(--ink)}
 .twrap td.wrap{white-space:normal;min-width:220px;max-width:420px;line-height:1.45}
 .twrap td a{color:var(--brand-ink);font-weight:600}
-.dotc{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:0}
-@media (max-width:760px){.akbar{gap:8px}.akbar .seg{overflow-x:auto;max-width:100%}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -418,8 +445,6 @@ a{color:inherit}
       <button class="tab" data-tab="insight">Insight bulanan</button>
       <button class="tab" data-tab="sekolah">Sekolah</button>
       <button class="tab" data-tab="piutang">Aging invoice<span class="count" id="piutangCount" hidden></span></button>
-      <button class="tab" data-tab="tim">Tim Sales</button>
-      <button class="tab" data-tab="aktivitas">Aktivitas</button>
       <button class="tab" data-tab="order">Input order</button>
       <button class="tab" data-tab="approval">Approval<span class="count" id="approvalCount" hidden></span></button>
       <button class="tab" data-tab="data">Data</button>
@@ -438,9 +463,9 @@ a{color:inherit}
   <h4>Cara angka dihitung</h4>
   <ul>
     <li><b>Invoice</b>: nilai invoice kotor (Qty x Harga), penjualan Barang.</li>
-    <li><b>Margin</b> 2023 to 2024: Nett - Cash Back - HPP. 2025: Nett - CB Sekolah - Insentif - CB Marketing - HPP. 2026: Net Invoice - CB Sekolah - CB Marketing - Insentif - HPP.</li>
-    <li>Setiap baris dihitung ulang dengan rumus barisnya sendiri di file asli. PPh 22 yang ditulis "0,5%" dibaca 0,5%.</li>
-    <li><b>Piutang</b>: invoice yang belum lunas. Umur = hari sejak tanggal transaksi.</li>
+    <li data-cost><b>Margin</b> 2023 to 2024: Nett - Cash Back - HPP. 2025: Nett - CB Sekolah - Insentif - CB Marketing - HPP. 2026: Net Invoice - CB Sekolah - CB Marketing - Insentif - HPP.</li>
+    <li data-cost>Setiap baris dihitung ulang dengan rumus barisnya sendiri di file asli. PPh 22 yang ditulis "0,5%" dibaca 0,5%.</li>
+    <li data-cost><b>Piutang</b>: invoice yang belum lunas. Umur = hari sejak tanggal transaksi.</li>
     <li>Tahun mengikuti tanggal transaksi. Perbandingan tahun lalu memakai periode yang sama.</li>
   </ul>
 </div>
@@ -565,45 +590,6 @@ a{color:inherit}
       <div class="pager"><span id="pageInfo"></span><button id="pgPrev">Sebelumnya</button><button id="pgNext">Berikutnya</button></div>
     </div>
   </section>
-  <section class="view" id="v-tim">
-    <div class="tnote" id="timNote" hidden></div>
-    <div id="timBody">
-      <div class="grid kpis k4" id="kpisTim"></div>
-      <div class="card" style="--i:4;margin-top:16px">
-        <div class="chead"><div><h3>Per sales</h3><p id="timSub">Memuat...</p></div>
-          <div class="right"><a class="lbtn" id="timTracker" target="_blank" rel="noopener" href="#">Buka Sales Tracker</a><button class="lbtn" id="timReload" type="button">Muat ulang</button></div></div>
-        <div class="twrap"><table id="tTim"></table></div>
-      </div>
-      <div class="grid half">
-        <div class="card" style="--i:5">
-          <div class="chead"><div><h3>Kegiatan per minggu</h3><p>8 minggu terakhir, minggu mulai Senin</p></div><div class="right legend" id="lgTimWeek"></div></div>
-          <div class="cbox short"><canvas id="cTimWeek"></canvas><div class="empty" id="eTimWeek">Belum ada kegiatan tercatat</div></div>
-        </div>
-        <div class="card" style="--i:6">
-          <div class="chead"><div><h3>Hasil kegiatan 30 hari</h3><p>Jumlah kegiatan per hasil yang dipilih sales</p></div></div>
-          <div class="twrap"><table id="tTimHasil"></table></div>
-        </div>
-      </div>
-      <div class="card" style="--i:7;margin-top:16px">
-        <div class="chead"><div><h3>Perlu dihubungi</h3><p id="timStaleSub"></p></div></div>
-        <div class="twrap"><table id="tTimStale"></table></div>
-      </div>
-      <div class="card" style="--i:8;margin-top:16px" id="timKabarCard" hidden>
-        <div class="chead"><div><h3>Kabar kebijakan minggu ini</h3><p>Otomatis dari judul berita (Google News) dengan saran tindakan untuk sales. Cek sumbernya sebelum bertindak.</p></div></div>
-        <div class="twrap"><table id="tTimKabar"></table></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="view" id="v-aktivitas">
-    <div class="tnote" id="akNote" hidden></div>
-    <div class="card" style="--i:0" id="akBody">
-      <div class="chead"><div><h3>Aktivitas sales</h3><p id="akSub">Memuat...</p></div><div class="right"><button class="lbtn" id="akReload" type="button">Muat ulang</button></div></div>
-      <div class="akbar"><div class="seg" id="akSales"></div><div class="seg" id="akPeriod"><button type="button" data-d="7">7 hari</button><button type="button" class="on" data-d="30">30 hari</button><button type="button" data-d="90">90 hari</button></div><select id="akJenis" class="aksel"></select></div>
-      <div class="twrap"><table id="tAk"></table></div>
-    </div>
-  </section>
-
   <section class="view" id="v-order">
     <div class="card" style="--i:0">
       <div class="chead"><div><h3>Input order</h3><p>Order masuk ke tab Approval dulu. Setelah disetujui, order tercatat di DB_Order dan Detail_Order file 2026 lalu tampil di dashboard.</p></div></div>
@@ -665,10 +651,12 @@ a{color:inherit}
 </div>
 
 <div class="loader" id="loader">
+  <div class="lbars" aria-hidden="true"><i style="--n:0;--h:36%"></i><i style="--n:1;--h:44%"></i><i style="--n:2;--h:40%"></i><i style="--n:3;--h:52%"></i><i style="--n:4;--h:47%"></i><i style="--n:5;--h:58%"></i><i style="--n:6;--h:54%"></i><i style="--n:7;--h:66%"></i><i style="--n:8;--h:61%"></i><i style="--n:9;--h:72%"></i><i style="--n:10;--h:68%"></i><i style="--n:11;--h:86%"></i></div>
   <div class="lcard">
-    <div class="lmark"><svg viewBox="26.24 136.16 106.04 106.04" aria-hidden="true"><path fill="#2728c0" d="M54.59 136.16L103.93 136.16C119.53 136.16 132.28 148.92 132.28 164.51L132.28 213.85C132.28 229.44 119.53 242.20 103.93 242.20L54.59 242.20C39.00 242.20 26.24 229.44 26.24 213.85L26.24 164.51C26.24 148.92 39.00 136.16 54.59 136.16"/><path fill="#3152bf" d="M59.64 136.16L57.05 161.73L26.24 184.02L26.24 164.51C26.24 148.92 39.00 136.16 54.59 136.16L59.64 136.16Z"/><path fill="#fb4305" d="M76.71 203.44L132.28 175.41L132.28 213.85C132.28 229.44 119.53 242.20 103.93 242.20L54.59 242.20C53.73 242.20 52.87 242.16 52.03 242.08L76.71 203.44Z"/><path fill="#ffffff" d="M81.74 183.00L112.71 183.00L112.71 195.36L112.71 195.36L95.28 195.36C94.28 195.36 93.45 196.19 93.45 197.19L93.45 197.19C93.45 198.19 94.28 199.02 95.28 199.02L112.71 199.02L112.71 219.16L96.81 219.16L96.81 203.25C96.81 202.25 95.99 201.43 94.99 201.43L94.99 201.43C93.98 201.43 93.16 202.25 93.16 203.25L93.16 219.16L77.26 219.16L77.26 195.36L45.81 195.36L45.81 188.30L45.81 183.35L67.66 183.35C68.67 183.35 69.49 182.53 69.49 181.53L69.49 181.53C69.49 180.52 68.67 179.70 67.66 179.70L45.81 179.70L45.81 159.21L81.74 159.21L81.74 171.69L59.89 171.69C58.88 171.69 58.06 172.51 58.06 173.52L58.06 173.52C58.06 174.52 58.88 175.34 59.89 175.34L81.74 175.34L81.74 183.00Z"/></svg></div>
-    <div class="ltext" id="ltext">Memuat dashboard</div>
-    <div class="lsub" id="lsub">Menyiapkan data penjualan...</div>
+    <div class="lmark"><svg viewBox="26.24 136.16 106.04 106.04" aria-hidden="true"><path fill="#2728c0" d="M54.59 136.16L103.93 136.16C119.53 136.16 132.28 148.92 132.28 164.51L132.28 213.85C132.28 229.44 119.53 242.20 103.93 242.20L54.59 242.20C39.00 242.20 26.24 229.44 26.24 213.85L26.24 164.51C26.24 148.92 39.00 136.16 54.59 136.16"/><path class="lm-b" fill="#3152bf" d="M59.64 136.16L57.05 161.73L26.24 184.02L26.24 164.51C26.24 148.92 39.00 136.16 54.59 136.16L59.64 136.16Z"/><path class="lm-o" fill="#fb4305" d="M76.71 203.44L132.28 175.41L132.28 213.85C132.28 229.44 119.53 242.20 103.93 242.20L54.59 242.20C53.73 242.20 52.87 242.16 52.03 242.08L76.71 203.44Z"/><path class="lm-st" fill="#ffffff" d="M81.74 183.00L112.71 183.00L112.71 195.36L112.71 195.36L95.28 195.36C94.28 195.36 93.45 196.19 93.45 197.19L93.45 197.19C93.45 198.19 94.28 199.02 95.28 199.02L112.71 199.02L112.71 219.16L96.81 219.16L96.81 203.25C96.81 202.25 95.99 201.43 94.99 201.43L94.99 201.43C93.98 201.43 93.16 202.25 93.16 203.25L93.16 219.16L77.26 219.16L77.26 195.36L45.81 195.36L45.81 188.30L45.81 183.35L67.66 183.35C68.67 183.35 69.49 182.53 69.49 181.53L69.49 181.53C69.49 180.52 68.67 179.70 67.66 179.70L45.81 179.70L45.81 159.21L81.74 159.21L81.74 171.69L59.89 171.69C58.88 171.69 58.06 172.51 58.06 173.52L58.06 173.52C58.06 174.52 58.88 175.34 59.89 175.34L81.74 175.34L81.74 183.00Z"/></svg></div>
+    <div class="lword" aria-hidden="true"><span style="--n:0">S</span><span style="--n:1">a</span><span style="--n:2">d</span><span style="--n:3">y</span><span style="--n:4">a</span><span class="sp"></span><span style="--n:6">K</span><span style="--n:7">e</span><span style="--n:8">r</span><span style="--n:9">s</span><span style="--n:10">a</span></div>
+    <div class="ltext" id="ltext" aria-live="polite">Dashboard penjualan sekolah</div>
+    <div class="lsub" id="lsub">Memeriksa akses akun</div>
     <div class="lbar"><i></i></div>
     <div class="lact" id="lact"></div>
     <div class="lerr" id="lerr"></div>
@@ -823,11 +811,31 @@ function skInvKey(r) {
 }
 
 // ---------- boot ----------
+// The intro: the steps change and the line creeps toward 92% while the data loads. skLoader(false)
+// fills the line and slides the screen up, after at least SKL.MIN ms from page load so the intro plays
+// once instead of flashing. A text turns the screen into a message (class msg) and stops the steps.
+var SKL = { t0: Date.now(), MIN: 1400, p: 0.06, n: 0, timer: null, out: null,
+  steps: ['Memeriksa akses akun', 'Mengambil data penjualan', 'Menghitung omzet per sekolah', 'Menyusun grafik dan ringkasan'] };
+function skLoaderTick() {
+  var l = document.getElementById('loader'), sub = document.getElementById('lsub');
+  SKL.p += (0.92 - SKL.p) * 0.06;
+  l.style.setProperty('--p', SKL.p.toFixed(3));
+  if (++SKL.n % 6) return;
+  sub.textContent = SKL.steps[(SKL.n / 6) % SKL.steps.length];
+  sub.classList.remove('swap'); void sub.offsetWidth; sub.classList.add('swap');
+}
+SKL.timer = setInterval(skLoaderTick, 300);
 function skLoader(on, text, sub) {
   var l = document.getElementById('loader');
-  if (text) document.getElementById('ltext').textContent = text;
+  clearTimeout(SKL.out);
+  if (text) {
+    clearInterval(SKL.timer);
+    l.classList.add('msg');
+    document.getElementById('ltext').textContent = text;
+  }
   if (sub !== undefined) document.getElementById('lsub').textContent = sub;
-  l.classList.toggle('off', !on);
+  if (on) { l.classList.remove('off'); return; }
+  SKL.out = setTimeout(function () { clearInterval(SKL.timer); l.classList.add('off'); }, Math.max(0, SKL.MIN - (Date.now() - SKL.t0)));
 }
 // Buttons + small note under the loader message (access and permission screens).
 function skLoaderActions(buttons, note) {
@@ -1747,6 +1755,7 @@ function skAccess(a) {
   SKD.inv = !!(a && a.investor);
   if (SKD.inv) SKD.metric = 'invoice';
   document.getElementById('kpis').classList.toggle('k2', SKD.inv);
+  Array.prototype.forEach.call(document.querySelectorAll('#pop [data-cost]'), function (li) { li.hidden = SKD.inv; });
   if (a && a.tabs) { SKD.allow = {}; a.tabs.forEach(function (t) { SKD.allow[t] = 1; }); }
   var first = null;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
@@ -1775,9 +1784,8 @@ function skShowTab(name) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   // The greeting lives on Ringkasan; the monthly insight covers the whole business, so no filters there.
   document.getElementById('hero').style.display = name === 'ringkasan' ? '' : 'none';
-  document.getElementById('filters').style.display = ['insight', 'order', 'approval', 'tim', 'aktivitas'].indexOf(name) >= 0 ? 'none' : '';
+  document.getElementById('filters').style.display = ['insight', 'order', 'approval'].indexOf(name) >= 0 ? 'none' : '';
   if (name === 'insight') { skLoadInsight(SKIN.ym); return; }
-  if (name === 'tim' || name === 'aktivitas') { sktOpen(false); return; }
   if (name === 'order') { skOrderOpen(); return; }
   if (name === 'approval') { if (SKA.data) skApRender(); skApOpen(); return; }
   if (SKD.P) skRender();
@@ -2606,237 +2614,6 @@ function skApVendors() {
     b.addEventListener('click', function () { skoSetKanal(b.getAttribute('data-k')); });
   });
   document.getElementById('apReload').addEventListener('click', function () { SKA.done = null; skApOpen(); });
-})();
-
-// ---------- Tim Sales + Aktivitas ----------
-// Data from getSalesTeam (Sales.js): the sales app's tracker, read as the viewer.
-var SKTM = { data: null, loading: false, err: '', sales: '', days: 30, jenis: '' };
-var SKT_COLORS = ['#2728c0', '#fb4305', '#2a78d6', '#4a3aa7', '#e87ba4', '#1baf7a'];
-var SKT_HASIL = ['Prospek', 'Tertarik', 'Minta penawaran', 'Negosiasi', 'Deal / order', 'Belum minat'];
-var SKT_HASIL_TAG = { 'Deal / order': 'ok', 'Belum minat': 'no', 'Minta penawaran': 'warn', 'Negosiasi': 'warn' };
-function sktColor(name) {
-  var i = SKTM.data && SKTM.data.salesNames ? SKTM.data.salesNames.indexOf(name) : -1;
-  return i >= 0 ? SKT_COLORS[i % SKT_COLORS.length] : '#94a3b8';
-}
-function sktOpen(force) {
-  if (SKTM.data && !force) { sktRender(); return; }
-  if (SKTM.loading) return;
-  SKTM.loading = true;
-  document.getElementById('timSub').textContent = 'Memuat...';
-  document.getElementById('akSub').textContent = 'Memuat...';
-  google.script.run.withSuccessHandler(function (d) {
-    SKTM.loading = false; SKTM.data = d; SKTM.err = ''; sktRender();
-  }).withFailureHandler(function (e) {
-    SKTM.loading = false; SKTM.err = skoMsg(e); sktRender();
-  }).getSalesTeam();
-}
-function sktNote(title, text, link) {
-  ['timNote', 'akNote'].forEach(function (id) {
-    var n = document.getElementById(id);
-    n.textContent = '';
-    n.hidden = !title;
-    if (!title) return;
-    n.appendChild(skEl('b', '', title));
-    n.appendChild(document.createElement('br'));
-    n.appendChild(document.createTextNode(text));
-    if (link) { n.appendChild(document.createTextNode(' ')); var a = skEl('a', '', link.text); a.href = link.href; a.target = '_blank'; a.rel = 'noopener'; n.appendChild(a); }
-  });
-  document.getElementById('timBody').hidden = !!title;
-  document.getElementById('akBody').hidden = !!title;
-}
-function sktRender() {
-  var d = SKTM.data;
-  if (SKTM.err) { sktNote('Data tim sales gagal dimuat', SKTM.err + '. Tekan Muat ulang atau coba beberapa menit lagi.'); return; }
-  if (!d) return;
-  if (d.noAccess) {
-    sktNote('Akun ini belum punya akses ke Sales Tracker',
-      'Tab ini membaca file Sales Tracker dari aplikasi sales. Minta Mas Muji membagikan file itu ke akun ini, lalu buka ulang dashboard.',
-      { text: 'Buka aplikasi sales', href: d.appUrl });
-    return;
-  }
-  sktNote('');
-  if (SKD.tab === 'tim') sktRenderTim(d);
-  if (SKD.tab === 'aktivitas') sktRenderAk(d);
-}
-function sktHead(table, cols) {
-  var tr = skEl('tr');
-  cols.forEach(function (c) { tr.appendChild(skEl('th', c.num ? 'num' : '', c.label)); });
-  var th = skEl('thead'); th.appendChild(tr); table.appendChild(th);
-}
-function sktCell(tr, text, cls) { var td = skEl('td', cls || '', text); tr.appendChild(td); return td; }
-function sktSince(n) { return n === null ? 'belum pernah' : n === 0 ? 'hari ini' : skNum(n) + ' hari lalu'; }
-
-function sktRenderTim(d) {
-  var t = d.totals, box = document.getElementById('kpisTim');
-  skKpi(box, 'tim1', { label: 'Kegiatan minggu ini', icon: 'count', bg: '#ececfb', fg: '#2728c0', value: t.actsWeek, fmt: function (v) { return skNum(Math.round(v)); },
-    sub: [{ bold: skNum(t.actsMonth), after: ' kegiatan bulan ini' }] }, 0);
-  skKpi(box, 'tim2', { label: 'Sekolah dikunjungi bulan ini', icon: 'school', bg: '#e8f0fc', fg: '#1c5cab', value: t.visitedMonth, fmt: function (v) { return skNum(Math.round(v)); },
-    sub: [{ text: 'dari ', bold: skNum(t.salesSchools), after: ' sekolah pegangan sales' }] }, 1);
-  skKpi(box, 'tim3', { label: 'Sekolah merah', icon: 'ar', bg: '#fbeaea', fg: '#b42323', value: t.red, fmt: function (v) { return skNum(Math.round(v)); },
-    sub: [{ text: 'lebih dari ' + d.redDays + ' hari tanpa kegiatan' }] }, 2);
-  skKpi(box, 'tim4', { label: 'Kegiatan dengan lokasi', icon: 'pct', bg: '#efeafb', fg: '#4a3aa7', value: t.acts30 ? t.gps30 / t.acts30 : 0, fmt: function (v) { return skPct(v, 0); },
-    sub: [{ bold: skNum(t.photo30), after: ' dengan foto, 30 hari terakhir' }] }, 3);
-
-  document.getElementById('timTracker').href = d.trackerUrl || '#';
-  document.getElementById('timTracker').hidden = !d.trackerUrl;
-  document.getElementById('timSub').textContent = 'Omzet dari order admin (tahun ' + d.today.slice(0, 4) + '), kegiatan dari aplikasi sales. Lewat tempo = belum lunas lebih dari ' + d.overdueDays + ' hari.';
-  var tb = document.getElementById('tTim');
-  tb.textContent = '';
-  sktHead(tb, [{ label: 'Sales' }, { label: 'Sekolah', num: true }, { label: 'Omzet ' + d.today.slice(0, 4), num: true }, { label: 'Bulan ini', num: true },
-    { label: 'Lewat tempo', num: true }, { label: 'Kegiatan minggu ini', num: true }, { label: 'Kegiatan bulan ini', num: true },
-    { label: 'Sekolah dikunjungi', num: true }, { label: 'Sekolah merah', num: true }, { label: 'Tindak lanjut lewat', num: true }, { label: 'Kontak PIC', num: true }, { label: 'Kegiatan terakhir' }, { label: 'Masuk aplikasi' }]);
-  var body = skEl('tbody');
-  d.rows.forEach(function (r) {
-    var tr = skEl('tr'), nm = sktCell(tr, '');
-    var dot = skEl('span', 'dotc'); dot.style.background = r.sales ? sktColor(r.name) : '#cbd5e1';
-    nm.appendChild(dot); nm.appendChild(document.createTextNode(r.name));
-    sktCell(tr, skNum(r.schools), 'num');
-    sktCell(tr, skRp(r.omzetYear), 'num');
-    sktCell(tr, skRp(r.omzetMonth), 'num');
-    var od = sktCell(tr, '', 'num');
-    od.appendChild(skEl('span', 'tag ' + (r.overdue > 0 ? 'no' : 'ok'), r.overdue > 0 ? skRp(r.overdue) : 'Rp 0'));
-    if (r.sales) {
-      sktCell(tr, skNum(r.actsWeek), 'num');
-      sktCell(tr, skNum(r.actsMonth), 'num');
-      sktCell(tr, skNum(r.visitedMonth), 'num');
-      var red = sktCell(tr, '', 'num');
-      red.appendChild(skEl('span', 'tag ' + (r.red ? 'no' : 'ok'), skNum(r.red)));
-      var fl = sktCell(tr, '', 'num');
-      fl.appendChild(skEl('span', 'tag ' + (r.followLate ? 'warn' : 'ok'), skNum(r.followLate || 0)));
-      sktCell(tr, r.schools ? skPct((r.withPhone || 0) / r.schools, 0) : '-', 'num');
-      sktCell(tr, r.lastAct ? skoStamp(r.lastAct) : 'belum ada');
-      sktCell(tr, r.lastLogin ? skoStamp(r.lastLogin) : 'belum pernah');
-    } else {
-      for (var i = 0; i < 8; i++) sktCell(tr, i < 6 ? '-' : '', i < 6 ? 'num' : '');
-    }
-    body.appendChild(tr);
-  });
-  tb.appendChild(body);
-
-  var labels = d.weeks.map(function (w) { var p = w.split('-'); return +p[2] + ' ' + SK_MONTHS[+p[1] - 1]; });
-  var total = 0, sets = d.salesNames.map(function (n) {
-    var data = d.perWeek[n] || [];
-    data.forEach(function (x) { total += x; });
-    return { label: n, data: data, backgroundColor: sktColor(n), borderRadius: 4, maxBarThickness: 26 };
-  });
-  var lg = document.getElementById('lgTimWeek');
-  lg.textContent = '';
-  d.salesNames.forEach(function (n) { var s = skEl('span'), i = skEl('i'); i.style.background = sktColor(n); s.appendChild(i); s.appendChild(document.createTextNode(n)); lg.appendChild(s); });
-  skEmpty('eTimWeek', !total);
-  var y = skScale(false);
-  y.beginAtZero = true; y.ticks.precision = 0;
-  skMakeOrUpdate('cTimWeek', {
-    type: 'bar',
-    data: { labels: labels, datasets: sets },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: skTooltip() },
-      scales: { x: { grid: { display: false }, border: { color: '#d8dde6' }, ticks: { color: '#475569' } }, y: y } }
-  });
-
-  var th = document.getElementById('tTimHasil');
-  th.textContent = '';
-  sktHead(th, [{ label: 'Sales' }].concat(SKT_HASIL.map(function (h) { return { label: h, num: true }; })).concat([{ label: 'Total', num: true }]));
-  var hb = skEl('tbody');
-  d.salesNames.forEach(function (n) {
-    var h = d.hasil[n] || {}, tr = skEl('tr'), sum = 0;
-    sktCell(tr, n);
-    SKT_HASIL.forEach(function (k) { sum += h[k] || 0; sktCell(tr, h[k] ? skNum(h[k]) : '-', 'num'); });
-    sktCell(tr, skNum(sum), 'num');
-    hb.appendChild(tr);
-  });
-  th.appendChild(hb);
-
-  var st = document.getElementById('tTimStale');
-  st.textContent = '';
-  document.getElementById('timStaleSub').textContent = d.stale.length
-    ? skNum(d.stale.length) + ' sekolah pegangan sales tanpa kegiatan lebih dari ' + d.redDays + ' hari' + (d.stale.length > 40 ? ', 40 teratas ditampilkan' : '')
-    : 'Semua sekolah pegangan sales sudah dihubungi dalam ' + d.redDays + ' hari terakhir';
-  sktHead(st, [{ label: 'Sekolah' }, { label: 'Sales' }, { label: 'Kontak terakhir' }, { label: 'Omzet ' + d.today.slice(0, 4), num: true }, { label: 'Lewat tempo', num: true }]);
-  var sb = skEl('tbody');
-  d.stale.slice(0, 40).forEach(function (s) {
-    var tr = skEl('tr');
-    sktCell(tr, s.name); sktCell(tr, s.sales); sktCell(tr, sktSince(s.since));
-    sktCell(tr, skRp(s.omzetYear), 'num'); sktCell(tr, s.overdue ? skRp(s.overdue) : '-', 'num');
-    sb.appendChild(tr);
-  });
-  st.appendChild(sb);
-
-  var kc = document.getElementById('timKabarCard'), kt = document.getElementById('tTimKabar');
-  kc.hidden = !(d.kabar && d.kabar.length);
-  kt.textContent = '';
-  if (d.kabar && d.kabar.length) {
-    sktHead(kt, [{ label: 'Kategori' }, { label: 'Berita' }, { label: 'Saran tindakan' }, { label: 'Tanggal' }]);
-    var kb = skEl('tbody');
-    d.kabar.forEach(function (k) {
-      var tr = skEl('tr');
-      var c = sktCell(tr, ''); c.appendChild(skEl('span', 'tag warn', k.cat));
-      var t = sktCell(tr, '', 'wrap'), a = skEl('a', '', k.title); a.href = k.link; a.target = '_blank'; a.rel = 'noopener'; t.appendChild(a);
-      t.appendChild(skEl('div', 'muted', k.source));
-      sktCell(tr, k.action, 'wrap');
-      sktCell(tr, k.date ? skoIso(k.date) : '-');
-      kb.appendChild(tr);
-    });
-    kt.appendChild(kb);
-  }
-}
-
-function sktRenderAk(d) {
-  var names = d.salesNames.slice();
-  d.acts.forEach(function (a) { if (names.indexOf(a.sales) < 0) names.push(a.sales); });
-  var seg = document.getElementById('akSales');
-  seg.textContent = '';
-  [''].concat(names).forEach(function (n) {
-    var b = skEl('button', SKTM.sales === n ? 'on' : '', n || 'Semua');
-    b.type = 'button';
-    b.addEventListener('click', function () { SKTM.sales = n; sktRenderAk(SKTM.data); });
-    seg.appendChild(b);
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('#akPeriod button'), function (b) { b.classList.toggle('on', +b.getAttribute('data-d') === SKTM.days); });
-  var sel = document.getElementById('akJenis'), kinds = [];
-  d.acts.forEach(function (a) { if (kinds.indexOf(a.jenis) < 0) kinds.push(a.jenis); });
-  sel.textContent = '';
-  [''].concat(kinds).forEach(function (k) { var o = skEl('option', '', k || 'Semua jenis'); o.value = k; if (k === SKTM.jenis) o.selected = true; sel.appendChild(o); });
-
-  var p = d.today.split('-'), from = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] - SKTM.days + 1)).toISOString().slice(0, 10);
-  var list = d.acts.filter(function (a) {
-    return a.date >= from && (!SKTM.sales || a.sales === SKTM.sales) && (!SKTM.jenis || a.jenis === SKTM.jenis);
-  });
-  var schools = {};
-  list.forEach(function (a) { schools[a.key] = true; });
-  document.getElementById('akSub').textContent = list.length
-    ? skNum(list.length) + ' kegiatan di ' + skNum(Object.keys(schools).length) + ' sekolah, ' + SKTM.days + ' hari terakhir' + (list.length > 300 ? ' (300 terbaru ditampilkan)' : '')
-    : 'Belum ada kegiatan di periode ini';
-  var tb = document.getElementById('tAk');
-  tb.textContent = '';
-  sktHead(tb, [{ label: 'Waktu' }, { label: 'Sales' }, { label: 'Sekolah' }, { label: 'Jenis' }, { label: 'Hasil' }, { label: 'Catatan' }, { label: 'Bukti' }]);
-  var body = skEl('tbody');
-  list.slice(0, 300).forEach(function (a) {
-    var tr = skEl('tr');
-    sktCell(tr, skoStamp(a.at));
-    var nm = sktCell(tr, ''), dot = skEl('span', 'dotc');
-    dot.style.background = sktColor(a.sales); nm.appendChild(dot); nm.appendChild(document.createTextNode(a.sales));
-    sktCell(tr, a.school);
-    sktCell(tr, a.jenis);
-    var h = sktCell(tr, ''); h.appendChild(skEl('span', 'tag ' + (SKT_HASIL_TAG[a.hasil] || ''), a.hasil));
-    sktCell(tr, a.note || '-', 'wrap');
-    var pr = sktCell(tr, '');
-    [[a.map, 'Lokasi'], [a.photo, 'Foto']].forEach(function (x, i) {
-      if (!x[0]) return;
-      if (pr.childNodes.length) pr.appendChild(document.createTextNode('  '));
-      var l = skEl('a', '', x[1]); l.href = x[0]; l.target = '_blank'; l.rel = 'noopener'; pr.appendChild(l);
-    });
-    if (!pr.childNodes.length) pr.textContent = '-';
-    body.appendChild(tr);
-  });
-  tb.appendChild(body);
-}
-
-(function () {
-  document.getElementById('timReload').addEventListener('click', function () { sktOpen(true); });
-  document.getElementById('akReload').addEventListener('click', function () { sktOpen(true); });
-  Array.prototype.forEach.call(document.querySelectorAll('#akPeriod button'), function (b) {
-    b.addEventListener('click', function () { SKTM.days = +b.getAttribute('data-d'); if (SKTM.data) sktRenderAk(SKTM.data); });
-  });
-  document.getElementById('akJenis').addEventListener('change', function (e) { SKTM.jenis = e.target.value; if (SKTM.data) sktRenderAk(SKTM.data); });
 })();
 
 skdGate();
