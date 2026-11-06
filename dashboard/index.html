@@ -1211,6 +1211,18 @@ function skRenderSummary(rows) {
 }
 
 // ---------- charts ----------
+// Chart.js comes from cdnjs. When it did not load (offline, or blocked by an ad blocker or a network
+// filter) nothing below can run, so the intro turns into a message instead of animating forever.
+if (typeof Chart === 'undefined') {
+  skLoader(true, 'Grafik tidak bisa dimuat', 'Bagian grafik dashboard tidak terunduh dari cdnjs.cloudflare.com. Periksa koneksi internet. ' +
+    'Jika memakai pemblokir iklan, izinkan halaman ini. Lalu muat ulang.');
+  document.querySelector('.lbar').style.display = 'none';
+  var skReload = skEl('button', 'lbtn2 primary', 'Muat ulang');
+  skReload.type = 'button';
+  skReload.addEventListener('click', function () { location.reload(); });
+  document.getElementById('lact').appendChild(skReload);
+  throw new Error('Chart.js did not load; dashboard stopped with a message.');
+}
 Chart.defaults.font.family = '"Plus Jakarta Sans", system-ui, sans-serif';
 Chart.defaults.font.size = 11.5;
 Chart.defaults.color = '#8a94a6';
