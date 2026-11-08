@@ -417,6 +417,21 @@ html:has(.loader:not(.off)){overflow:hidden}
 }
 .twrap td.wrap{white-space:normal;min-width:220px;max-width:420px;line-height:1.45}
 .twrap td a{color:var(--brand-ink);font-weight:600}
+/* Aplikasi tab (7 Nov): what the sales app and SNAPP record */
+.axhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.axhead .info{font-size:12.5px;color:var(--ink2)}
+.axhead .lbtn{margin-left:auto}
+.axbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 12px}
+.axbar .search{flex:1 1 220px}
+.axsel{border:1px solid var(--line2);border-radius:11px;padding:7px 10px;font:inherit;font-size:12.5px;background:#fff;color:var(--ink)}
+.axnote{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;font-size:13.5px;line-height:1.55;color:var(--ink2);margin-bottom:16px}
+.axnote b{color:var(--ink)}
+.axdemo{font-size:13px;color:#7a4a00;background:#fff4e0;border:1px solid #f3d9a8;border-radius:14px;padding:12px 16px;margin-bottom:16px;line-height:1.5}
+.axdemo b{color:#5c3700}
+.dotc{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:0}
+.twrap td .sub2{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.twrap td.issues{white-space:normal;min-width:200px;max-width:340px;line-height:1.45}
+@media (max-width:760px){.axbar{gap:8px}.axbar .seg,.axhead .seg,#axSnSeg{overflow-x:auto;max-width:100%}#axSnSeg button{white-space:nowrap}.axhead .lbtn{margin-left:0}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -448,6 +463,7 @@ html:has(.loader:not(.off)){overflow:hidden}
       <button class="tab" data-tab="order">Input order</button>
       <button class="tab" data-tab="approval">Approval<span class="count" id="approvalCount" hidden></span></button>
       <button class="tab" data-tab="data">Data</button>
+      <button class="tab" data-tab="aplikasi">Aplikasi</button>
     </nav>
     <div class="tbr">
       <span class="pill" id="updated">Memuat...</span>
@@ -588,6 +604,43 @@ html:has(.loader:not(.off)){overflow:hidden}
       </div>
       <div class="twrap" style="max-height:620px"><table id="tblData"></table></div>
       <div class="pager"><span id="pageInfo"></span><button id="pgPrev">Sebelumnya</button><button id="pgNext">Berikutnya</button></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-aplikasi">
+    <div class="axhead">
+      <div class="seg" id="axSrc"><button class="on" type="button" data-src="sales">Aplikasi sales</button><button type="button" data-src="snapp">SNAPP (sekolah)</button></div>
+      <span class="info" id="axInfo">Memuat...</span>
+      <button class="lbtn" id="axReload" type="button">Muat ulang</button>
+    </div>
+    <div class="axnote" id="axNote" hidden></div>
+    <div id="axSales">
+      <div class="grid kpis k4" id="kpisAxSales"></div>
+      <div class="card" style="--i:4;margin-top:16px">
+        <div class="chead"><div><h3>Kegiatan sales</h3><p id="axActSub">Semua kunjungan, telepon dan presentasi yang dicatat sales di aplikasi.</p></div></div>
+        <div class="axbar">
+          <div class="seg" id="axPeople"></div>
+          <div class="seg" id="axPeriod"><button type="button" data-d="7">7 hari</button><button type="button" class="on" data-d="30">30 hari</button><button type="button" data-d="90">90 hari</button><button type="button" data-d="180">180 hari</button></div>
+          <select id="axJenis" class="axsel" aria-label="Jenis kegiatan"></select>
+          <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="axQ" placeholder="Cari sekolah atau catatan..."></label>
+        </div>
+        <div class="twrap" style="max-height:620px"><table id="tAxActs"></table></div>
+      </div>
+      <div class="card" style="--i:5;margin-top:16px">
+        <div class="chead"><div><h3>Sekolah baru dari aplikasi</h3><p id="axAddSub">Sekolah prospek yang ditambahkan sales lewat aplikasi.</p></div></div>
+        <div class="twrap"><table id="tAxAdded"></table></div>
+      </div>
+    </div>
+    <div id="axSnapp" hidden>
+      <div class="axdemo" id="axDemo" hidden></div>
+      <div class="grid kpis k4" id="kpisAxSnapp"></div>
+      <div class="card" style="--i:4;margin-top:16px">
+        <div class="tools">
+          <div class="seg" id="axSnSeg"><button type="button" class="on" data-sn="sj">Surat jalan</button><button type="button" data-sn="verif">Konfirmasi invoice</button><button type="button" data-sn="files">File dari sekolah</button><button type="button" data-sn="schools">Akun sekolah</button></div>
+          <span class="info" id="axSnInfo"></span>
+        </div>
+        <div class="twrap" style="max-height:620px"><table id="tAxSn"></table></div>
+      </div>
     </div>
   </section>
   <section class="view" id="v-order">
@@ -1796,8 +1849,9 @@ function skShowTab(name) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   // The greeting lives on Ringkasan; the monthly insight covers the whole business, so no filters there.
   document.getElementById('hero').style.display = name === 'ringkasan' ? '' : 'none';
-  document.getElementById('filters').style.display = ['insight', 'order', 'approval'].indexOf(name) >= 0 ? 'none' : '';
+  document.getElementById('filters').style.display = ['insight', 'order', 'approval', 'aplikasi'].indexOf(name) >= 0 ? 'none' : '';
   if (name === 'insight') { skLoadInsight(SKIN.ym); return; }
+  if (name === 'aplikasi') { skAxOpen(false); return; }
   if (name === 'order') { skOrderOpen(); return; }
   if (name === 'approval') { if (SKA.data) skApRender(); skApOpen(); return; }
   if (SKD.P) skRender();
@@ -2626,6 +2680,343 @@ function skApVendors() {
     b.addEventListener('click', function () { skoSetKanal(b.getAttribute('data-k')); });
   });
   document.getElementById('apReload').addEventListener('click', function () { SKA.done = null; skApOpen(); });
+})();
+
+// ---------- Aplikasi (7 Nov, Firman: "data hasil inputan di apps baik sales, dan snapp bisa kita lihat") ----------
+// getAppData (Sales.js): visits and new schools from the Sales Tracker, SNAPP rows from Database
+// Pelanggan. Until a real school uses SNAPP its view shows sample rows under a clear "contoh" note
+// (Muji promised Firman a look at it before the first school).
+var SKAX = { data: null, loading: false, err: '', src: 'sales', who: '', days: 30, jenis: '', q: '', sn: 'sj', sample: null };
+var SKAX_COLORS = ['#2728c0', '#fb4305', '#2a78d6', '#4a3aa7', '#e87ba4', '#1baf7a'];
+var SKAX_HASIL_TAG = { 'Deal / order': 'ok', 'Belum minat': 'no', 'Minta penawaran': 'warn', 'Negosiasi': 'warn' };
+var SKAX_AREAS = { Bandung: 'Kota Bandung', Cimahi: 'Kota Cimahi', Kab: 'Kab. Bandung', KBB: 'Bandung Barat' };
+var SKAX_IN_PERSON = ['Kunjungan', 'Presentasi', 'Negosiasi'];
+var SKAX_SJ_TAG = { Diterima: 'ok', Dikirim: 'warn', Batal: 'no' };
+
+function skAxOpen(force) {
+  if (SKAX.data && !force) { skAxRender(); return; }
+  if (SKAX.loading) return;
+  SKAX.loading = true;
+  document.getElementById('axInfo').textContent = 'Memuat data aplikasi...';
+  google.script.run.withSuccessHandler(function (d) {
+    SKAX.loading = false; SKAX.data = d || {}; SKAX.err = ''; skAxRender();
+  }).withFailureHandler(function (e) {
+    SKAX.loading = false; SKAX.err = skoMsg(e); skAxRender();
+  }).getAppData();
+}
+function skAxNote(title, text) {
+  var n = document.getElementById('axNote');
+  n.textContent = '';
+  n.hidden = !title;
+  if (!title) return;
+  n.appendChild(skEl('b', '', title));
+  n.appendChild(document.createElement('br'));
+  n.appendChild(document.createTextNode(text));
+}
+function skAxRender() {
+  var d = SKAX.data, sales = SKAX.src === 'sales';
+  Array.prototype.forEach.call(document.querySelectorAll('#axSrc button'), function (b) { b.classList.toggle('on', b.getAttribute('data-src') === SKAX.src); });
+  document.getElementById('axSales').hidden = !sales;
+  document.getElementById('axSnapp').hidden = sales;
+  if (SKAX.err) {
+    skAxNote('Data aplikasi gagal dimuat', SKAX.err + '. Tekan Muat ulang atau coba beberapa menit lagi.');
+    document.getElementById('axSales').hidden = document.getElementById('axSnapp').hidden = true;
+    document.getElementById('axInfo').textContent = '';
+    return;
+  }
+  if (!d) return;
+  var part = sales ? d.sales : d.snapp;
+  if (!part || part.error) {
+    skAxNote(sales ? 'Data aplikasi sales belum bisa dibaca' : 'Data SNAPP belum bisa dibaca',
+      'File ' + (sales ? 'Sales Tracker' : 'Database Pelanggan') + ' tidak bisa dibuka dari akun ini' + (part && part.error ? ' (' + part.error + ')' : '') +
+      '. Buka dashboard lewat dashboard.sadyakersa.com, atau minta Mas Muji membagikan file itu.');
+    document.getElementById(sales ? 'axSales' : 'axSnapp').hidden = true;
+    document.getElementById('axInfo').textContent = '';
+    return;
+  }
+  skAxNote('');
+  if (sales) skAxSales(d); else skAxSnapp(d);
+}
+function skAxShift(iso, n) { var p = iso.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + n)).toISOString().slice(0, 10); }
+function skAxWeek(iso) {
+  var p = String(iso).split('-'), d = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2]));
+  return skAxShift(iso, -((d.getUTCDay() + 6) % 7));
+}
+function skAxHead(table, cols) {
+  var tr = skEl('tr');
+  cols.forEach(function (c) { tr.appendChild(skEl('th', /^#/.test(c) ? 'num' : '', c.replace(/^#/, ''))); });
+  var th = skEl('thead'); th.appendChild(tr); table.appendChild(th);
+}
+function skAxCell(tr, text, cls) { var td = skEl('td', cls || '', text); tr.appendChild(td); return td; }
+function skAxSub(td, text) { if (text) td.appendChild(skEl('span', 'sub2', text)); return td; }
+function skAxTag(td, cls, text) { td.appendChild(skEl('span', 'tag ' + (cls || ''), text)); return td; }
+function skAxLink(td, href, text) { var a = skEl('a', '', text); a.href = href; a.target = '_blank'; a.rel = 'noopener'; td.appendChild(a); return a; }
+function skAxEmpty(body, cols, text) { var tr = skEl('tr'), td = skEl('td', 'muted', text); td.colSpan = cols; tr.appendChild(td); body.appendChild(tr); }
+function skAxN(v) { return skNum(Math.round(v)); }
+
+function skAxSales(d) {
+  var s = d.sales, acts = s.acts || [], names = [], today = d.today;
+  acts.forEach(function (a) { if (a.sales && names.indexOf(a.sales) < 0) names.push(a.sales); });
+  (s.added || []).forEach(function (x) { if (x.sales && names.indexOf(x.sales) < 0) names.push(x.sales); });
+  names.sort();
+  if (SKAX.who && names.indexOf(SKAX.who) < 0) SKAX.who = '';
+  var seg = document.getElementById('axPeople');
+  seg.textContent = '';
+  seg.hidden = names.length < 2;
+  [''].concat(names).forEach(function (n) {
+    var b = skEl('button', SKAX.who === n ? 'on' : '', n || 'Semua sales');
+    b.type = 'button';
+    b.addEventListener('click', function () { SKAX.who = n; skAxSales(SKAX.data); });
+    seg.appendChild(b);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#axPeriod button'), function (b) { b.classList.toggle('on', +b.getAttribute('data-d') === SKAX.days); });
+  var kinds = [], sel = document.getElementById('axJenis');
+  acts.forEach(function (a) { if (a.jenis && kinds.indexOf(a.jenis) < 0) kinds.push(a.jenis); });
+  if (SKAX.jenis && kinds.indexOf(SKAX.jenis) < 0) SKAX.jenis = '';
+  sel.textContent = '';
+  [''].concat(kinds).forEach(function (k) { var o = skEl('option', '', k || 'Semua jenis'); o.value = k; o.selected = k === SKAX.jenis; sel.appendChild(o); });
+
+  var from = skAxShift(today, -(SKAX.days - 1)), q = SKAX.q.trim().toLowerCase();
+  var mine = acts.filter(function (a) { return !SKAX.who || a.sales === SKAX.who; });
+  var inPeriod = mine.filter(function (a) { return a.date >= from; });
+  var list = inPeriod.filter(function (a) { return (!SKAX.jenis || a.jenis === SKAX.jenis) && (!q || (a.school + ' ' + a.note).toLowerCase().indexOf(q) >= 0); });
+
+  // Number cards follow the person and the period (not the type or the search).
+  var schools = {}, newest = {};
+  inPeriod.forEach(function (a) { schools[a.key] = 1; });
+  // A follow-up counts on the school's newest activity only, as in the sales app.
+  mine.forEach(function (a) { var c = newest[a.key]; if (!c || a.at > c.at) newest[a.key] = a; });
+  var plans = Object.keys(newest).map(function (k) { return newest[k]; }).filter(function (a) { return a.follow; });
+  var late = plans.filter(function (a) { return a.follow < today; });
+  var visits = inPeriod.filter(function (a) { return SKAX_IN_PERSON.indexOf(a.jenis) >= 0; });
+  var deals = inPeriod.filter(function (a) { return a.hasil === 'Deal / order'; });
+  var wk = skAxWeek(today), weeks = [];
+  for (var i = 7; i >= 0; i--) weeks.push(skAxShift(wk, -7 * i));
+  var spark = weeks.map(function (w) { return mine.filter(function (a) { return skAxWeek(a.date) === w; }).length; });
+  var box = document.getElementById('kpisAxSales');
+  skKpi(box, 'ax1', { label: 'Kegiatan ' + SKAX.days + ' hari', icon: 'count', bg: '#ececfb', fg: '#1e1f9c', value: inPeriod.length, fmt: skAxN, spark: spark,
+    sub: [{ text: 'di ', bold: skNum(Object.keys(schools).length), after: ' sekolah' }] }, 0);
+  skKpi(box, 'ax2', { label: 'Kunjungan langsung', icon: 'school', bg: '#fdf4dc', fg: '#8a5d00', value: visits.length, fmt: skAxN,
+    sub: [{ bold: skNum(visits.filter(function (a) { return a.photo; }).length), after: ' dengan foto' }] }, 1);
+  skKpi(box, 'ax3', { label: 'Deal / order', icon: 'margin', bg: '#e5f5ec', fg: '#1a7f4b', value: deals.length, fmt: skAxN,
+    sub: [{ bold: skNum(deals.filter(function (a) { return a.ordered; }).length), after: ' sudah diinput admin' }] }, 2);
+  skKpi(box, 'ax4', { label: 'Tindak lanjut terlewat', icon: 'ar', bg: '#fdeee7', fg: '#b4471c', value: late.length, fmt: skAxN,
+    sub: [{ text: 'dari ', bold: skNum(plans.length), after: ' rencana tindak lanjut' }] }, 3);
+
+  var shown = {};
+  list.forEach(function (a) { shown[a.key] = 1; });
+  document.getElementById('axActSub').textContent = list.length
+    ? skNum(list.length) + ' kegiatan di ' + skNum(Object.keys(shown).length) + ' sekolah, ' + SKAX.days + ' hari terakhir' + (list.length > 400 ? ' (400 terbaru ditampilkan)' : '')
+    : 'Belum ada kegiatan untuk pilihan ini.';
+  var tb = document.getElementById('tAxActs');
+  tb.textContent = '';
+  skAxHead(tb, ['Waktu', 'Sales', 'Sekolah', 'Jenis', 'Hasil', 'Catatan', 'Tindak lanjut', 'Bukti']);
+  var body = skEl('tbody');
+  list.slice(0, 400).forEach(function (a) {
+    var tr = skEl('tr');
+    skAxCell(tr, skoStamp(a.at));
+    var nm = skAxCell(tr, ''), dot = skEl('span', 'dotc');
+    dot.style.background = SKAX_COLORS[names.indexOf(a.sales) % SKAX_COLORS.length] || '#94a3b8';
+    nm.appendChild(dot); nm.appendChild(document.createTextNode(a.sales || '-'));
+    skAxCell(tr, a.school);
+    skAxCell(tr, a.jenis);
+    var h = skAxTag(skAxCell(tr, ''), SKAX_HASIL_TAG[a.hasil], a.hasil);
+    if (a.hasil === 'Deal / order') skAxSub(h, a.ordered ? 'Order sudah diinput admin' : 'Order belum diinput admin');
+    skAxCell(tr, a.note || '-', 'wrap');
+    var f = skAxCell(tr, a.follow ? skoIso(a.follow) : '-');
+    if (a.follow && a.follow < today && newest[a.key] === a) { f.appendChild(document.createTextNode(' ')); skAxTag(f, 'no', 'terlewat'); }
+    var pr = skAxCell(tr, '');
+    if (a.map) skAxLink(pr, a.map, 'Lokasi');
+    if (a.photo) { if (a.map) pr.appendChild(document.createTextNode('  ')); skAxLink(pr, a.photo, 'Foto'); }
+    if (!a.map && !a.photo) pr.textContent = '-';
+    body.appendChild(tr);
+  });
+  if (!list.length) skAxEmpty(body, 8, 'Belum ada kegiatan untuk pilihan ini.');
+  tb.appendChild(body);
+
+  var added = (s.added || []).filter(function (x) { return !SKAX.who || x.sales === SKAX.who; });
+  document.getElementById('axAddSub').textContent = added.length
+    ? skNum(added.length) + ' sekolah prospek ditambahkan sales lewat aplikasi.'
+    : 'Belum ada sekolah yang ditambahkan lewat aplikasi.';
+  var ta = document.getElementById('tAxAdded');
+  ta.textContent = '';
+  skAxHead(ta, ['Sekolah', 'Jenjang', 'Wilayah', 'Sales', '#Jumlah siswa', 'PIC', 'Ditambah oleh', 'Diubah']);
+  var ab = skEl('tbody');
+  added.forEach(function (x) {
+    var tr = skEl('tr');
+    skAxCell(tr, x.name);
+    skAxCell(tr, x.type || '-');
+    skAxCell(tr, SKAX_AREAS[x.area] || x.area || '-');
+    skAxCell(tr, x.sales || 'Belum ada sales');
+    skAxCell(tr, x.students ? skNum(x.students) : '-', 'num');
+    skAxCell(tr, x.pic ? (x.phone ? 'Nama dan nomor ada' : 'Nama ada, nomor belum') : 'Belum diisi', x.pic ? '' : 'muted');
+    skAxCell(tr, x.by);
+    skAxCell(tr, x.changed ? skoIso(x.changed) : '-');
+    ab.appendChild(tr);
+  });
+  if (!added.length) skAxEmpty(ab, 8, 'Belum ada sekolah yang ditambahkan lewat aplikasi.');
+  ta.appendChild(ab);
+  document.getElementById('axInfo').textContent = 'Dari aplikasi sales, ' + (s.days || 180) + ' hari terakhir. Akun uji dan sekolah contoh Google Play tidak dihitung.' +
+    (s.more ? ' ' + skNum(s.more) + ' kegiatan lebih lama tidak dimuat.' : '');
+}
+
+function skAxSnapp(d) {
+  var real = d.snapp, today = d.today;
+  var empty = !['schools', 'sjs', 'verifs', 'files'].some(function (k) { return real[k] && real[k].length; });
+  var s = empty ? (SKAX.sample || (SKAX.sample = skAxSample(today))) : real;
+  var demo = document.getElementById('axDemo');
+  demo.textContent = '';
+  demo.hidden = !empty;
+  if (empty) {
+    demo.appendChild(skEl('b', '', 'Contoh tampilan, bukan data asli. '));
+    demo.appendChild(document.createTextNode('Belum ada sekolah yang memakai SNAPP, jadi angka dan tabel di bawah memakai sekolah contoh. ' +
+      'Begitu sekolah pertama masuk SNAPP, data asli langsung menggantikannya.'));
+  }
+  var d30 = skAxShift(today, -29) + ' 00:00';
+  var live = s.sjs.filter(function (x) { return x.status !== 'Batal'; });
+  var checked = live.filter(function (x) { return x.checked; }), trouble = checked.filter(function (x) { return x.issues.length; });
+  var bad = s.verifs.filter(function (v) { return v.status === 'Tidak sesuai'; });
+  var withLogin = s.schools.filter(function (x) { return x.login; });
+  var box = document.getElementById('kpisAxSnapp');
+  skKpi(box, 'sn1', { label: 'Sekolah punya akun', icon: 'school', bg: '#fdf4dc', fg: '#8a5d00', value: withLogin.length, fmt: skAxN,
+    sub: [{ bold: skNum(withLogin.filter(function (x) { return x.lastLogin && x.lastLogin >= d30; }).length), after: ' masuk 30 hari terakhir' }] }, 0);
+  skKpi(box, 'sn2', { label: 'Surat jalan', icon: 'invoice', bg: '#e8f0fc', fg: '#1c5cab', value: live.length, fmt: skAxN,
+    sub: [{ bold: skNum(live.filter(function (x) { return x.status === 'Dikirim'; }).length), after: ' di jalan' },
+      { bold: skNum(live.filter(function (x) { return x.status === 'Diterima'; }).length), after: ' diterima' }] }, 1);
+  skKpi(box, 'sn3', { label: 'Barang bermasalah', icon: 'ar', bg: '#fdeee7', fg: '#b4471c', value: trouble.length, fmt: skAxN,
+    sub: [{ text: 'dari ', bold: skNum(checked.length), after: ' surat jalan yang dicek sekolah' }] }, 2);
+  skKpi(box, 'sn4', { label: 'Invoice tidak sesuai', icon: 'count', bg: '#efeafb', fg: '#4a3aa7', value: bad.length, fmt: skAxN,
+    sub: [{ bold: skNum(bad.filter(function (v) { return !v.answered; }).length), after: ' belum ditanggapi' },
+      { bold: skNum(s.verifs.length - bad.length), after: ' sesuai' }] }, 3);
+
+  var counts = { sj: s.sjs.length, verif: s.verifs.length, files: s.files.length, schools: s.schools.length };
+  var labels = { sj: 'Surat jalan', verif: 'Konfirmasi invoice', files: 'File dari sekolah', schools: 'Akun sekolah' };
+  Array.prototype.forEach.call(document.querySelectorAll('#axSnSeg button'), function (b) {
+    var k = b.getAttribute('data-sn');
+    b.textContent = labels[k] + ' (' + skNum(counts[k]) + ')';
+    b.classList.toggle('on', k === SKAX.sn);
+  });
+  var tb = document.getElementById('tAxSn'), body = skEl('tbody');
+  tb.textContent = '';
+  if (SKAX.sn === 'sj') {
+    skAxHead(tb, ['No. surat jalan', 'Sekolah', 'No. invoice', 'Tanggal kirim', 'Status', 'Dikirim', 'Diterima sekolah', 'Cek barang oleh sekolah', 'Catatan sekolah']);
+    s.sjs.forEach(function (x) {
+      var tr = skEl('tr');
+      skAxSub(skAxCell(tr, x.no), skNum(x.items) + ' barang');
+      skAxCell(tr, x.school);
+      skAxCell(tr, x.inv || '-');
+      skAxCell(tr, x.date ? skoIso(x.date) : '-');
+      skAxTag(skAxCell(tr, ''), SKAX_SJ_TAG[x.status], x.status);
+      skAxSub(skAxCell(tr, x.sent ? skoStamp(x.sent) : '-'), x.sent ? 'oleh ' + (x.sentBy || '-') + (x.photo ? ', foto bukti ada' : ', tanpa foto') : '');
+      skAxSub(skAxCell(tr, x.got ? skoStamp(x.got) : '-'), x.got ? 'oleh ' + (x.gotBy || '-') : '');
+      var c = skAxCell(tr, '', 'issues');
+      if (!x.checked) c.textContent = '-';
+      else if (!x.issues.length) skAxTag(c, 'ok', 'Sesuai semua');
+      else { skAxTag(c, 'no', x.issues.length + ' barang tidak sesuai'); skAxSub(c, x.issues.join('; ')); }
+      skAxCell(tr, x.schoolNote || '-', 'wrap');
+      body.appendChild(tr);
+    });
+    if (!s.sjs.length) skAxEmpty(body, 9, 'Belum ada surat jalan.');
+  } else if (SKAX.sn === 'verif') {
+    skAxHead(tb, ['No. invoice', 'Sekolah', 'Hasil cek sekolah', 'Waktu', 'Catatan sekolah', 'Tanggapan admin']);
+    s.verifs.forEach(function (v) {
+      var tr = skEl('tr');
+      skAxCell(tr, v.inv);
+      skAxCell(tr, v.school);
+      skAxSub(skAxTag(skAxCell(tr, ''), v.status === 'Sesuai' ? 'ok' : 'no', v.status || '-'), v.by ? 'oleh ' + v.by : '');
+      skAxCell(tr, v.at ? skoStamp(v.at) : '-');
+      skAxCell(tr, v.note || '-', 'wrap');
+      var a = skAxCell(tr, '', 'wrap');
+      if (v.answered) { a.appendChild(document.createTextNode(v.answer || '-')); skAxSub(a, skoStamp(v.answered) + (v.answeredBy ? ', ' + v.answeredBy : '')); }
+      else if (v.status === 'Tidak sesuai') skAxTag(a, 'warn', 'Belum ditanggapi');
+      else a.textContent = '-';
+      body.appendChild(tr);
+    });
+    if (!s.verifs.length) skAxEmpty(body, 6, 'Belum ada invoice yang dicek sekolah.');
+  } else if (SKAX.sn === 'files') {
+    skAxHead(tb, ['Waktu', 'Sekolah', 'File', 'Jenis', '#Ukuran', 'Catatan sekolah', 'Status']);
+    s.files.forEach(function (f) {
+      var tr = skEl('tr');
+      skAxSub(skAxCell(tr, skoStamp(f.at)), f.by ? 'oleh ' + f.by : '');
+      skAxCell(tr, f.school);
+      var fc = skAxCell(tr, '');
+      if (f.url) skAxLink(fc, f.url, f.name); else fc.textContent = f.name;
+      skAxCell(tr, f.kind || '-');
+      skAxCell(tr, f.kb >= 1024 ? skNum(f.kb / 1024, 1) + ' MB' : skNum(f.kb) + ' KB', 'num');
+      skAxCell(tr, f.note || '-', 'wrap');
+      var st = skAxCell(tr, '');
+      if (f.status === 'Diproses') skAxSub(skAxTag(st, 'ok', 'Diproses'), f.done ? skoStamp(f.done) + (f.doneBy ? ', ' + f.doneBy : '') : '');
+      else skAxTag(st, 'warn', f.status || 'Baru');
+      body.appendChild(tr);
+    });
+    if (!s.files.length) skAxEmpty(body, 7, 'Belum ada file dari sekolah.');
+  } else {
+    skAxHead(tb, ['Sekolah', 'Akun SNAPP', 'PIC', 'Masuk terakhir', 'Profil', 'Diubah']);
+    s.schools.forEach(function (x) {
+      var tr = skEl('tr');
+      skAxCell(tr, x.name);
+      var ac = skAxCell(tr, '');
+      if (!x.login) skAxTag(ac, '', 'Belum dibuat'); else skAxTag(ac, x.active ? 'ok' : 'no', x.active ? 'Aktif' : 'Nonaktif');
+      skAxSub(skAxCell(tr, x.pic || 'Belum diisi', x.pic ? '' : 'muted'), x.role);
+      skAxCell(tr, x.lastLogin ? skoStamp(x.lastLogin) : 'Belum pernah', x.lastLogin ? '' : 'muted');
+      skAxCell(tr, 'Alamat ' + (x.address ? 'ada' : 'belum') + ', rekening ' + (x.bank ? 'ada' : 'belum'));
+      skAxSub(skAxCell(tr, x.changed ? skoStamp(x.changed) : '-'), x.changedBy ? 'oleh ' + x.changedBy : '');
+      body.appendChild(tr);
+    });
+    if (!s.schools.length) skAxEmpty(body, 6, 'Belum ada sekolah yang punya akun SNAPP.');
+  }
+  tb.appendChild(body);
+  document.getElementById('axSnInfo').textContent = empty ? 'Data contoh' : '';
+  document.getElementById('axInfo').textContent = empty ? 'Contoh tampilan SNAPP. Sekolah contoh Google Play tidak dihitung.'
+    : 'Dari SNAPP, aplikasi sekolah. Sekolah contoh Google Play tidak dihitung.';
+}
+
+// Sample rows for the SNAPP view (fictional schools, dates counted back from today).
+function skAxSample(today) {
+  var at = function (n, hm) { return skAxShift(today, -n) + ' ' + (hm || '10:15'); };
+  var names = ['SDN Contoh Melati 1', 'SDN Contoh Kenanga 4', 'SMPN Contoh 12', 'SMPN Contoh 27', 'SMAN Contoh 3', 'SMKN Contoh Teknik 2', 'SD Contoh Harapan', 'SMP Contoh Bina Insani'];
+  var pics = ['Bu Rina', 'Pak Dedi', 'Bu Sari', 'Pak Andi', 'Bu Wulan', 'Pak Hadi', 'Bu Tati', 'Pak Yusuf'];
+  var schools = names.map(function (n, i) {
+    return { key: 'contoh' + i, name: n, login: i < 7, active: i !== 5, pic: i < 7 ? pics[i] : '', role: i < 7 ? (i % 2 ? 'Bendahara BOS' : 'Kepala Sekolah') : '',
+      address: i < 6, bank: i < 4, lastLogin: i < 6 ? at(i * 4, '09:2' + i) : '', changed: at(i * 4 + 1, '11:40'), changedBy: i < 6 ? pics[i] : 'Admin' };
+  });
+  var st = ['Diterima', 'Diterima', 'Diterima', 'Dikirim', 'Dikirim', 'Disiapkan', 'Diterima', 'Diterima', 'Batal', 'Diterima'];
+  var sjs = st.map(function (status, i) {
+    var sc = schools[i % 6], got = status === 'Diterima', sent = got || status === 'Dikirim';
+    var issues = i === 1 ? ['Kursi siswa: kurang 2'] : i === 6 ? ['Proyektor: rusak 1'] : [];
+    return { no: 'SJ-CONTOH-' + (110 - i), created: at(i * 2 + 2, '08:30'), by: 'Admin', key: sc.key, school: sc.name, inv: 'INV-CONTOH-' + (510 - i),
+      date: skAxShift(today, -(i * 2 + 1)), items: 2 + (i % 4), status: status, sent: sent ? at(i * 2 + 1, '13:10') : '', sentBy: sent ? 'Admin' : '', photo: sent,
+      got: got ? at(i * 2, '10:05') : '', gotBy: got ? sc.pic : '', schoolNote: issues.length ? 'Mohon kekurangannya dikirim minggu ini.' : '', checked: got, issues: issues };
+  });
+  var verifs = [
+    { inv: 'INV-CONTOH-510', school: names[0], status: 'Sesuai', at: at(0, '10:20'), by: pics[0], note: '', answered: '', answeredBy: '', answer: '' },
+    { inv: 'INV-CONTOH-509', school: names[1], status: 'Tidak sesuai', at: at(2, '10:12'), by: pics[1], note: 'Kursi kurang 2, nilai invoice belum dikurangi.', answered: at(1, '15:02'), answeredBy: 'Admin', answer: 'Kursi dikirim Kamis, invoice tetap.' },
+    { inv: 'INV-CONTOH-508', school: names[2], status: 'Sesuai', at: at(4, '09:48'), by: pics[2], note: '', answered: '', answeredBy: '', answer: '' },
+    { inv: 'INV-CONTOH-504', school: names[0], status: 'Tidak sesuai', at: at(12, '08:55'), by: pics[0], note: 'Harga proyektor beda dengan penawaran.', answered: '', answeredBy: '', answer: '' },
+    { inv: 'INV-CONTOH-503', school: names[3], status: 'Sesuai', at: at(14, '13:30'), by: pics[3], note: '', answered: '', answeredBy: '', answer: '' }];
+  var files = [
+    { at: at(0, '08:41'), school: names[4], name: 'Daftar kebutuhan lab IPA.xlsx', kind: 'Excel', kb: 48, url: '', note: 'Untuk anggaran BOS tahap 2.', by: pics[4], status: 'Baru', done: '', doneBy: '' },
+    { at: at(3, '14:05'), school: names[2], name: 'Surat pesanan meja kursi.pdf', kind: 'PDF', kb: 312, url: '', note: '', by: pics[2], status: 'Diproses', done: at(2, '09:10'), doneBy: 'Admin' },
+    { at: at(6, '10:30'), school: names[6], name: 'Foto ruang kelas.jpg', kind: 'Gambar', kb: 2150, url: '', note: 'Ukuran ruangan untuk lemari.', by: pics[6], status: 'Diproses', done: at(5, '16:22'), doneBy: 'Admin' },
+    { at: at(9, '09:15'), school: names[1], name: 'RKAS 2027 sarana.xlsx', kind: 'Excel', kb: 96, url: '', note: '', by: pics[1], status: 'Baru', done: '', doneBy: '' }];
+  return { schools: schools, sjs: sjs, verifs: verifs, files: files };
+}
+
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('#axSrc button'), function (b) {
+    b.addEventListener('click', function () { SKAX.src = b.getAttribute('data-src'); skAxRender(); });
+  });
+  document.getElementById('axReload').addEventListener('click', function () { skAxOpen(true); });
+  // Filters only redraw once the data is in; until then they just remember the choice.
+  var redraw = function () { if (SKAX.data && !SKAX.err) skAxRender(); };
+  Array.prototype.forEach.call(document.querySelectorAll('#axPeriod button'), function (b) {
+    b.addEventListener('click', function () { SKAX.days = +b.getAttribute('data-d'); redraw(); });
+  });
+  document.getElementById('axJenis').addEventListener('change', function (e) { SKAX.jenis = e.target.value; redraw(); });
+  document.getElementById('axQ').addEventListener('input', function (e) { SKAX.q = e.target.value; redraw(); });
+  Array.prototype.forEach.call(document.querySelectorAll('#axSnSeg button'), function (b) {
+    b.addEventListener('click', function () { SKAX.sn = b.getAttribute('data-sn'); redraw(); });
+  });
 })();
 
 skdGate();
