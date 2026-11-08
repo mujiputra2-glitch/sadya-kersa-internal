@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.2","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.3","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -360,6 +360,97 @@
   #main.anim .rise { animation: rise .45s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 55ms); }
   @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
   @media (prefers-reduced-motion: reduce) { #main.anim .rise { animation: none; } .tile { transition: none; } }
+
+  :root { --bg: #F1F4FC; --line: #E2E6F4; }
+  body { background: linear-gradient(180deg, #E3EAFB 0, #F1F4FC 340px) no-repeat, var(--bg); }
+  .top { background: transparent; color: var(--ink); padding: 16px 16px 10px; }
+  .top h1 { color: var(--ink); font-size: 23px; }
+  .top .sub { color: var(--muted); }
+  .iconbtn { background: #fff; border: 0; color: var(--teal); box-shadow: 0 3px 10px rgba(39, 40, 192, .12); }
+  .back { color: var(--teal2); }
+  .top.homebar { background: transparent; padding-bottom: 42px; }
+  .top.homebar::before { left: auto; right: -80px; top: -110px; width: 260px; height: 260px; border-radius: 50%; clip-path: none; background: radial-gradient(circle, rgba(49, 82, 191, .20), rgba(49, 82, 191, 0) 68%); }
+  .top.homebar::after { right: auto; left: -70px; top: auto; bottom: -60px; width: 200px; height: 200px; border-radius: 50%; clip-path: none; background: radial-gradient(circle, rgba(251, 67, 5, .10), rgba(251, 67, 5, 0) 68%); }
+  .top.homebar h1 { font-size: 25px; }
+  .mark { box-shadow: 0 4px 14px rgba(39, 40, 192, .28); }
+
+  .card, .item, .float, .sech { border: 1px solid rgba(226, 230, 244, .9); box-shadow: 0 6px 20px rgba(39, 40, 192, .07); }
+  .card, .float { border-radius: 20px; }
+  .item { border-radius: 16px; }
+  .act { border-left: 4px solid var(--teal); }
+  .news { border-left: 4px solid var(--orange); }
+  .caption { color: var(--ink); letter-spacing: .4px; }
+  .caption svg { width: 18px; height: 18px; vertical-align: -3px; margin-right: 6px; color: var(--teal); }
+  .caption.fcap svg { color: var(--orange); }
+
+  .stats .si { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; margin: 0 auto 6px; border-radius: 12px; background: var(--tint); color: var(--teal); }
+  .stats .si.o { background: #FFF1E4; color: #D9730D; }
+  .stats .warn .si { background: #FDE7E7; color: var(--red); }
+  .stats .si svg { width: 20px; height: 20px; }
+  .stats b { font-size: 17px; }
+  .focus .acts.one { flex-wrap: nowrap; gap: 6px; }
+  .focus .acts.one .btn { flex: 1 1 0; min-width: 0; padding: 4px 6px; font-size: 14px; gap: 4px; }
+  .focus .acts.one .btn svg { width: 17px; height: 17px; }
+  .kwhy.kmets > div.kmet { gap: 10px; padding: 10px; }
+  .kwhy.kmets i.mi { width: 40px; height: 40px; }
+  .kwhy.kmets .kmet strong { font-size: 20px; }
+
+  .sth { position: relative; flex: none; width: 48px; height: 48px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #DFE6FF, #F2F5FF); color: var(--teal); }
+  .sth svg { width: 24px; height: 24px; }
+  .sth .dot { position: absolute; top: -4px; left: -4px; width: 14px; height: 14px; border: 2px solid #fff; }
+  .focus .head { gap: 12px; }
+  .focus .tag.amber { background: #FDE7E7; color: #B42318; }
+  .focus .acts .btn { background: #fff; border: 1.5px solid #C9D1F2; color: var(--teal); }
+  .focus .acts .btn:first-child { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+  .tiles.t3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .tiles.t3 .tile { align-items: center; text-align: center; min-height: 116px; padding: 14px 6px 12px; gap: 6px; border: 1px solid rgba(226, 230, 244, .9); }
+  .tiles.t3 .tile b { font-size: 14px; }
+  .tiles.t3 .tile span { font-size: 12.5px; }
+  .tile .ic { width: 44px; height: 44px; border-radius: 14px; }
+  @media (max-width: 340px) { .tiles.t3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tiles.t3 .tile { display: flex; } .tiles.t3 .tile .ic { grid-row: auto; } }
+
+  .item.srow2 { gap: 12px; }
+  .item.srow2 .t .tl { margin-top: 4px; }
+  .item.srow2 .t .mt svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; }
+  .item .chev { flex: none; display: inline-flex; color: var(--grey); margin-left: -4px; }
+  .item .chev svg { width: 18px; height: 18px; }
+  .tier.tA { background: #E2E8FF; color: var(--teal2); }
+  .tier.tB { background: #FFEBD9; color: #9A3B00; }
+  .tier.tC { background: #DDF3E4; color: #13642F; }
+
+  .chip { border-color: #D5DBF0; }
+  .chips.sel .chip { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .chips.sel .chip svg { flex: none; width: 20px; height: 20px; color: var(--teal); }
+  .chips.sel .chip.on, .chips.opt .chip.on { background: var(--tint); border-color: var(--teal); color: var(--teal); }
+  .chips.opt .chip { display: flex; align-items: center; gap: 10px; text-align: left; font-size: 15px; padding: 10px 12px; }
+  .chips.opt .chip::before { content: ''; flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid #BFC5DE; background: #fff; box-sizing: border-box; }
+  .chips.opt .chip.on::before { border-color: var(--teal); background: var(--teal) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center / 12px no-repeat; }
+  .photo .btn { flex: 1; flex-direction: column; gap: 4px; min-height: 96px; border: 1.5px dashed #A9B6E8; background: #F4F7FF; color: var(--teal); }
+  #geoNote { background: #fff; border: 1px solid var(--line); }
+
+  .nav { border-top: 0; border-radius: 22px 22px 0 0; box-shadow: 0 -6px 24px rgba(39, 40, 192, .10); padding-top: 8px; }
+  .nav button.on { background: transparent; color: var(--teal); }
+  .nav button.add { background: transparent; color: var(--teal); }
+  .nav button.add svg { width: 56px; height: 56px; padding: 14px; margin-top: -30px; border: 4px solid #fff; border-radius: 50%; background: var(--teal); color: #fff; box-shadow: 0 8px 18px rgba(39, 40, 192, .35); }
+
+  .kbig { display: flex; align-items: center; justify-content: center; gap: 10px; width: fit-content; min-width: 62%; margin: 2px auto 6px; padding: 12px 24px; border-radius: 999px; font-size: 23px; font-weight: 800; background: var(--tint); color: var(--teal2); }
+  .kbig svg { width: 30px; height: 30px; }
+  .kbig.g { background: linear-gradient(135deg, #D8F4E2, #C2ECD2); color: #13642F; }
+  .kbig.r { background: linear-gradient(135deg, #FDE7E7, #FAD3D0); color: #B42318; }
+  .kstat > p { text-align: center; }
+  .kwhy.kmets > div.kmet { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; margin-top: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+  .kwhy.kmets i.mi { width: 46px; height: 46px; border-radius: 50%; background: var(--tint); color: var(--teal); }
+  .kwhy.kmets i.mi svg { width: 24px; height: 24px; }
+  .kwhy.kmets .kmet.ok i.mi { background: #DDF3E4; color: #13642F; }
+  .kwhy.kmets .kmet.mid i.mi { background: #FFF1E4; color: #B85C00; }
+  .kwhy.kmets .kmet.no i.mi { background: #FDE7E7; color: #B42318; }
+  .kwhy.kmets .kmet b { display: block; font-size: 16px; }
+  .kwhy.kmets .kmet strong { font-size: 22px; font-weight: 800; color: var(--ink); white-space: nowrap; }
+  .kwhy.kmets .kmet.no strong { color: #B42318; }
+  .float.kfc { background: linear-gradient(135deg, #E7EEFF, #F6F8FF); }
+  .caption.kcap svg { color: #E09600; }
+  .float.kpay { background: linear-gradient(135deg, #FFF4E6, #FFFBF5); border-color: #FBE3C6; }
 </style>
 </head>
 <body>
@@ -420,8 +511,19 @@ var SKA_ICON = {
   right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
   box: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/></svg>',
   web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 21h8"/></svg>',
-  award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.6 13.8L7 22l5-3 5 3-1.6-8.2"/></svg>'
+  award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.6 13.8L7 22l5-3 5 3-1.6-8.2"/></svg>',
+  // 2.0 look (8 Nov 2026): icons for the numbers, the visit types and the KPI cards.
+  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.6-3.4 8.3-8 9-4.6-.7-8-4.4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8C10.5 4 6 4.5 7.5 7.2 8.2 8 12 8 12 8zM12 8c1.5-4 6-3.5 4.5-.8C15.8 8 12 8 12 8z"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 21h8M9.5 18h5"/></svg>',
+  wallet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1z"/><path d="M4 7l11-3v3M16 13.5h.01"/></svg>',
+  board: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M7 12l3-3 2 2 4-4"/></svg>',
+  talk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11v8H8l-4 3z"/><path d="M15 9h5v8l-3-2h-6v-2"/></svg>',
+  flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c-3.9 0-7-2.7-7-6.6 0-3.6 2.6-5.6 3.9-8.4.5 1.9 1.6 3 2.6 3.6C12 6.8 13 4.6 12.6 3c3.6 2.3 6.4 6 6.4 11.4 0 3.9-3.1 6.6-7 6.6z"/></svg>'
 };
+var SKA_JENIS_ICON = { 'Kunjungan': 'team', 'Telepon/WA': 'phone', 'Presentasi': 'board', 'Negosiasi': 'talk' };
+// A school's picture in lists: a building in a tinted square with its colour dot on the corner.
+function schoolThumb(color) { return '<span class="sth">' + SKA_ICON.school + '<span class="dot ' + esc(color || 'grey') + '"></span></span>'; }
 // The app mark from the brand sheet (aplikasi sadya.pdf, 5 Nov 2026): blue square, orange corner, white ST.
 var SKA_MARK = '<svg viewBox="26.24 136.16 106.04 106.04" aria-hidden="true"><path fill="#2728c0" d="M54.59 136.16L103.93 136.16C119.53 136.16 132.28 148.92 132.28 164.51L132.28 213.85C132.28 229.44 119.53 242.20 103.93 242.20L54.59 242.20C39.00 242.20 26.24 229.44 26.24 213.85L26.24 164.51C26.24 148.92 39.00 136.16 54.59 136.16"/><path fill="#3152bf" d="M59.64 136.16L57.05 161.73L26.24 184.02L26.24 164.51C26.24 148.92 39.00 136.16 54.59 136.16L59.64 136.16Z"/><path fill="#fb4305" d="M76.71 203.44L132.28 175.41L132.28 213.85C132.28 229.44 119.53 242.20 103.93 242.20L54.59 242.20C53.73 242.20 52.87 242.16 52.03 242.08L76.71 203.44Z"/><path fill="#ffffff" d="M81.74 183.00L112.71 183.00L112.71 195.36L112.71 195.36L95.28 195.36C94.28 195.36 93.45 196.19 93.45 197.19L93.45 197.19C93.45 198.19 94.28 199.02 95.28 199.02L112.71 199.02L112.71 219.16L96.81 219.16L96.81 203.25C96.81 202.25 95.99 201.43 94.99 201.43L94.99 201.43C93.98 201.43 93.16 202.25 93.16 203.25L93.16 219.16L77.26 219.16L77.26 195.36L45.81 195.36L45.81 188.30L45.81 183.35L67.66 183.35C68.67 183.35 69.49 182.53 69.49 181.53L69.49 181.53C69.49 180.52 68.67 179.70 67.66 179.70L45.81 179.70L45.81 159.21L81.74 159.21L81.74 171.69L59.89 171.69C58.88 171.69 58.06 172.51 58.06 173.52L58.06 173.52C58.06 174.52 58.88 175.34 59.89 175.34L81.74 175.34L81.74 183.00Z"/></svg>';
 var SKA_BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -735,15 +837,15 @@ function tipCard(i) {
 function salesHome(d) {
   var t = d.totals, Y = d.today.slice(0, 4), od = overdueCount(d), fu = d.follow || { due: [], soon: [] }, n = (d.recommend || d.priority || []).length;
   var h = '<div class="float lift rise" style="--i:0"><div class="stats">' +
-    '<div><b>' + (t.visitsWeek || 0) + '</b><span>kegiatan minggu ini</span></div>' +
-    '<div><b>' + esc(nbRp(rp(ytdOf(d)))) + '</b><span>order ' + Y + '</span></div>' +
-    '<div' + (od ? ' class="warn"' : '') + '><b>' + od + '</b><span>tagihan lewat tempo</span></div></div>';
+    '<div><i class="si">' + SKA_ICON.cal + '</i><b>' + (t.visitsWeek || 0) + '</b><span>kegiatan minggu ini</span></div>' +
+    '<div><i class="si o">' + SKA_ICON.wallet + '</i><b>' + esc(nbRp(rp(ytdOf(d)))) + '</b><span>order ' + Y + '</span></div>' +
+    '<div' + (od ? ' class="warn"' : '') + '><i class="si">' + SKA_ICON.clock + '</i><b>' + od + '</b><span>tagihan lewat tempo</span></div></div>';
   if (t.target > 0) {
     var pct = Math.min(100, Math.round(t.omzetMonth / t.target * 100));
     h += '<div class="lbl">Target bulan ini ' + esc(nbRp(rp(t.target))) + ': ' + pct + '%</div><div class="mtrack"><i class="b" style="width:' + pct + '%"></i></div>';
   }
   h += '</div>' + homeNotes(d) + focusCard(d);
-  return h + '<div class="caption">Menu</div><div class="tiles">' +
+  return h + '<div class="caption">Menu</div><div class="tiles t3">' +
     tile('tasks', 'target', 'Tugas minggu ini', n ? n + ' sekolah dipilih' : 'Semua sudah dihubungi', '', 3) +
     tile('follow', 'cal', 'Tindak lanjut', fu.due.length ? fu.due.length + ' jatuh tempo' : fu.soon.length ? fu.soon.length + ' dalam 7 hari' : 'Tidak ada', fu.due.length ? 'amber' : '', 4) +
     tile('tagihan', 'bill', 'Tagihan', od ? od + ' invoice, ' + rp(t.overdue) : 'Tidak ada yang lewat', od ? 'red' : '', 5) +
@@ -756,12 +858,12 @@ function salesHome(d) {
 function focusCard(d) {
   if (!d.schools.length) return '<div class="note amber">' + SKA_EMPTY + '</div>';
   var list = d.recommend || [], r = list.filter(function (x) { return (school(x.key) || {}).since !== 0; })[0] || list[0];
-  var h = '<div class="float focus rise" style="--i:1"><div class="caption" style="margin-top:0">Fokus hari ini</div>';
+  var h = '<div class="float focus rise" style="--i:1"><div class="caption fcap" style="margin-top:0">' + SKA_ICON.flame + 'Fokus hari ini</div>';
   if (!d.recommend) return h + '<button class="link" onclick="go(\'tasks\')">Lihat prioritas minggu ini' + SKA_ICON.right + '</button></div>';
   if (!r) return h + '<p class="muted" style="margin:0">Semua sekolah sudah dihubungi minggu ini.</p></div>';
   var s = school(r.key) || { key: r.key, name: r.name, color: 'red' }, kinds = (d.lists && d.lists.kinds) || {};
   var tags = (kinds[r.kind] ? '<i class="tag' + (r.kind === 'collect' ? ' amber' : '') + '">' + esc(kinds[r.kind]) + '</i>' : '') + (s.color === 'grey' ? '<i class="tag grey">Belum mulai</i>' : '');
-  return h + '<button class="head" onclick="go(\'school\',\'' + jsq(r.key) + '\')"><span class="dot ' + esc(s.color) + '"></span><b>' + esc(r.name) + '</b></button>' +
+  return h + '<button class="head" onclick="go(\'school\',\'' + jsq(r.key) + '\')">' + schoolThumb(s.color) + '<b>' + esc(r.name) + '</b></button>' +
     (tags ? '<div class="tags">' + tags + '</div>' : '') + ((r.reasons || [])[0] ? '<p class="why1">' + esc(nbRp(r.reasons[0])) + '</p>' : '') +
     '<div class="acts one">' + (r.actions || []).map(function (a) { return actBtn(a, s); }).join('') + '</div>' +
     (list.length > 1 ? '<button class="link" onclick="go(\'tasks\')">Lihat ' + (list.length - 1) + ' tugas lainnya' + SKA_ICON.right + '</button>' : '') + '</div>';
@@ -1223,9 +1325,9 @@ function drawSchoolList() {
   el.innerHTML = l.length ? l.map(function (s) {
     var meta = (s.color === 'grey' ? 'Belum mulai' : sinceTxt(s)) + (mgr ? ' · ' + salesLabel(s.sales) : '') + (s.status === 'Prospek' && s.color !== 'grey' ? ' · Prospek' : '');
     var v = by12 ? s.omzet12 : s.omzetYear;
-    return '<button class="item" onclick="go(\'school\',\'' + jsq(s.key) + '\')"><span class="dot ' + esc(s.color) + '"></span><span class="t"><b>' + esc(s.name) + '</b>' +
-      '<span>' + (s.tier ? '<i class="tier">' + esc(tierLabel(s.tier)) + '</i>' : '') + esc(meta) + '</span></span>' +
-      '<span class="r"><b>' + (v ? rp(v) : 'Rp 0') + '</b>' + (by12 ? '12 bulan' : Y) + '</span></button>';
+    return '<button class="item srow2" onclick="go(\'school\',\'' + jsq(s.key) + '\')">' + schoolThumb(s.color) + '<span class="t"><b>' + esc(s.name) + '</b>' +
+      (s.tier ? '<span class="tl"><i class="tier t' + esc(s.tier) + '">' + esc(tierLabel(s.tier)) + '</i></span>' : '') + '<span class="mt">' + SKA_ICON.clock + esc(meta) + '</span></span>' +
+      '<span class="r"><b>' + (v ? rp(v) : 'Rp 0') + '</b>' + (by12 ? '12 bulan' : Y) + '</span><span class="chev">' + SKA_ICON.right + '</span></button>';
   }).join('') : '<p class="muted">Tidak ada sekolah yang cocok.</p>';
 }
 
@@ -1415,13 +1517,13 @@ function vLog(d) {
       '<button class="btn" onclick="addSchoolSheet(true)">+ Baru</button></div><div id="pickList"></div>';
   }
   h += '</div>';
-  h += '<div class="field"><label>2. Jenis kegiatan</label><div class="chips grid2">' + d.lists.jenis.map(function (j) {
-    return '<button class="chip' + (f.jenis === j ? ' on' : '') + '" onclick="SKA.form.jenis=\'' + jsq(j) + '\';render()">' + esc(j) + '</button>';
+  h += '<div class="field"><label>2. Jenis kegiatan</label><div class="chips grid2 sel">' + d.lists.jenis.map(function (j) {
+    return '<button class="chip' + (f.jenis === j ? ' on' : '') + '" onclick="SKA.form.jenis=\'' + jsq(j) + '\';render()">' + (SKA_JENIS_ICON[j] ? SKA_ICON[SKA_JENIS_ICON[j]] : '') + esc(j) + '</button>';
   }).join('') + '</div></div>';
-  h += '<div class="field"><label>3. Hasil</label><div class="chips grid2">' + d.lists.hasil.map(function (j) {
+  h += '<div class="field"><label>3. Hasil</label><div class="chips grid2 opt">' + d.lists.hasil.map(function (j) {
     return '<button class="chip' + (f.hasil === j ? ' on' : '') + '" onclick="pickHasil(\'' + jsq(j) + '\')">' + esc(j) + '</button>';
   }).join('') + '</div></div>';
-  h += '<div class="field"><label>4. Tindak lanjut <span class="muted small">(kapan dihubungi lagi)</span></label><div class="chips">' + (d.lists.follow || []).map(function (o) {
+  h += '<div class="field"><label>4. Tindak lanjut <span class="muted small">(kapan dihubungi lagi)</span></label><div class="chips grid2 opt">' + (d.lists.follow || []).map(function (o) {
     return '<button class="chip' + (f.follow === o[1] ? ' on' : '') + '" onclick="SKA.form.follow=' + o[1] + ';SKA.form.followSet=true;render()">' + esc(o[0]) + '</button>';
   }).join('') + '</div>' + (f.follow ? '<div class="muted small" style="margin-top:6px">Muncul di Beranda pada ' + esc(tgl(isoPlus(f.follow))) + '.</div>' : '') + '</div>';
   h += '<div class="field"><label for="fNote">5. Catatan <span class="muted small">(wajib)</span></label><textarea id="fNote" placeholder="Contoh: kepsek minta penawaran ATK untuk semester 2" oninput="SKA.form.note=this.value">' + esc(f.note) + '</textarea></div>';
@@ -1566,7 +1668,7 @@ function adminHome(d) {
   h += custCard(d) + '<div class="caption">Deal dari sales, order belum diinput</div>';
   h += deals.length ? deals.map(function (x, i) { return dealCard(x, i); }).join('')
     : '<div class="float rise" style="--i:1"><p class="muted" style="margin:0">Tidak ada deal yang menunggu. Order lain tetap bisa diinput lewat tombol Order.</p></div>';
-  return h + '<div class="caption">Menu</div><div class="tiles">' +
+  return h + '<div class="caption">Menu</div><div class="tiles t3">' +
     tile('aorder', 'box', 'Input order', 'Masuk ke persetujuan approver', '', deals.length + 2) +
     tile('ainvoices', 'bill', 'Tagihan', (t.schools || 0) + ' sekolah belum lunas', t.overdue ? 'red' : '', deals.length + 3) +
     tile('acust', 'user', 'Pelanggan', a.customers && !a.customers.error ? a.customers.accounts + ' sekolah punya akun' : 'Akun, surat jalan, verifikasi', '', deals.length + 4) + '</div>';
@@ -1800,7 +1902,7 @@ function loadAInvoice(key) {
 // that sales' 'kp'). Top down: the verdict and why, where this month leaves the next review (k.fc,
 // server 1.5.0), what to do this week, the indicators, the incentive, the months, and how it is all
 // counted. The rules are Firman's (tab Aturan KPI); the app never changes a level.
-var SKA_KST = { naik: ['g', 'Siap naik level'], aman: ['', 'Aman'], turun: ['r', 'Zona turun level'], baru: ['', 'Belum ada bulan penuh'] };
+var SKA_KST = { naik: ['g', 'Siap naik level'], aman: ['g', 'Aman'], turun: ['r', 'Zona turun level'], baru: ['', 'Belum ada bulan penuh'] };
 // 'yyyy-MM-dd HH:mm' from the server as 5 Nov, 09:47.
 function stampTxt(s) { return s ? tgl(String(s).slice(0, 10)) + (String(s).length > 10 ? ', ' + String(s).slice(11, 16) : '') : ''; }
 function kpc(x) { return x === null || x === undefined ? '-' : Math.round(x * 100) + '%'; }
@@ -1811,6 +1913,10 @@ function blnRange(list) { return list && list.length ? (list.length > 1 ? bln(li
 function kpOf(d) { return isMgr(d) ? (d.kpiTeam || []).filter(function (k) { return k.name === SKA.kpName; })[0] || null : d.kpi || null; }
 function kstTag(k) { var s = SKA_KST[k.status] || SKA_KST.aman; return '<i class="kst' + (s[0] ? ' ' + s[0] : '') + '">' + esc(s[1]) + '</i>'; }
 // A checklist line: ok = fine, mid = not at the line to go up yet, no = in the zone or short.
+// A KPI card line (2.0): the indicator's icon in a circle coloured by its state, label, value, the lines.
+function kmet(cls, icon, label, val, sub) {
+  return '<div class="kmet ' + cls + '"><i class="mi">' + SKA_ICON[icon] + '</i><span><b>' + esc(label) + '</b><em>' + esc(sub) + '</em></span><strong>' + esc(val) + '</strong></div>';
+}
 function kmark(cls, html) { return '<div><i class="' + cls + '">' + (cls === 'ok' ? '&#10003;' : cls === 'no' ? '!' : '&#9675;') + '</i><span>' + html + '</span></div>'; }
 function vKp(d) {
   var k = kpOf(d), mgr = isMgr(d), f = k && k.fc;
@@ -1827,17 +1933,18 @@ function kpStatus(k) {
   else if (k.status === 'baru') head = 'Belum ada bulan penuh di level ini, jadi belum ada penilaian. Perkiraan bulan ini ada di bawah.';
   else head = k.next ? 'Tidak di zona turun. Belum semua syarat naik ke ' + k.next + ' terpenuhi.' : 'Tidak di zona turun. Senior adalah level tertinggi: jaga omzet dan tagihan di atas batas.';
   if (k.partial && k.status !== 'baru') head += ' Baru ' + k.monthsHeld + ' bulan penuh di level ini; penilaian lengkap setelah bulan berikutnya.';
-  return '<div class="float kstat rise" style="--i:0">' + kstTag(k) + '<p>' + esc(head) + '</p>' + (k.status === 'baru' ? '' : kpWhy(k)) + '<div class="muted small" style="margin-top:8px">' +
+  var kb = SKA_KST[k.status] || SKA_KST.aman;
+  return '<div class="float kstat rise" style="--i:0"><div class="kbig' + (kb[0] ? ' ' + kb[0] : '') + '">' + SKA_ICON.shield + esc(kb[1]) + '</div><p>' + esc(head) + '</p>' + (k.status === 'baru' ? '' : kpWhy(k)) + '<div class="muted small" style="margin-top:8px">' +
     (k.levelSet ? 'Level ' + esc(k.level) + (k.since ? ' sejak ' + esc(tglPanjang(k.since)) : '') : 'Level belum diisi Mas Firman; sementara dihitung Probation') + '</div></div>';
 }
 function kpWhy(k) {
   var o = k.ind.omzet, a = k.ind.aging, s = k.ind.sekolah, up = !!k.next;
-  var one = function (label, x) {
+  var one = function (label, x, icon) {
     var useDown = x.isDown || !up, sub = 'zona turun ' + kpc(x.down) + ' atau kurang' + (up && x.line !== null ? ', naik minimal ' + kpc(x.line) : '') + ' (' + blnRange(useDown ? x.monthsDown : x.months) + ')';
-    return kmark(x.isDown ? 'no' : up && !x.ok ? 'mid' : 'ok', '<b>' + esc(label + ' ' + kpc(useDown ? x.valueDown : x.value)) + '</b><em>' + esc(sub) + '</em>');
+    return kmet(x.isDown ? 'no' : up && !x.ok ? 'mid' : 'ok', icon, label, kpc(useDown ? x.valueDown : x.value), sub);
   };
-  return '<div class="kwhy">' + one('Omzet rata-rata', o) + one('Tagihan lunas tepat waktu', a) +
-    (up ? kmark(s.ok ? 'ok' : 'mid', '<b>' + esc('Sekolah baru ' + s.value + ' dari ' + s.line) + '</b><em>' + esc(nbRp('order pertama minimal ' + rp(s.min) + ' (' + blnRange(s.months) + ')')) + '</em>') : '') + '</div>';
+  return '<div class="kwhy kmets">' + one('Omzet rata-rata', o, 'chart') + one('Tagihan lunas tepat waktu', a, 'clock') +
+    (up ? kmet(s.ok ? 'ok' : 'mid', 'school', 'Sekolah baru', s.value + ' dari ' + s.line, nbRp('order pertama minimal ' + rp(s.min) + ' (' + blnRange(s.months) + ')')) : '') + '</div>';
 }
 // Where this month leaves the next review (server k.fc): the verdict if the month ends at today's
 // pace with every invoice due this month paid on time, then omzet, the invoices falling due and the
@@ -1862,7 +1969,7 @@ function kpForecast(k) {
   var sk = f.sekolah ? '<p class="small" style="margin:12px 0 0;color:var(--ink)">' + esc(nbRp('Sekolah baru ' + f.sekolah.have + ' dari ' + f.sekolah.line + ' dalam ' + (k.rules.naikSekolahBulan || 3) + ' bulan sampai ' + M +
     (f.sekolah.have >= f.sekolah.line ? ': syarat terpenuhi.' : ': perlu ' + (f.sekolah.line - f.sekolah.have) + ' lagi dengan order pertama minimal ' + rp(k.ind.sekolah.min) + '.'))) + '</p>' : '';
   var upR = f.up !== null && t ? f.up / t : null, dnR = f.safe && t ? f.safe / t : null;
-  return '<div class="caption">Menuju penilaian ' + esc(tglPanjang(f.review)) + '</div><div class="float kfc rise" style="--i:1">' +
+  return '<div class="caption kcap">' + SKA_ICON.trophy + 'Menuju penilaian ' + esc(tglPanjang(f.review)) + '</div><div class="float kfc rise" style="--i:1">' +
     '<div class="khead"><b class="kq">Perkiraan hasil</b>' + kstTag({ status: f.next }) + '</div>' +
     '<p class="muted small" style="margin:4px 0 0">' + esc((f.pace !== null ? 'Bila order sampai akhir ' + M + ' secepat sekarang' : 'Dengan omzet sejauh ini') + ' dan tagihan yang jatuh tempo bulan ini lunas tepat waktu.' +
       (f.nextPartial ? ' Penilaian belum lengkap: bulan penuh di level ini masih kurang.' : '')) + '</p>' +
@@ -1922,10 +2029,10 @@ function kpPay(k) {
     ['Surplus target', p.omzet > p.target ? 'Omzet ' + rp(p.omzet) + ', di atas target ' + rp(p.target) + ' x ' + kpcDec(p.surplusPct) : 'Omzet ' + rp(p.omzet) + ', belum melewati target ' + rp(p.target), p.surplus],
     ['Sekolah baru', p.fresh.length ? p.fresh.map(function (f) { return f.name + ' (' + rp(f.amount) + ')'; }).join(', ') : 'Belum ada', p.freshRp],
     ['Aging lancar', a.due ? a.onTime + ' dari ' + a.due + ' tagihan jatuh tempo lunas tepat waktu' + (a.pending ? '; ' + a.pending + ' lagi jatuh tempo bulan ini' : '') : a.pending ? a.pending + ' tagihan jatuh tempo akhir bulan ini' : 'Tidak ada tagihan jatuh tempo', p.agingRp]];
-  return '<div class="caption">Insentif ' + esc(SKA_BULAN_PANJANG[+p.m.slice(5, 7) - 1]) + '</div><div class="seg" style="margin-top:0">' +
+  return '<div class="caption kcap">' + SKA_ICON.gift + 'Insentif ' + esc(SKA_BULAN_PANJANG[+p.m.slice(5, 7) - 1]) + '</div><div class="seg" style="margin-top:0">' +
     [[false, 'Bulan ini (perkiraan)'], [true, 'Bulan lalu']].map(function (x) {
       return '<button class="chip' + (!!SKA.kpPrev === x[0] ? ' on' : '') + '" onclick="SKA.kpPrev=' + x[0] + ';render()">' + x[1] + '</button>';
-    }).join('') + '</div><div class="float rise" style="--i:6">' + rows.map(function (r) {
+    }).join('') + '</div><div class="float kpay rise" style="--i:6">' + rows.map(function (r) {
       return '<div class="lrow"><span>' + esc(r[0]) + (r[1] ? '<em>' + esc(nbRp(r[1])) + '</em>' : '') + '</span><b>' + esc(nbRp(rpPenuh(r[2]))) + '</b></div>';
     }).join('') + '<div class="lrow ktotal"><span>' + (SKA.kpPrev ? 'Total' : 'Perkiraan total') + '</span><b>' + esc(nbRp(rpPenuh(p.total))) + '</b></div>' +
     '<p class="muted small" style="margin:8px 0 0">Dari order dan pembayaran di dashboard' + (SKA.kpPrev ? '' : ', bisa berubah sampai akhir bulan') + '. Angka final dari Mas Firman.</p></div>';
