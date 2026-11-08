@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.1","mode":"prod","privacy":"https://mujiputra2-glitch.github.io/sadya-kersa-sales-privacy/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.2","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -1317,7 +1317,43 @@ function actItem(a, showSchool) {
     '<span>' + esc((a.at || '').slice(11)) + (showSchool ? ' · ' + esc(a.school) : '') + (SKA.data.me.role === 'Manajer' || !showSchool ? ' · ' + esc(a.sales) : '') +
     (a.map ? ' · <a href="' + esc(a.map) + '" target="_blank" rel="noopener">lokasi</a>' : '') + (a.photo ? ' · <a href="' + esc(a.photo) + '" target="_blank" rel="noopener">foto</a>' : '') + '</span>' +
     (a.note ? '<span class="n">' + esc(a.note) + '</span>' : '') + (a.follow ? '<span>Tindak lanjut ' + esc(tgl(a.follow)) + '</span>' : '') +
-    (a.hasil === 'Deal / order' && a.ordered ? '<span>Order sudah diinput admin</span>' : '') + '</span></div>';
+    (a.hasil === 'Deal / order' && a.ordered ? '<span>Order sudah diinput admin</span>' : '') +
+    (myAct(a) ? '<button class="chip" style="min-height:44px;padding:6px 14px;margin-top:8px;font-size:15px" onclick="noteSheet(\'' + jsq(a.id) + '\')">' + (a.note ? 'Ubah catatan' : 'Tambah catatan') + '</button>' : '') + '</span></div>';
+}
+// Ubah catatan (3 Nov, Firman: the sales want to fix a note after Simpan, a pop-up like the PIC one).
+// Only the viewer's own sent activities; skxNote checks the same and keeps a note on in-person kinds.
+function myAct(a) {
+  var me = SKA.data && SKA.data.me;
+  return !!(a && a.id && me && String(a.sales || '').trim().toLowerCase() === String(me.name || '').trim().toLowerCase());
+}
+function actLists() {
+  var d = SKA.data || {}, out = [d.recent || [], SKA.schoolActs || []];
+  Object.keys(d.recentBySales || {}).forEach(function (n) { out.push(d.recentBySales[n]); });
+  return out;
+}
+function findAct(id) {
+  var hit = null;
+  actLists().forEach(function (l) { l.forEach(function (a) { if (!hit && a.id === id) hit = a; }); });
+  return hit;
+}
+function noteSheet(id) {
+  var a = findAct(id); if (!myAct(a)) return;
+  SKA.noteId = id;
+  openSheet('<h2>' + (a.note ? 'Ubah catatan' : 'Tambah catatan') + '</h2><p class="muted small" style="margin-top:-4px">' + esc(a.school) + ', ' + esc(a.jenis + ': ' + a.hasil) +
+    ', ' + esc(tgl((a.at || '').slice(0, 10))) + ' ' + esc((a.at || '').slice(11)) + '</p>' +
+    '<div class="field"><label for="ntText">Catatan</label><textarea id="ntText" maxlength="1000">' + esc(a.note) + '</textarea></div>' +
+    '<div id="ntErr" class="err hide"></div><div class="btnrow"><button class="btn" onclick="closeSheet()">Batal</button><button class="btn teal" onclick="saveNote()">Simpan</button></div>');
+}
+function saveNote() {
+  var id = SKA.noteId, a = findAct(id), v = $('ntText').value.trim(), el = $('ntErr');
+  if (!a) { closeSheet(); return; }
+  if (!v && inPerson(SKA.data, a.jenis)) { el.textContent = 'Catatan wajib diisi untuk ' + a.jenis + '.'; el.classList.remove('hide'); return; }
+  busy(true, 'Menyimpan...');
+  call('skxNote', SKA.token, id, v).then(function (r) {
+    busy(false);
+    actLists().forEach(function (l) { l.forEach(function (x) { if (x.id === r.id) x.note = r.note; }); });
+    store('skx_home', JSON.stringify(SKA.data)); closeSheet(); render(); toast('Catatan disimpan.');
+  }).catch(function (e) { busy(false); var el2 = $('ntErr'); if (el2) { el2.textContent = e.message; el2.classList.remove('hide'); } else toast(e.message); });
 }
 function byDay(list, showSchool) {
   var h = '', day = '';
@@ -1331,6 +1367,7 @@ function byDay(list, showSchool) {
 function loadSchoolActs(key) {
   call('skxSchool', SKA.token, key).then(function (l) {
     var el = $('schoolActs'); if (!el || SKA.key !== key) return;
+    SKA.schoolActs = l; // noteSheet finds the school's activities here
     el.innerHTML = l.length ? byDay(l, false) : '<p class="muted">Belum ada kegiatan tercatat.</p>';
   }).catch(function (e) { var el = $('schoolActs'); if (el) el.innerHTML = '<p class="err">' + esc(e.message) + '</p>'; });
 }
@@ -2251,10 +2288,17 @@ function addSchoolSheet(fromLog) {
     '<div class="field"><label for="nsName">Nama sekolah</label><input id="nsName" type="text" placeholder="Contoh: SMPN 2 Cimahi" value="' + esc(fromLog && SKA.form ? SKA.form.q : '') + '"></div>' +
     '<div class="field"><label for="nsType">Jenjang</label><select id="nsType"><option value="">Pilih</option>' + ['TK / KB / PAUD', 'SD', 'SMP', 'SMA', 'SMK', 'PKBM', 'SLB', 'Lainnya'].map(function (x) { return '<option>' + x + '</option>'; }).join('') + '</select></div>' +
     '<div class="field"><label for="nsStud">Jumlah siswa <span class="muted small">(boleh kosong)</span></label><input id="nsStud" type="text" inputmode="numeric" placeholder="Contoh: 640"></div>' +
-    '<div class="field"><label for="nsArea">Wilayah</label><input id="nsArea" type="text" placeholder="Bandung, Cimahi, Kab. Bandung, KBB"></div>' +
+    '<div class="field"><label for="nsArea">Wilayah</label><select id="nsArea"><option value="">Pilih</option>' + areaOptions() + '</select></div>' +
     '<div class="field"><label for="nsPic">PIC / Kepsek <span class="muted small">(boleh kosong)</span></label><input id="nsPic" type="text"></div>' +
     '<div class="field"><label for="nsPhone">No HP PIC <span class="muted small">(boleh kosong)</span></label><input id="nsPhone" type="tel" inputmode="tel"></div>' +
     '<div id="nsErr" class="err hide"></div><div class="btnrow"><button class="btn" onclick="closeSheet()">Batal</button><button class="btn teal" onclick="saveSchool(' + (fromLog ? 'true' : 'false') + ')">Simpan</button></div>');
+}
+// Wilayah as a list (3 Nov, Firman): the four codes of his school list (value) with the app's names,
+// so Kabar wilayah and the area counts read every new school.
+function areaOptions() {
+  var a = (SKA.data && SKA.data.lists && SKA.data.lists.areas) || { Bandung: 'Kota Bandung', Cimahi: 'Kota Cimahi', Kab: 'Kab. Bandung', KBB: 'Bandung Barat' };
+  return Object.keys(a).map(function (c) { return '<option value="' + esc(c) + '">' + esc(a[c] + (c === 'KBB' ? ' (KBB)' : '')) + '</option>'; }).join('') +
+    '<option value="Lainnya">Lainnya</option>';
 }
 function saveSchool(fromLog) {
   var s = { name: $('nsName').value, type: $('nsType').value, area: $('nsArea').value, pic: $('nsPic').value, picPhone: $('nsPhone').value, students: $('nsStud').value };
