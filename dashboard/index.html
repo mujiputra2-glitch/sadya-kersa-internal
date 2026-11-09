@@ -59,7 +59,21 @@ a{color:inherit}
 .logo svg,.lmark svg{display:block;width:100%;height:100%}
 .brand b{display:block;font-size:15px;font-weight:800;letter-spacing:-.2px}
 .brand small{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
-.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(15,23,42,.05);margin-left:8px;overflow-x:auto;scrollbar-width:none}
+.tabs{display:flex;align-items:center;gap:4px;padding:4px;border-radius:999px;background:rgba(15,23,42,.05);margin-left:8px}
+.tgroup{position:relative}
+.tgbtn{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--ink2);font:inherit;font-size:13px;font-weight:700;padding:8px 13px 8px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .25s,color .25s,box-shadow .25s}
+.tgbtn:hover{color:var(--ink)}
+.tgbtn.on{background:#fff;color:var(--brand-ink);box-shadow:0 2px 8px rgba(15,23,42,.12)}
+.tgcur{font-weight:600;color:var(--muted)}
+.tgcur:not(:empty)::before{content:'\00b7';margin:0 6px 0 0}
+.tgchev{width:14px;height:14px;transition:transform .2s}
+.tgroup.open .tgchev{transform:rotate(180deg)}
+.tgmenu{position:absolute;top:calc(100% + 10px);left:0;z-index:60;min-width:300px;padding:6px;border-radius:16px;background:#fff;box-shadow:0 18px 44px rgba(15,23,42,.18),0 2px 6px rgba(15,23,42,.08);display:none}
+.tgroup.open .tgmenu{display:block}
+.tgmenu .tab{display:block;width:100%;text-align:left;border-radius:11px;padding:9px 12px;white-space:normal}
+.tgmenu .tab small{display:block;font-size:11.5px;font-weight:500;color:var(--muted);margin-top:1px}
+.tgmenu .tab:hover{background:rgba(39,40,192,.06)}
+.tgmenu .tab.on,.tgmenu .tab.on:hover{background:rgba(39,40,192,.09);box-shadow:none}
 .tabs::-webkit-scrollbar{display:none}
 [hidden]{display:none!important}
 .tab{border:0;background:transparent;color:var(--ink2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .25s,color .25s,box-shadow .25s}
@@ -293,7 +307,10 @@ html:has(.loader:not(.off)){overflow:hidden}
 @media (max-width:1180px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.row2,.row3,.half{grid-template-columns:1fr}.hero{grid-template-columns:1fr}}
 @media (max-width:760px){
   .tb{flex-wrap:wrap;gap:10px;padding:10px 14px}
-  .tabs{order:3;width:100%;margin-left:0}
+  .tabs{order:3;width:100%;margin-left:0;flex-wrap:wrap;justify-content:center;border-radius:18px}
+  .tab,.tgbtn{padding:8px 11px;font-size:12.5px}
+  .tgcur{display:none}
+  .tgmenu{position:fixed;top:auto;left:14px;right:14px;min-width:0;margin-top:8px}
   .pill{display:none}
   .page{padding:14px 14px 34px}
   .hero-main{padding:20px 18px 18px;border-radius:20px}
@@ -399,6 +416,16 @@ html:has(.loader:not(.off)){overflow:hidden}
 .mcard{width:min(440px,100%);background:#fff;border-radius:18px;padding:20px 20px 16px;box-shadow:0 24px 60px rgba(15,23,42,.3);display:flex;flex-direction:column;gap:12px}
 .mcard h4{margin:0;font-size:16px}
 .mcard p{margin:0;font-size:12.5px;color:var(--ink2);line-height:1.5}
+.invlink{border:0;background:none;padding:0;font:inherit;color:var(--brand,#2728c0);font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+#invModal .mcard{width:min(620px,100%);max-height:88vh;overflow:auto}
+.invsec{border:1px solid #e2e6f4;border-radius:14px;padding:12px 14px}
+.invsec h5{margin:0 0 8px;font-size:13px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.invsec .row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;padding:4px 0;border-top:1px solid #f0f2f8}
+.invsec .row span:first-child{color:var(--ink2)}
+.invsec .row span:last-child{text-align:right;font-weight:600}
+.invsec .iss{margin-top:6px;font-size:12.5px;background:#fff1f0;color:#a4281e;border-radius:10px;padding:6px 10px}
+.invsec .ans{margin-top:6px;font-size:12.5px;background:#eef3ff;color:#1e2a7a;border-radius:10px;padding:6px 10px}
+.invsec .none{font-size:12.5px;color:var(--ink2)}
 .mact{justify-content:flex-end;flex-wrap:nowrap}
 @media (max-width:1180px){.apgrid,.apcols{grid-template-columns:1fr}.ofields{grid-template-columns:1fr 1fr 1fr}.ofields .wide{grid-column:1 / -1}}
 @media (max-width:760px){
@@ -419,6 +446,13 @@ html:has(.loader:not(.off)){overflow:hidden}
 .twrap td a{color:var(--brand-ink);font-weight:600}
 /* Aplikasi tab (7 Nov): what the sales app and SNAPP record */
 .axhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.incard{margin-top:16px}
+.incard .inhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px}
+.incard .inhead b{font-size:16px}
+.incard .inav{width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#2728c0;color:#fff;font-weight:800}
+.incard tr.now td{background:#f5f7ff}
+.incard td.tot{font-weight:800}
+.innote{font-size:12.5px;color:var(--ink2);margin:14px 2px 0;line-height:1.5}
 .axhead .info{font-size:12.5px;color:var(--ink2)}
 .axhead .lbtn{margin-left:auto}
 .axbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:4px 0 12px}
@@ -457,12 +491,18 @@ html:has(.loader:not(.off)){overflow:hidden}
     </div>
     <nav class="tabs" id="tabs">
       <button class="tab on" data-tab="ringkasan">Ringkasan</button>
-      <button class="tab" data-tab="insight">Insight bulanan</button>
-      <button class="tab" data-tab="sekolah">Sekolah</button>
-      <button class="tab" data-tab="piutang">Aging invoice<span class="count" id="piutangCount" hidden></span></button>
+      <div class="tgroup" id="tgMgr">
+        <button class="tgbtn" id="tgMgrBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="tgMgrMenu">Manajemen<span class="tgcur" id="tgMgrCur"></span><span class="count" id="tgMgrCount" hidden></span><svg class="tgchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="tgmenu" id="tgMgrMenu">
+          <button class="tab" data-tab="insight">Insight bulanan<small>Ringkasan per bulan dan sarannya</small></button>
+          <button class="tab" data-tab="sekolah">Sekolah<small>Database sekolah dan invoicenya</small></button>
+          <button class="tab" data-tab="piutang">Aging invoice<span class="count" id="piutangCount" hidden></span><small>Invoice belum lunas dan pengingat</small></button>
+          <button class="tab" data-tab="insentif">Insentif marketing<small>Gaji dan insentif per sales per bulan</small></button>
+          <button class="tab" data-tab="approval">Approval<span class="count" id="approvalCount" hidden></span><small>Order yang menunggu persetujuan</small></button>
+          <button class="tab" data-tab="data">Data<small>Semua baris invoice, klik nomor invoice</small></button>
+        </div>
+      </div>
       <button class="tab" data-tab="order">Input order</button>
-      <button class="tab" data-tab="approval">Approval<span class="count" id="approvalCount" hidden></span></button>
-      <button class="tab" data-tab="data">Data</button>
       <button class="tab" data-tab="aplikasi">Aplikasi</button>
     </nav>
     <div class="tbr">
@@ -643,6 +683,16 @@ html:has(.loader:not(.off)){overflow:hidden}
       </div>
     </div>
   </section>
+  <section class="view" id="v-insentif">
+    <div class="axhead">
+      <span class="info" id="inInfo">Memuat...</span>
+      <button class="lbtn" id="inReload" type="button">Muat ulang</button>
+    </div>
+    <div class="grid kpis k3" id="kpisIn"></div>
+    <div id="inCards"></div>
+    <p class="innote">Dihitung seperti di aplikasi sales: omzet dari sekolah yang dipegang tiap sales (tab Sekolah di Sales Tracker), aturan dari tab Aturan KPI. Bulan berjalan masih perkiraan sampai akhir bulan. Angka final dari Mas Firman.</p>
+  </section>
+
   <section class="view" id="v-order">
     <div class="card" style="--i:0">
       <div class="chead"><div><h3>Input order</h3><p>Order masuk ke tab Approval dulu. Setelah disetujui, order tercatat di DB_Order dan Detail_Order file 2026 lalu tampil di dashboard.</p></div></div>
@@ -700,6 +750,15 @@ html:has(.loader:not(.off)){overflow:hidden}
     <label class="ofield"><span>Status</span><select id="nsStatus"></select></label>
     <div class="omsg" id="nsMsg"></div>
     <div class="oacts mact"><button class="lbtn" id="nsCancel" type="button">Batal</button><button class="lbtn2 primary" id="nsSave" type="button">Simpan sekolah</button></div>
+  </div>
+</div>
+
+<div class="modal" id="invModal">
+  <div class="mcard">
+    <h4 id="invTitle">Invoice</h4>
+    <p id="invSub"></p>
+    <div id="invBody"></div>
+    <div class="oacts mact"><button class="lbtn" id="invClose" type="button">Tutup</button></div>
   </div>
 </div>
 
@@ -1792,7 +1851,13 @@ function skRenderData(rows) {
     var ts = skEl('td'); ts.appendChild(skEl('span', 'tag', skDict('jenis', r[SKI.JENIS]))); tr.appendChild(ts);
     tr.appendChild(skEl('td', '', skDict('school', r[SKI.SCHOOL])));
     var it = skEl('td', '', skDict('item', r[SKI.ITEM])); it.title = skDict('item', r[SKI.ITEM]); tr.appendChild(it);
-    tr.appendChild(skEl('td', skDict('inv', r[SKI.INV]) ? '' : 'muted', skDict('inv', r[SKI.INV]) || '-'));
+    var invNo = skDict('inv', r[SKI.INV]), tdInv = skEl('td', invNo ? '' : 'muted', invNo ? '' : '-');
+    if (invNo) {
+      var ib = skEl('button', 'invlink', invNo); ib.type = 'button'; ib.title = 'Lihat surat jalan, konfirmasi, file dan akun sekolah';
+      (function (n, sc) { ib.addEventListener('click', function () { skInvOpen(n, sc); }); })(invNo, skDict('school', r[SKI.SCHOOL]));
+      tdInv.appendChild(ib);
+    }
+    tr.appendChild(tdInv);
     tr.appendChild(skEl('td', 'num', skNum(r[SKI.QTY], r[SKI.QTY] % 1 ? 2 : 0) + ' ' + skDict('unit', r[SKI.UNIT])));
     tr.appendChild(skEl('td', 'num', skRpFull(r[SKI.INVOICE])));
     tr.appendChild(skEl('td', 'num', skRpFull(r[SKI.MARGIN])));
@@ -1826,9 +1891,11 @@ function skAccess(a) {
   Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
     var name = t.getAttribute('data-tab'), ok = skMay(name);
     t.hidden = !ok;
-    if (ok && first === null) first = name;
   });
+  // The page an email lands on: the first open tab in the old menu order (an admin opens on Input order).
+  ['ringkasan', 'insight', 'sekolah', 'piutang', 'insentif', 'order', 'approval', 'data', 'aplikasi'].forEach(function (n) { if (first === null && skMay(n)) first = n; });
   Array.prototype.forEach.call(document.querySelectorAll('[data-goto]'), function (b) { b.hidden = !skMay(b.getAttribute('data-goto')); });
+  skTgUpdate();
   if (!SKD.allow) return null;
   if (first === null) return '';
   if (skMay(SKD.tab)) return null;
@@ -1836,11 +1903,31 @@ function skAccess(a) {
   return first;
 }
 function skMay(name) { return !SKD.allow || !!SKD.allow[name]; }
+// The Manajemen group (9 Nov): lit while one of its tabs is open (its name beside the word on wide
+// screens), its badge the sum of Aging and Approval, hidden when none of its tabs is open to this email.
+function skTgUpdate() {
+  var g = document.getElementById('tgMgr'); if (!g) return;
+  var tabs = [].slice.call(g.querySelectorAll('.tab')), on = tabs.filter(function (t) { return t.classList.contains('on'); })[0];
+  g.hidden = !tabs.some(function (t) { return !t.hidden; });
+  document.getElementById('tgMgrBtn').classList.toggle('on', !!on);
+  document.getElementById('tgMgrCur').textContent = on ? on.firstChild.textContent : '';
+  var n = 0;
+  ['piutangCount', 'approvalCount'].forEach(function (id) { var c = document.getElementById(id); if (c && !c.hidden) n += parseInt(c.textContent, 10) || 0; });
+  var gc = document.getElementById('tgMgrCount');
+  gc.textContent = n; gc.hidden = !n;
+}
+function skTgOpen(open) {
+  var g = document.getElementById('tgMgr'); if (!g) return;
+  g.classList.toggle('open', !!open);
+  document.getElementById('tgMgrBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (open && window.innerWidth <= 760) { var r = document.getElementById('tabs').getBoundingClientRect(); document.getElementById('tgMgrMenu').style.top = (r.bottom + 8) + 'px'; }
+}
 
 function skShowTab(name) {
   if (!skMay(name)) return;
   SKD.tab = name;
   Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) { t.classList.toggle('on', t.getAttribute('data-tab') === name); });
+  skTgOpen(false); skTgUpdate();
   Array.prototype.forEach.call(document.querySelectorAll('.view'), function (v) {
     var on = v.id === 'v-' + name;
     v.classList.remove('on');
@@ -1849,9 +1936,10 @@ function skShowTab(name) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   // The greeting lives on Ringkasan; the monthly insight covers the whole business, so no filters there.
   document.getElementById('hero').style.display = name === 'ringkasan' ? '' : 'none';
-  document.getElementById('filters').style.display = ['insight', 'order', 'approval', 'aplikasi'].indexOf(name) >= 0 ? 'none' : '';
+  document.getElementById('filters').style.display = ['insight', 'order', 'approval', 'aplikasi', 'insentif'].indexOf(name) >= 0 ? 'none' : '';
   if (name === 'insight') { skLoadInsight(SKIN.ym); return; }
   if (name === 'aplikasi') { skAxOpen(false); return; }
+  if (name === 'insentif') { skInOpen(false); return; }
   if (name === 'order') { skOrderOpen(); return; }
   if (name === 'approval') { if (SKA.data) skApRender(); skApOpen(); return; }
   if (SKD.P) skRender();
@@ -1887,6 +1975,15 @@ document.getElementById('selMonth').addEventListener('change', function (e) { sk
 Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
   t.addEventListener('click', function () { skShowTab(t.getAttribute('data-tab')); });
 });
+document.getElementById('tgMgrBtn').addEventListener('click', function (e) { e.stopPropagation(); skTgOpen(!document.getElementById('tgMgr').classList.contains('open')); });
+document.addEventListener('click', function (e) { if (!e.target.closest || !e.target.closest('#tgMgr')) skTgOpen(false); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') skTgOpen(false); });
+window.addEventListener('resize', function () { skTgOpen(false); });
+['piutangCount', 'approvalCount'].forEach(function (id) {
+  var c = document.getElementById(id);
+  if (c && window.MutationObserver) new MutationObserver(skTgUpdate).observe(c, { attributes: true, childList: true, characterData: true, subtree: true });
+});
+skTgUpdate();
 Array.prototype.forEach.call(document.querySelectorAll('#segAr button'), function (b) {
   b.addEventListener('click', function () { SKD.ar.mode = b.getAttribute('data-ar'); skRenderAr(SKD.cur); });
 });
@@ -2423,6 +2520,46 @@ function skApRender() {
   skApRecent();
   skApVendors();
 }
+// Edit before approve (9 Nov, Firman's sheet): the approver corrects the lines of a waiting order;
+// editOrder (Order.js) writes them to the queue and notes who changed what in Catatan.
+function skApEdit(box, o) {
+  box.appendChild(skEl('div', 'arnote', 'Ubah barang order ' + o.school + ' (' + skoIso(o.date) + '). Jumlah barang tetap ' + o.lines.length + '; untuk menambah atau menghapus barang, tolak order supaya admin menginput ulang. Perubahan dicatat di kolom Catatan.'));
+  var wrap = skEl('div', 'twrap apt'), tbl = skEl('table', 'otab'), th = skEl('thead'), hr = skEl('tr');
+  [['No', ''], ['Barang', ''], ['Qt', 'num'], ['Satuan', ''], ['HPP / satuan', 'num'], ['Harga jual / satuan', 'num'], ['Cash back %', 'num'], ['Vendor', '']].forEach(function (c) { hr.appendChild(skEl('th', c[1], c[0])); });
+  th.appendChild(hr); tbl.appendChild(th);
+  var tb = skEl('tbody'), inputs = [];
+  o.lines.forEach(function (l, i) {
+    var tr = skEl('tr'), row = {};
+    tr.appendChild(skEl('td', '', String(i + 1)));
+    [['item', l.item, 'text'], ['qty', l.qty, 'decimal'], ['unit', l.unit, 'text'], ['hpp', l.hpp, 'decimal'], ['price', l.price, 'decimal'], ['cb', Math.round(l.cb * 1000) / 10, 'decimal'], ['vendor', l.vendor, 'text']].forEach(function (f) {
+      var td = skEl('td'), inp = document.createElement('input');
+      inp.className = 'oin'; inp.value = f[1] == null ? '' : String(f[1]);
+      if (f[0] === 'item') inp.style.minWidth = '200px'; else if (f[0] === 'vendor') inp.style.minWidth = '130px';
+      if (f[2] === 'decimal') inp.setAttribute('inputmode', 'decimal');
+      inp.setAttribute('aria-label', f[0] + ' baris ' + (i + 1));
+      row[f[0]] = inp; td.appendChild(inp); tr.appendChild(td);
+    });
+    inputs.push(row); tb.appendChild(tr);
+  });
+  tbl.appendChild(tb); wrap.appendChild(tbl); box.appendChild(wrap);
+  var msg = skEl('div', 'omsg'), acts = skEl('div', 'oacts'), save = skEl('button', 'lbtn2 primary', 'Simpan perubahan'), cancel = skEl('button', 'lbtn', 'Batal');
+  save.type = 'button'; cancel.type = 'button';
+  acts.style.marginTop = '12px';
+  acts.appendChild(cancel); acts.appendChild(save);
+  box.appendChild(msg); box.appendChild(acts);
+  cancel.addEventListener('click', function () { SKA.edit = ''; skApRender(); });
+  save.addEventListener('click', function () {
+    var lines = inputs.map(function (r) { return { item: r.item.value, qty: r.qty.value, unit: r.unit.value, hpp: r.hpp.value, price: r.price.value, cb: r.cb.value, vendor: r.vendor.value }; });
+    save.disabled = true; msg.className = 'omsg'; msg.textContent = 'Menyimpan...';
+    google.script.run.withSuccessHandler(function (res) {
+      SKA.edit = '';
+      msg.className = 'omsg ok'; msg.textContent = res && res.changed ? 'Tersimpan: ' + res.changed + ' baris diubah.' : 'Tidak ada yang berubah.';
+      skApOpen(true);
+    }).withFailureHandler(function (e) {
+      save.disabled = false; msg.className = 'omsg err'; msg.textContent = skoMsg(e);
+    }).editOrder(o.id, lines);
+  });
+}
 function skApDetail() {
   var box = document.getElementById('apDetail'), d = SKA.data;
   box.textContent = '';
@@ -2439,6 +2576,7 @@ function skApDetail() {
   }
   var o = d.pending.filter(function (x) { return x.id === SKA.sel; })[0];
   if (!o) { if (!SKA.done) box.appendChild(skEl('div', 'oempty', 'Tidak ada order untuk diperiksa.')); return; }
+  if (SKA.edit === o.id && d.approver) { skApEdit(box, o); return; }
   var rates = skoRates(o), calc = skoOrder(o.lines, rates), t = calc.total;
   var head = skEl('div', 'aphead');
   [['Nama sekolah', o.school], ['Tanggal order', skoIso(o.date)], ['CV / Jenis', (o.cv || '-') + ' / ' + (o.jenis || '-')],
@@ -2448,6 +2586,7 @@ function skApDetail() {
     x.appendChild(skEl('b', '', f[1]));
     head.appendChild(x);
   });
+  if (o.note) { var nf = skEl('div', 'ofield'); nf.appendChild(skEl('span', '', 'Catatan')); nf.appendChild(skEl('b', '', o.note)); head.appendChild(nf); }
   box.appendChild(head);
   var wrap = skEl('div', 'twrap apt'), tbl = skEl('table'), th = skEl('thead'), hr = skEl('tr');
   // Same columns as Mas Firman's approver sheet: Harga jual is the line total, the unit price shows on hover.
@@ -2547,7 +2686,10 @@ function skApDetail() {
       if (!rnote.value.trim()) { rerr.className = 'omsg err'; rerr.textContent = 'Tulis alasan supaya admin tahu yang perlu diperbaiki.'; return; }
       skApDecide(o, 'reject', rnote.value.trim(), rgo, rerr);
     });
-    btns.appendChild(go); btns.appendChild(conf); btns.appendChild(no); btns.appendChild(rej);
+    var ed = skEl('button', 'apbtn no apedit', 'Ubah barang sebelum approve');
+    ed.type = 'button';
+    ed.addEventListener('click', function () { SKA.edit = o.id; SKA.done = null; skApRender(); });
+    btns.appendChild(go); btns.appendChild(conf); btns.appendChild(ed); btns.appendChild(no); btns.appendChild(rej);
   } else {
     btns.appendChild(skEl('div', 'arnote', 'Hanya approver yang bisa menyetujui order: ' + (d.approvers.join(', ') || '(belum diatur di tab Pengaturan)') + '.'));
   }
@@ -2674,6 +2816,9 @@ function skApVendors() {
   document.getElementById('oSubmit').addEventListener('click', skoSubmit);
   document.getElementById('oAddSchool').addEventListener('click', function () { skoSchoolModal(true); });
   document.getElementById('nsCancel').addEventListener('click', function () { skoSchoolModal(false); });
+  document.getElementById('invClose').addEventListener('click', function () { skInvShow(false); });
+  document.getElementById('inReload').addEventListener('click', function () { skInOpen(true); });
+  document.getElementById('invModal').addEventListener('click', function (e) { if (e.target.id === 'invModal') skInvShow(false); });
   document.getElementById('nsSave').addEventListener('click', skoSaveSchool);
   document.getElementById('nsName').addEventListener('change', skoGuessSchool);
   Array.prototype.forEach.call(document.querySelectorAll('#oKanal button'), function (b) {
@@ -2683,6 +2828,145 @@ function skApVendors() {
 })();
 
 // ---------- Aplikasi (7 Nov, Firman: "data hasil inputan di apps baik sales, dan snapp bisa kita lihat") ----------
+// ---------- Insentif marketing (9 Nov, Firman's sheet: per marketing per bulan, from the sales app) ----------
+// getIncentives (Sales.js): per active sales, the last six full months and this month with base pay,
+// surplus over target, new-school and aging incentive and the total, plus the KPI verdict.
+var SKIN2 = { data: null, loading: false, err: '' };
+var SKIN2_ST = { naik: 'ok', aman: '', turun: 'no', baru: '' };
+function skInOpen(force) {
+  if (SKIN2.data && !force) { skInRender(); return; }
+  if (SKIN2.loading) return;
+  SKIN2.loading = true;
+  document.getElementById('inInfo').textContent = 'Menghitung insentif...';
+  google.script.run.withSuccessHandler(function (d) {
+    SKIN2.loading = false; SKIN2.data = d || {}; SKIN2.err = ''; skInRender();
+  }).withFailureHandler(function (e) {
+    SKIN2.loading = false; SKIN2.err = skoMsg(e); skInRender();
+  }).getIncentives();
+}
+function skInMonth(ym) { var p = String(ym).split('-'); return ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'][+p[1] - 1] + ' ' + p[0]; }
+function skInRender() {
+  var d = SKIN2.data, cards = document.getElementById('inCards'), box = document.getElementById('kpisIn');
+  cards.textContent = '';
+  if (SKIN2.err) { document.getElementById('inInfo').textContent = SKIN2.err; return; }
+  if (!d) return;
+  var sales = d.sales || [], last = (d.months || []).length - 1;
+  document.getElementById('inInfo').textContent = sales.length ? sales.length + ' sales aktif, ' + skInMonth(d.months[0]) + ' sampai ' + skInMonth(d.months[last]) : 'Belum ada akun Sales yang aktif.';
+  var sum = function (i) { return sales.reduce(function (t, x) { return t + ((x.months[i] || {}).total || 0); }, 0); };
+  skKpi(box, 'in1', { label: 'Total gaji + insentif ' + skInMonth(d.months[last - 1] || ''), icon: 'invoice', bg: '#e8f0fc', fg: '#1c5cab', value: last > 0 ? sum(last - 1) : 0, fmt: skRp,
+    sub: [{ text: 'bulan penuh terakhir' }] }, 0);
+  skKpi(box, 'in2', { label: 'Perkiraan ' + skInMonth(d.months[last] || ''), icon: 'pct', bg: '#efeafb', fg: '#4a3aa7', value: last >= 0 ? sum(last) : 0, fmt: skRp,
+    sub: [{ text: 'bisa berubah sampai akhir bulan' }] }, 1);
+  skKpi(box, 'in3', { label: 'Sales di zona turun', icon: 'count', bg: '#fde7e7', fg: '#b42318', value: sales.filter(function (x) { return x.status === 'turun'; }).length, fmt: function (v) { return skNum(Math.round(v), 0); },
+    sub: [{ text: 'dari ' + sales.length + ' sales aktif' }] }, 2);
+  sales.forEach(function (x, si) {
+    var card = skEl('div', 'card incard'), head = skEl('div', 'inhead');
+    card.style.setProperty('--i', si + 3);
+    head.appendChild(skEl('span', 'inav', x.name.charAt(0).toUpperCase()));
+    head.appendChild(skEl('b', '', x.name));
+    head.appendChild(skEl('span', 'tag', x.level + (x.levelSet ? '' : ' (belum diatur)')));
+    head.appendChild(skEl('span', 'tag ' + (SKIN2_ST[x.status] || ''), x.statusText || ''));
+    card.appendChild(head);
+    var wrap = skEl('div', 'twrap'), t = skEl('table');
+    skSortHead(t, [{ label: 'Bulan' }, { label: 'Omzet', num: true }, { label: 'Capaian', num: true }, { label: 'Gaji pokok', num: true }, { label: 'Surplus target', num: true },
+      { label: 'Sekolah baru', num: true }, { label: 'Aging lancar', num: true }, { label: 'Total', num: true }], {}, function () {});
+    var tb = skEl('tbody');
+    x.months.slice().reverse().forEach(function (m, i) {
+      var tr = skEl('tr', i === 0 ? 'now' : '');
+      tr.appendChild(skEl('td', '', skInMonth(m.m) + (i === 0 ? ' (perkiraan)' : '')));
+      tr.appendChild(skEl('td', 'num', skRpFull(m.omzet)));
+      tr.appendChild(skEl('td', 'num', m.target ? Math.round(m.omzet / m.target * 100) + '%' : '-'));
+      tr.appendChild(skEl('td', 'num', skRpFull(m.base)));
+      tr.appendChild(skEl('td', 'num', skRpFull(m.surplus)));
+      var fr = skEl('td', 'num', skRpFull(m.freshRp)); if (m.fresh.length) fr.title = m.fresh.join(', '); tr.appendChild(fr);
+      var ag = skEl('td', 'num', skRpFull(m.agingRp)); ag.title = m.onTimeCount + ' dari ' + m.dueCount + ' tagihan jatuh tempo lunas tepat waktu'; tr.appendChild(ag);
+      tr.appendChild(skEl('td', 'num tot', skRpFull(m.total)));
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); wrap.appendChild(t); card.appendChild(wrap);
+    cards.appendChild(card);
+  });
+}
+
+// ---------- one invoice's SNAPP side (9 Nov, Firman: "bisa kita klik") ----------
+// A tap on an invoice number in tab Data: its surat jalan with the school's goods check and the
+// admin's answer, the school's invoice confirmation, files from that school and its SNAPP account.
+var SKINV = { cache: {}, cur: '' };
+function skInvShow(on) { document.getElementById('invModal').classList.toggle('on', !!on); }
+function skInvRow(label, value) { var r = skEl('div', 'row'); r.appendChild(skEl('span', '', label)); r.appendChild(skEl('span', '', value || '-')); return r; }
+function skInvSec(title, tag, tagCls) {
+  var sec = skEl('div', 'invsec'), h = skEl('h5', '', title);
+  if (tag) h.appendChild(skEl('span', 'tag ' + (tagCls || ''), tag));
+  sec.appendChild(h);
+  return sec;
+}
+function skInvOpen(inv, school) {
+  SKINV.cur = inv;
+  document.getElementById('invTitle').textContent = 'Invoice ' + inv;
+  document.getElementById('invSub').textContent = school || '';
+  var body = document.getElementById('invBody');
+  body.textContent = '';
+  skInvShow(true);
+  if (SKINV.cache[inv]) { skInvDraw(SKINV.cache[inv]); return; }
+  body.appendChild(skEl('p', 'none', 'Memuat data SNAPP...'));
+  google.script.run.withSuccessHandler(function (d) {
+    SKINV.cache[inv] = d || {};
+    if (SKINV.cur === inv) skInvDraw(SKINV.cache[inv]);
+  }).withFailureHandler(function (e) {
+    if (SKINV.cur !== inv) return;
+    body.textContent = '';
+    body.appendChild(skEl('p', 'none', skoMsg(e)));
+  }).getInvoiceSnapp(inv, school);
+}
+function skInvDraw(d) {
+  var body = document.getElementById('invBody'), box = skEl('div', '');
+  box.style.cssText = 'display:flex;flex-direction:column;gap:10px';
+  var sjs = d.sjs || [], sj = skInvSec('Surat jalan', sjs.length ? sjs.length + ' surat jalan' : '', '');
+  if (!sjs.length) sj.appendChild(skEl('div', 'none', 'Belum ada surat jalan untuk invoice ini.'));
+  sjs.forEach(function (x) {
+    var head = skEl('h5', '', x.no);
+    head.appendChild(skEl('span', 'tag ' + (SKAX_SJ_TAG[x.status] || ''), x.status));
+    head.style.marginTop = '6px';
+    sj.appendChild(head);
+    sj.appendChild(skInvRow('Tanggal kirim', x.date || ''));
+    sj.appendChild(skInvRow('Dikirim', x.sent ? x.sent + (x.sentBy ? ' oleh ' + x.sentBy : '') + (x.photo ? ', ada foto' : '') : ''));
+    sj.appendChild(skInvRow('Diterima sekolah', x.got ? x.got + (x.gotBy ? ' oleh ' + x.gotBy : '') : ''));
+    sj.appendChild(skInvRow('Cek barang', !x.checked ? (x.status === 'Diterima' ? 'tanpa cek per barang' : '-') : (x.issues || []).length ? x.issues.length + ' barang tidak sesuai' : 'Sesuai semua'));
+    if ((x.issues || []).length) sj.appendChild(skEl('div', 'iss', x.issues.join('; ')));
+    if (x.schoolNote) sj.appendChild(skEl('div', 'iss', 'Catatan sekolah: ' + x.schoolNote));
+    (x.answers || []).forEach(function (a) { sj.appendChild(skEl('div', 'ans', 'Tanggapan admin ' + a)); });
+  });
+  box.appendChild(sj);
+  var v = d.verif, vs = skInvSec('Konfirmasi invoice', v ? v.status : 'Belum', v ? (v.status === 'Sesuai' ? 'ok' : 'no') : '');
+  if (!v) vs.appendChild(skEl('div', 'none', 'Sekolah belum mengonfirmasi invoice ini di SNAPP.'));
+  else {
+    vs.appendChild(skInvRow('Dikonfirmasi', v.at + (v.by ? ' oleh ' + v.by : '')));
+    if (v.note) vs.appendChild(skEl('div', 'iss', 'Catatan sekolah: ' + v.note));
+    if (v.answer) vs.appendChild(skEl('div', 'ans', 'Tanggapan admin (' + v.answered + '): ' + v.answer));
+  }
+  box.appendChild(vs);
+  var files = d.files || [], fs = skInvSec('File dari sekolah', files.length ? files.length + ' file' : '', '');
+  if (!files.length) fs.appendChild(skEl('div', 'none', 'Sekolah ini belum mengirim file.'));
+  files.forEach(function (f) {
+    var r = skEl('div', 'row'), l = skEl('span', '');
+    if (f.url) { var a = skEl('a', '', f.name); a.href = f.url; a.target = '_blank'; a.rel = 'noopener'; l.appendChild(a); } else l.textContent = f.name;
+    r.appendChild(l);
+    r.appendChild(skEl('span', '', f.at + ' · ' + f.status));
+    fs.appendChild(r);
+  });
+  box.appendChild(fs);
+  var ac = d.account, as = skInvSec('Akun sekolah', ac ? (ac.login ? (ac.active ? 'Aktif' : 'Nonaktif') : 'Belum ada login') : 'Belum terdaftar', ac && ac.login && ac.active ? 'ok' : '');
+  if (!ac) as.appendChild(skEl('div', 'none', 'Sekolah ini belum ada di SNAPP. Admin bisa membuat akunnya di aplikasi internal, menu Pelanggan.'));
+  else {
+    as.appendChild(skInvRow('Terakhir masuk', ac.lastLogin || 'belum pernah'));
+    as.appendChild(skInvRow('PIC', ac.pic ? ac.pic + (ac.role ? ' (' + ac.role + ')' : '') : ''));
+    as.appendChild(skInvRow('Profil', (ac.address ? 'alamat ada' : 'alamat belum') + ', ' + (ac.bank ? 'rekening ada' : 'rekening belum')));
+  }
+  box.appendChild(as);
+  body.textContent = '';
+  body.appendChild(box);
+}
+
 // getAppData (Sales.js): visits and new schools from the Sales Tracker, SNAPP rows from Database
 // Pelanggan. Until a real school uses SNAPP its view shows sample rows under a clear "contoh" note
 // (Muji promised Firman a look at it before the first school).
