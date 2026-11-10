@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.6","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.7","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -512,6 +512,8 @@
   .tile .ic.art img { width: 60px; height: 60px; filter: drop-shadow(0 6px 8px rgba(39, 40, 192, .14)); }
   .sth.art { background: linear-gradient(160deg, #EAF0FF, #F7F9FF); }
   .sth.art img { width: 44px; height: 44px; }
+  .sth .jl { position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); font-size: 10px; font-weight: 800; line-height: 1; padding: 3px 6px; border-radius: 999px; color: #fff; background: #5E6079; box-shadow: 0 0 0 2px #fff; letter-spacing: .3px; }
+  .sth .jl-sd { background: #E06A12; } .sth .jl-smp { background: #C2362B; } .sth .jl-sma { background: #4F6693; } .sth .jl-smk { background: #158A7C; }
   .kbig img { width: 40px; height: 40px; margin: -6px 0; filter: drop-shadow(0 4px 6px rgba(19, 100, 47, .25)); }
   .caption.kcap img { width: 28px; height: 28px; vertical-align: -8px; margin-right: 6px; }
   .top .in > .hb { width: 100%; }
@@ -643,11 +645,20 @@ function ico(name) {
 }
 var SKA_JENIS_ICON = { 'Kunjungan': 'team', 'Telepon/WA': 'phone', 'Presentasi': 'board', 'Negosiasi': 'talk' };
 // A school's picture in lists: a building in a tinted square with its colour dot on the corner.
-function schoolThumb(color, key) {
-  var n = 0, k = String(key || '');
-  for (var i = 0; i < k.length; i++) n = (n * 31 + k.charCodeAt(i)) % 9973;
-  var a = SKA_ART['sch_' + (n % 4 + 1)];
-  return '<span class="sth' + (a ? ' art' : '') + '">' + (a ? '<img src="' + a + '" alt="" width="44" height="44">' : SKA_ICO.school) + '<span class="dot ' + esc(color || 'grey') + '"></span></span>';
+// School picture by jenjang (10 Nov, Muji: one standard picture per level): SD orange roof, SMP red
+// roof, SMA blue with the clock tower, SMK teal two-storey; other levels the general school icon.
+// The level comes from the tracker's Jenjang, else from the name (SDN, SMPN, SMAN, SMKN ...).
+var SKA_JENJANG_ART = { SD: 'sch_1', SMP: 'sch_2', SMA: 'sch_3', SMK: 'sch_4' };
+function jenjangOf(s) {
+  var t = String((s && s.type) || '').toUpperCase(), n = ' ' + String((s && s.name) || '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ') + ' ';
+  var m = /\b(SMK|SMA|SMP|SD|MI|MTS|MA|TK|KB|PAUD|PKBM|SLB)\b/.exec(t) || /\s(SMK|SMA|SMP|SD|MI|MTS|MA|TK|KB|PAUD|PKBM|SLB)[NS]?\s/.exec(n);
+  var j = m ? m[1] : '';
+  return j === 'MI' ? 'SD' : j === 'MTS' ? 'SMP' : j === 'MA' ? 'SMA' : j === 'KB' || j === 'PAUD' ? 'TK' : j;
+}
+function schoolThumb(color, s) {
+  var j = jenjangOf(s), a = SKA_ART[SKA_JENJANG_ART[j]] || SKA_ART.ic_school;
+  return '<span class="sth' + (a ? ' art' : '') + '">' + (a ? '<img src="' + a + '" alt="" width="44" height="44">' : SKA_ICO.school) +
+    (j ? '<span class="jl jl-' + esc(j.toLowerCase()) + '">' + esc(j) + '</span>' : '') + '<span class="dot ' + esc(color || 'grey') + '"></span></span>';
 }
 // The app mark from the brand sheet (aplikasi sadya.pdf, 5 Nov 2026): blue square, orange corner, white ST.
 var SKA_MARK = '<svg viewBox="26.24 136.16 106.04 106.04" aria-hidden="true"><path fill="#2728c0" d="M54.59 136.16L103.93 136.16C119.53 136.16 132.28 148.92 132.28 164.51L132.28 213.85C132.28 229.44 119.53 242.20 103.93 242.20L54.59 242.20C39.00 242.20 26.24 229.44 26.24 213.85L26.24 164.51C26.24 148.92 39.00 136.16 54.59 136.16"/><path fill="#3152bf" d="M59.64 136.16L57.05 161.73L26.24 184.02L26.24 164.51C26.24 148.92 39.00 136.16 54.59 136.16L59.64 136.16Z"/><path fill="#fb4305" d="M76.71 203.44L132.28 175.41L132.28 213.85C132.28 229.44 119.53 242.20 103.93 242.20L54.59 242.20C53.73 242.20 52.87 242.16 52.03 242.08L76.71 203.44Z"/><path fill="#ffffff" d="M81.74 183.00L112.71 183.00L112.71 195.36L112.71 195.36L95.28 195.36C94.28 195.36 93.45 196.19 93.45 197.19L93.45 197.19C93.45 198.19 94.28 199.02 95.28 199.02L112.71 199.02L112.71 219.16L96.81 219.16L96.81 203.25C96.81 202.25 95.99 201.43 94.99 201.43L94.99 201.43C93.98 201.43 93.16 202.25 93.16 203.25L93.16 219.16L77.26 219.16L77.26 195.36L45.81 195.36L45.81 188.30L45.81 183.35L67.66 183.35C68.67 183.35 69.49 182.53 69.49 181.53L69.49 181.53C69.49 180.52 68.67 179.70 67.66 179.70L45.81 179.70L45.81 159.21L81.74 159.21L81.74 171.69L59.89 171.69C58.88 171.69 58.06 172.51 58.06 173.52L58.06 173.52C58.06 174.52 58.88 175.34 59.89 175.34L81.74 175.34L81.74 183.00Z"/></svg>';
@@ -992,7 +1003,7 @@ function focusCard(d) {
   if (!r) return h + '<p class="muted" style="margin:0">Semua sekolah sudah dihubungi minggu ini.</p></div>';
   var s = school(r.key) || { key: r.key, name: r.name, color: 'red' }, kinds = (d.lists && d.lists.kinds) || {};
   var tags = (kinds[r.kind] ? '<i class="tag' + (r.kind === 'collect' ? ' amber' : '') + '">' + esc(kinds[r.kind]) + '</i>' : '') + (s.color === 'grey' ? '<i class="tag grey">Belum mulai</i>' : '');
-  return h + '<button class="head" onclick="go(\'school\',\'' + jsq(r.key) + '\')">' + schoolThumb(s.color, s.key) + '<b>' + esc(r.name) + '</b></button>' +
+  return h + '<button class="head" onclick="go(\'school\',\'' + jsq(r.key) + '\')">' + schoolThumb(s.color, s) + '<b>' + esc(r.name) + '</b></button>' +
     (tags ? '<div class="tags">' + tags + '</div>' : '') + ((r.reasons || [])[0] ? '<p class="why1">' + esc(nbRp(r.reasons[0])) + '</p>' : '') +
     '<div class="acts one">' + (r.actions || []).map(function (a) { return actBtn(a, s); }).join('') + '</div>' +
     (list.length > 1 ? '<button class="link" onclick="go(\'tasks\')">Lihat ' + (list.length - 1) + ' tugas lainnya' + SKA_ICON.right + '</button>' : '') + '</div>';
@@ -1454,7 +1465,7 @@ function drawSchoolList() {
   el.innerHTML = l.length ? l.map(function (s) {
     var meta = (s.color === 'grey' ? 'Belum mulai' : sinceTxt(s)) + (mgr ? ' · ' + salesLabel(s.sales) : '') + (s.status === 'Prospek' && s.color !== 'grey' ? ' · Prospek' : '');
     var v = by12 ? s.omzet12 : s.omzetYear;
-    return '<button class="item srow2" onclick="go(\'school\',\'' + jsq(s.key) + '\')">' + schoolThumb(s.color, s.key) + '<span class="t"><b>' + esc(s.name) + '</b>' +
+    return '<button class="item srow2" onclick="go(\'school\',\'' + jsq(s.key) + '\')">' + schoolThumb(s.color, s) + '<span class="t"><b>' + esc(s.name) + '</b>' +
       (s.tier ? '<span class="tl"><i class="tier t' + esc(s.tier) + '">' + esc(tierLabel(s.tier)) + '</i></span>' : '') + '<span class="mt">' + SKA_ICON.clock + esc(meta) + '</span></span>' +
       '<span class="r"><b>' + (v ? rp(v) : 'Rp 0') + '</b>' + (by12 ? '12 bulan' : Y) + '</span><span class="chev">' + SKA_ICON.right + '</span></button>';
   }).join('') : '<p class="muted">Tidak ada sekolah yang cocok.</p>';
