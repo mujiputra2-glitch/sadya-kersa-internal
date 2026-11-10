@@ -408,6 +408,7 @@ html:has(.loader:not(.off)){overflow:hidden}
 .apbtn.go{color:#fff;background:linear-gradient(135deg,#00a6e0,#0b74c4);box-shadow:0 12px 26px -12px rgba(11,116,196,.8)}
 .apbtn.go:hover{transform:translateY(-2px)}
 .apbtn.no{background:#fff;color:var(--down);border:1px solid #f0c4c4;font-size:13.5px;padding:10px 14px}
+.apbtn.apedit{background:#fff;color:var(--brand-ink);border:1.5px solid #c9d1f2;font-size:14px;padding:12px 16px}
 .apconfirm{display:none;flex-direction:column;gap:8px;padding:12px;border-radius:12px;background:#f5f9ff;border:1px solid #cfe0f5;font-size:12.5px;line-height:1.5}
 .apconfirm.on{display:flex}
 .apconfirm .row{display:flex;gap:8px;flex-wrap:wrap}
@@ -2686,10 +2687,11 @@ function skApDetail() {
       if (!rnote.value.trim()) { rerr.className = 'omsg err'; rerr.textContent = 'Tulis alasan supaya admin tahu yang perlu diperbaiki.'; return; }
       skApDecide(o, 'reject', rnote.value.trim(), rgo, rerr);
     });
-    var ed = skEl('button', 'apbtn no apedit', 'Ubah barang sebelum approve');
+    var ed = skEl('button', 'apbtn apedit', 'Ubah barang sebelum approve');
     ed.type = 'button';
     ed.addEventListener('click', function () { SKA.edit = o.id; SKA.done = null; skApRender(); });
-    btns.appendChild(go); btns.appendChild(conf); btns.appendChild(ed); btns.appendChild(no); btns.appendChild(rej);
+    // 10 Nov (Muji): no Tolak button any more; the approver edits (Ubah barang) and approves.
+    btns.appendChild(ed); btns.appendChild(go); btns.appendChild(conf);
   } else {
     btns.appendChild(skEl('div', 'arnote', 'Hanya approver yang bisa menyetujui order: ' + (d.approvers.join(', ') || '(belum diatur di tab Pengaturan)') + '.'));
   }
