@@ -896,7 +896,7 @@ function remindNotify(d, list, ann, newAnn) {
       if (hour > 0 && list.length) {
         var at = new Date(); at.setHours(hour, 0, 0, 0);
         if (at <= new Date()) at.setDate(at.getDate() + 1);
-        jobs.push({ id: 71, title: 'Sadya Kersa: pengingat', body: list.map(function (x) { return x[0]; }).join('. ') + '.', schedule: { at: at, allowWhileIdle: true } });
+        jobs.push({ id: 71, title: 'Sadya Kersa: pengingat', body: list.map(function (x) { return x[0]; }).join('. ') + '.', schedule: { at: at } });
       }
       if (ann && newAnn) jobs.push({ id: 72, title: 'Pengumuman Sadya Kersa', body: ann.slice(0, 240), schedule: { at: new Date(Date.now() + 1500) } });
       if (jobs.length) return ln.schedule({ notifications: jobs });
