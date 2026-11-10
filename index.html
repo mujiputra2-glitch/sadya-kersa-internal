@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.7","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.8","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -117,6 +117,20 @@
   .sheet .panel h2 { margin-top: 0; }
   .pickrow { display: flex; gap: 8px; }
   .pickrow input { flex: 1; }
+  .popn .popnhead { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .popn .popnhead b { display: block; font-size: 18px; }
+  .popn .popnhead span { color: var(--muted); font-size: 13px; }
+  .popn .lrow em { font-style: normal; font-weight: 700; color: var(--teal); }
+  .popann { margin-bottom: 8px; white-space: pre-wrap; }
+  .card.proses .prow { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+  .card.proses.late { box-shadow: inset 3px 0 0 var(--red), var(--shadow, 0 2px 10px rgba(0,0,0,.06)); }
+  .pdays { font-weight: 800; margin-top: 8px; color: var(--ink); }
+  .pdays.r { color: var(--red); }
+  .pbar { height: 6px; border-radius: 6px; background: var(--line, #e6e8f2); margin-top: 6px; overflow: hidden; }
+  .pbar i { display: block; height: 100%; background: var(--teal); }
+  .card.proses.late .pbar i { background: var(--red); }
+  .pparts { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 6px; }
+  .tiles a.tile { text-decoration: none; color: inherit; }
 
   .dot.grey { background: var(--grey); }
   .updbar { position: sticky; top: 0; z-index: 30; background: #FFE8DD; color: #8F2B00; border-bottom: 1px solid #FFC4A8; padding: 10px 16px; font-size: 15px; font-weight: 700; line-height: 1.35; }
@@ -336,6 +350,7 @@
   .item.kteam .r { font-size: 12px; }
   .item.kteam .av { flex: none; width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--brand); color: #fff; font-weight: 800; }
   .tag.green { background: #DDF3E4; color: #13642F; }
+  .tag.blue { background: #E2E8FB; color: #23308F; }
   .item .t .tags { margin-top: 6px; }
   .sjlinks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
   .sjlinks .chip { min-height: 44px; padding: 6px 12px; font-size: 14px; }
@@ -632,11 +647,12 @@ var SKA_ICO = {
   team: '<svg viewBox="0 0 24 24"><circle cx="16.5" cy="8" r="3.2" fill="currentColor" opacity=".45"/><path d="M12 20a4.6 4.6 0 0 1 9.5 0z" fill="currentColor" opacity=".45"/><circle cx="9" cy="8" r="3.8" fill="currentColor"/><path d="M2.5 20.5a6.5 6.5 0 0 1 13 0z" fill="currentColor"/></svg>',
   user: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.5" fill="currentColor"/><path d="M3.5 21a8.5 8.5 0 0 1 17 0z" fill="currentColor" opacity=".55"/><path d="M9.5 16.5l1.8 1.8 3.4-3.4" ' + SKA_W + '/></svg>',
   web: '<svg viewBox="0 0 24 24"><rect x="2.5" y="3.5" width="19" height="13.5" rx="2.5" fill="currentColor"/><path d="M9 21.5h6l-1-4.5h-4z" fill="currentColor" opacity=".45"/><path d="M6.5 13l3-3 2.5 2 4.5-4.5" ' + SKA_W + '/></svg>',
+  truck: '<svg viewBox="0 0 24 24"><path d="M2.5 6h11v10h-11z" fill="currentColor" opacity=".45"/><path d="M13.5 9h4l3.5 3.5V16h-7.5z" fill="currentColor"/><circle cx="6.5" cy="17.5" r="2" fill="currentColor"/><circle cx="17" cy="17.5" r="2" fill="currentColor"/></svg>',
   box: '<svg viewBox="0 0 24 24"><path d="M12 2.5l9 4.5-9 4.5L3 7z" fill="currentColor" opacity=".45"/><path d="M3 7l9 4.5v10L3 17z" fill="currentColor" opacity=".75"/><path d="M21 7l-9 4.5v10l9-4.5z" fill="currentColor"/><path d="M15.5 13v3" ' + SKA_W + '/></svg>',
   wallet: '<svg viewBox="0 0 24 24"><path d="M5 6.5l10-3.4a2 2 0 0 1 2.6 1.9v1.5z" fill="currentColor" opacity=".45"/><rect x="2.5" y="6" width="19" height="14.5" rx="3.5" fill="currentColor"/><rect x="14.5" y="11" width="7" height="4.6" rx="2.2" fill="#fff"/><circle cx="17" cy="13.3" r="1.1" fill="currentColor"/></svg>',
   clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="currentColor"/><path d="M12 7v5.3l3.4 2" ' + SKA_W + ' stroke-width="2.2"/></svg>'
 };
-var SKA_ICO_C = { target: 'teal', cal: 'blue', bill: 'pink', news: 'gold', chart: 'violet', school: 'orange', team: 'teal', user: 'violet', web: 'blue', box: 'orange', wallet: 'gold', clock: 'pink' };
+var SKA_ICO_C = { truck: 'teal', target: 'teal', cal: 'blue', bill: 'pink', news: 'gold', chart: 'violet', school: 'orange', team: 'teal', user: 'violet', web: 'blue', box: 'orange', wallet: 'gold', clock: 'pink' };
 var SKA_ART_FOR = { target: 'ic_tasks', cal: 'ic_cal', bill: 'ic_bill', news: 'ic_news', chart: 'ic_order', school: 'ic_school', box: 'ic_order', user: 'ic_school' };
 function ico(name) {
   var a = SKA_ART[SKA_ART_FOR[name]];
@@ -815,7 +831,7 @@ function loadHome(spinner) {
   return call('skxHome', SKA.token).then(function (d) {
     SKA.data = d; store('skx_home', JSON.stringify(d));
     busy(false); $('vLogin').classList.add('hide'); $('vApp').classList.remove('hide');
-    render(); flushQueue();
+    render(); flushQueue(); remindAfterHome(d);
     return true;
   }).catch(function (e) {
     busy(false);
@@ -831,6 +847,62 @@ function refreshHome() {
   loadHome(false).then(function (ok) { busy(false); if (ok && SKA.data) toast('Data sudah yang terbaru.'); });
 }
 function school(key) { var l = SKA.data ? SKA.data.schools : []; for (var i = 0; i < l.length; i++) if (l[i].key === key) return l[i]; return null; }
+
+// ---------- reminders (Firman 10 Nov: as a pop-up, like a bank app's notification) ----------
+// What needs doing today, per role, from the Beranda data. Each: [text, view to open].
+function remindList(d) {
+  var out = [], n;
+  if (isAdmin(d)) {
+    var a = d.admin || {}, t = a.totals || {}, c = a.customers && !a.customers.error ? a.customers : {};
+    if (t.deals) out.push([t.deals + ' deal dari sales menunggu input order', 'home']);
+    if (c.toShip) out.push([c.toShip + ' invoice belum punya surat jalan', 'acust']);
+    if (c.disputes) out.push([c.disputes + ' laporan barang atau invoice tidak sesuai dari sekolah', 'acust']);
+    if (t.overdueSchools) out.push([t.overdueSchools + ' sekolah punya tagihan lewat ' + (d.settings.overdueDays || 25) + ' hari', 'ainvoices']);
+    return out;
+  }
+  var fu = d.follow || { due: [] };
+  if (fu.due.length) out.push([fu.due.length + ' tindak lanjut jatuh tempo hari ini', 'follow']);
+  if ((n = overdueCount(d))) out.push([n + ' tagihan lewat jatuh tempo', 'tagihan']);
+  if (!isMgr(d) && d.kpi && d.kpi.fc && d.kpi.fc.pendingCount) out.push([d.kpi.fc.pendingCount + ' tagihan jatuh tempo periode ini, ingatkan sekolahnya', 'kp']);
+  return out;
+}
+function remindHash(t) { var h = 0; t = String(t || ''); for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return String(h); }
+// Once a day (and again when the Pengumuman changes) a pop-up lists the reminders; on the phone a
+// notification comes at the Jam pengingat hour (Pengaturan) with the same list.
+function remindAfterHome(d) {
+  try {
+    var list = remindList(d), ann = (d.settings && d.settings.announce) || '', ah = ann ? remindHash(ann) : '';
+    var popKey = d.today + '|' + d.me.name, seenDay = store('skx_pop') === popKey, newAnn = ah && store('skx_ann') !== ah;
+    remindNotify(d, list, ann, newAnn);
+    if ((seenDay || !list.length) && !newAnn) return;
+    store('skx_pop', popKey); if (ah) store('skx_ann', ah);
+    if (!$('sheet').classList.contains('hide')) return; // never over a form the user has open
+    openSheet('<div class="popn"><div class="popnhead">' + (SKA_ART.ic_bell ? '<img src="' + SKA_ART.ic_bell + '" alt="" width="40" height="40">' : ico('clock')) +
+      '<div><b>Pengingat hari ini</b><span>' + esc(hari(d.today)) + '</span></div></div>' +
+      (ann ? '<div class="note popann"><b>Pengumuman</b><br>' + esc(ann) + '</div>' : '') +
+      list.map(function (x) { return '<button class="lrow" onclick="closeSheet();go(\'' + jsq(x[1]) + '\')"><span>' + esc(x[0]) + '</span><em>Lihat</em></button>'; }).join('') +
+      '<button class="btn block" style="margin-top:12px" onclick="closeSheet()">Tutup</button></div>');
+  } catch (e) { return; } // a reminder never blocks Beranda
+}
+function remindNotify(d, list, ann, newAnn) {
+  var ln = nativePlugin('LocalNotifications');
+  if (!ln) return;
+  var hour = d.settings && typeof d.settings.remindHour === 'number' ? d.settings.remindHour : 8;
+  var perm = ln.checkPermissions().then(function (p) { return p.display === 'granted' ? p : ln.requestPermissions(); });
+  perm.then(function (p) {
+    if (!p || p.display !== 'granted') return;
+    return ln.cancel({ notifications: [{ id: 71 }] }).catch(function () {}).then(function () {
+      var jobs = [];
+      if (hour > 0 && list.length) {
+        var at = new Date(); at.setHours(hour, 0, 0, 0);
+        if (at <= new Date()) at.setDate(at.getDate() + 1);
+        jobs.push({ id: 71, title: 'Sadya Kersa: pengingat', body: list.map(function (x) { return x[0]; }).join('. ') + '.', schedule: { at: at, allowWhileIdle: true } });
+      }
+      if (ann && newAnn) jobs.push({ id: 72, title: 'Pengumuman Sadya Kersa', body: ann.slice(0, 240), schedule: { at: new Date(Date.now() + 1500) } });
+      if (jobs.length) return ln.schedule({ notifications: jobs });
+    });
+  }).catch(function () {}); // no notifications on this phone: the pop-up still shows
+}
 
 // ---------- offline queue ----------
 function queue() { try { return JSON.parse(store('skx_queue') || '[]'); } catch (e) { return []; } }
@@ -893,11 +965,13 @@ function go(view, key) {
 // category goes back to Beranda.
 function goBack() { go(SKA.view === 'school' ? SKA.from || 'schools' : 'home'); }
 function navOf(v) { return v === 'kp' || v === 'kpteam' ? (isMgr(SKA.data) ? 'kpteam' : 'kp') : SKA_CATS[v] ? 'home' : v === 'ainvoice' ? 'ainvoices' : v === 'acustd' || v === 'asj' || v === 'asjnew' || v === 'afile' ? 'acust' : v; }
+// Dashboard pages the admin opens from Beranda (Firman 10 Nov menu: data, aging, apps).
+var SKA_DASH = 'https://internal.sadyakersa.com/dashboard/';
 function render() {
   var d = SKA.data; if (!d) return;
   setNav(d);
   // An admin has only Beranda and the admin screens; the others only the sales screens.
-  var adm = { aorder: 1, ainvoices: 1, ainvoice: 1, acust: 1, acustd: 1, asj: 1, asjnew: 1, afile: 1 };
+  var adm = { aorder: 1, ainvoices: 1, ainvoice: 1, acust: 1, acustd: 1, asj: 1, asjnew: 1, afile: 1, aproses: 1 };
   if (isAdmin(d) ? SKA.view !== 'home' && !adm[SKA.view] : adm[SKA.view]) SKA.view = 'home';
   var nav = SKA.view === 'school' ? navOf(SKA.from || 'schools') : navOf(SKA.view);
   Array.prototype.forEach.call(document.querySelectorAll('.nav button'), function (b) { b.classList.toggle('on', b.getAttribute('data-nav') === nav); });
@@ -910,6 +984,7 @@ function render() {
   else if (SKA.view === 'ainvoices') m.innerHTML = vAInvoices(d);
   else if (SKA.view === 'ainvoice') m.innerHTML = vAInvoice(d);
   else if (SKA.view === 'acust') m.innerHTML = vACust(d);
+  else if (SKA.view === 'aproses') m.innerHTML = vAProses(d);
   else if (SKA.view === 'acustd') m.innerHTML = vACustD(d);
   else if (SKA.view === 'asj') m.innerHTML = vASj(d);
   else if (SKA.view === 'asjnew') m.innerHTML = vASjNew(d);
@@ -1431,9 +1506,10 @@ function vSchools(d) {
   if (!fl.some(function (f) { return f[0] === SKA.filter; })) SKA.filter = 'all';
   var who = mgr && SKA.salesFilter ? ' · ' + (SKA.salesFilter === '(kosong)' ? 'Belum ada sales' : SKA.salesFilter) : '';
   var cur = fl.filter(function (f) { return f[0] === SKA.filter; })[0], shown = base.filter(function (s) { return passFilter(s, SKA.filter, d.today); }).length;
-  setTop('<div><div class="sub">' + (SKA.filter !== 'all' ? shown + ' dari ' + base.length + ' sekolah · ' + esc(cur[1]) : base.length + ' sekolah') + esc(who) + '</div><h1>' + (mgr ? 'Semua Sekolah' : 'Sekolah Saya') + '</h1></div>' +
-    '<button class="iconbtn" onclick="addSchoolSheet()">+ Baru</button>');
-  var h = '<input id="sSearch" type="search" placeholder="Cari nama sekolah" value="' + esc(SKA.search) + '" oninput="SKA.search=this.value;drawSchoolList()" style="margin-top:14px">';
+  setTop('<div><div class="sub">' + (SKA.filter !== 'all' ? shown + ' dari ' + base.length + ' sekolah · ' + esc(cur[1]) : base.length + ' sekolah') + esc(who) + '</div><h1>' + (mgr ? 'Semua Sekolah' : 'Sekolah Saya') + '</h1></div>');
+  // Firman 10 Nov: "Baru" sits beside the search field (as on Catat), not in the header
+  var h = '<div class="pickrow" style="margin-top:14px"><input id="sSearch" type="search" placeholder="Cari nama sekolah" value="' + esc(SKA.search) + '" oninput="SKA.search=this.value;drawSchoolList()">' +
+    '<button class="btn" onclick="addSchoolSheet()">+ Baru</button></div>';
   // Chip rows scroll sideways and the colour key is folded, so a small phone (or large text) still
   // shows the first schools on the first screen.
   if (mgr && (d.team ? d.team.length : d.salesNames.length)) {
@@ -1808,10 +1884,17 @@ function adminHome(d) {
   h += custCard(d) + '<div class="caption">Deal dari sales, order belum diinput</div>';
   h += deals.length ? deals.map(function (x, i) { return dealCard(x, i); }).join('')
     : '<div class="float rise" style="--i:1"><p class="muted" style="margin:0">Tidak ada deal yang menunggu. Order lain tetap bisa diinput lewat tombol Order.</p></div>';
+  var tg = d.settings.targetDays || 12, cu = a.customers && !a.customers.error ? a.customers : null;
+  var link = function (tab, icon, title, line, i) {
+    return '<a class="tile rise" style="--i:' + i + '" href="' + SKA_DASH + (tab ? '?tab=' + tab : '') + '" target="_blank" rel="noopener">' + ico(icon) + '<b>' + esc(title) + '</b><span>' + esc(line) + '</span></a>';
+  };
   return h + '<div class="caption">Menu</div><div class="tiles t3">' +
-    tile('aorder', 'box', 'Input order', 'Masuk ke persetujuan approver', '', deals.length + 2) +
-    tile('ainvoices', 'bill', 'Tagihan', (t.schools || 0) + ' sekolah belum lunas', t.overdue ? 'red' : '', deals.length + 3) +
-    tile('acust', 'user', 'Pelanggan', a.customers && !a.customers.error ? a.customers.accounts + ' sekolah punya akun' : 'Akun, surat jalan, verifikasi', '', deals.length + 4) + '</div>';
+    tile('aorder', 'box', 'Input data', 'Order baru ke persetujuan approver', '', deals.length + 2) +
+    tile('aproses', 'truck', 'Proses order', 'Target ' + tg + ' hari sampai diterima', '', deals.length + 3) +
+    tile('acust', 'user', 'Surat jalan', cu ? cu.accounts + ' sekolah punya akun SNAPP' : 'Surat jalan, akun, verifikasi', '', deals.length + 4) +
+    tile('ainvoices', 'bill', 'Invoice dan aging', (t.schools || 0) + ' sekolah belum lunas', t.overdue ? 'red' : '', deals.length + 5) +
+    link('data', 'chart', 'Data', 'Data mentah di dashboard', deals.length + 6) +
+    link('aplikasi', 'news', 'Apps', 'Input sales dan SNAPP', deals.length + 7) + '</div>';
 }
 function dealCard(x, i) {
   return '<div class="card deal rise" style="--i:' + (i + 1) + '"><b>' + esc(x.school) + '</b><span class="muted small">' + esc(x.sales) + ' · ' + esc(tgl(x.date)) +
@@ -2109,7 +2192,8 @@ function kpForecast(k) {
   var sk = f.sekolah ? '<p class="small" style="margin:12px 0 0;color:var(--ink)">' + esc(nbRp('Sekolah baru ' + f.sekolah.have + ' dari ' + f.sekolah.line + ' dalam ' + (k.rules.naikSekolahBulan || 3) + ' bulan sampai ' + M +
     (f.sekolah.have >= f.sekolah.line ? ': syarat terpenuhi.' : ': perlu ' + (f.sekolah.line - f.sekolah.have) + ' lagi dengan order pertama minimal ' + rp(k.ind.sekolah.min) + '.'))) + '</p>' : '';
   var upR = f.up !== null && t ? f.up / t : null, dnR = f.safe && t ? f.safe / t : null;
-  return '<div class="caption kcap">' + (SKA_ART.ic_trophy ? '<img src="' + SKA_ART.ic_trophy + '" alt="" width="28" height="28">' : SKA_ICON.trophy) + 'Menuju penilaian ' + esc(tglPanjang(f.review)) + '</div><div class="float kfc rise" style="--i:1">' +
+  return '<div class="caption kcap">' + (SKA_ART.ic_trophy ? '<img src="' + SKA_ART.ic_trophy + '" alt="" width="28" height="28">' : SKA_ICON.trophy) + 'Menuju penilaian ' + esc(tglPanjang(f.review)) + '</div>' +
+    (f.periodLabel ? '<p class="muted small kper">Periode insentif ' + esc(f.periodLabel) + (f.payday ? ', dibayar ' + esc(tglPanjang(f.payday)) : '') + '.</p>' : '') + '<div class="float kfc rise" style="--i:1">' +
     '<div class="khead"><b class="kq">Perkiraan hasil</b>' + kstTag({ status: f.next }) + '</div>' +
     '<p class="muted small" style="margin:4px 0 0">' + esc((f.pace !== null ? 'Bila order sampai akhir ' + M + ' secepat sekarang' : 'Dengan omzet sejauh ini') + ' dan tagihan yang jatuh tempo bulan ini lunas tepat waktu.' +
       (f.nextPartial ? ' Penilaian belum lengkap: bulan penuh di level ini masih kurang.' : '')) + '</p>' +
@@ -2183,7 +2267,7 @@ function kpMonths(k) {
     k.months.slice().reverse().map(function (m, i) {
       return '<div class="ktr' + (m.held ? '' : ' off') + '"><span>' + esc(bln(m.m)) + (i === 0 ? '*' : '') + '</span><span>' + esc(nbRp(rp(m.omzet))) + '</span><span>' + kpc(m.pct) + '</span><span>' +
         (m.due ? kpc(m.agingPct) : '-') + '</span><span>' + m.fresh + '</span></div>';
-    }).join('') + '<p class="muted small" style="margin:8px 0 0">* bulan berjalan. Lancar: tagihan jatuh tempo bulan itu yang lunas tepat waktu. Baru: sekolah baru yang dihitung KPI.' +
+    }).join('') + '<p class="muted small" style="margin:8px 0 0">* bulan berjalan. Bulan = periode tanggal 21 bulan sebelumnya sampai tanggal 20, dibayar tanggal 25. Lancar: tagihan jatuh tempo bulan itu yang lunas tepat waktu. Baru: sekolah baru yang dihitung KPI.' +
     (k.months.some(function (m) { return !m.held; }) ? ' Baris abu-abu: sebelum mulai di level ini.' : '') + '</p></div>';
 }
 // How it is counted, in plain words, with this level's numbers (tab Aturan KPI; older servers send
@@ -2194,12 +2278,13 @@ function kpHelp(k) {
   var p = function (t, txt) { return '<p><b>' + esc(t) + '.</b> ' + esc(nbRp(txt)) + '</p>'; };
   return '<details class="float khelp"><summary>Cara KPI dihitung</summary>' +
     p('Omzet', 'Jumlah invoice dari sekolah yang dipegang (kolom Sales di Sales Tracker), dibanding target ' + k.level + ' ' + rp(R.target) + ' per bulan. Yang dinilai rata-rata bulan penuh terakhir.') +
-    p('Tagihan lunas tepat waktu', 'Dari tagihan yang jatuh tempo (tanggal invoice + ' + R.lancarHari + ' hari), berapa rupiah yang lunas sebelum jatuh tempo. Tagihan yang belum jatuh tempo belum dihitung.') +
+    p('Tagihan lunas tepat waktu', 'Dari tagihan yang jatuh tempo (tanggal barang diterima sekolah di SNAPP + ' + R.lancarHari + ' hari; invoice tanpa surat jalan diterima memakai tanggal invoice), berapa rupiah yang lunas sebelum jatuh tempo. Tagihan yang belum jatuh tempo belum dihitung.') +
     p('Sekolah baru', 'Sekolah yang order pertamanya minimal ' + rp(v(R.minSekolahBaru, s.min)) + '.' + (up ? '' : ' Untuk Senior tidak dinilai, insentifnya tetap dibayar.')) +
     p('Zona turun', 'Omzet rata-rata ' + R.turunBulan + ' bulan ' + kpc(v(R.turunOmzet, o.down)) + ' atau kurang, atau tagihan lancar ' + kpc(v(R.turunAging, a.down)) + ' atau kurang. Satu saja sudah masuk zona.') +
     (up ? p('Naik ke ' + k.next, 'Omzet rata-rata ' + R.naikOmzetBulan + ' bulan minimal ' + kpc(v(R.naikOmzet, o.line)) + ', tagihan lancar ' + R.naikAgingBulan + ' bulan minimal ' + kpc(v(R.naikAging, a.line)) +
       ', dan ' + v(R.naikSekolah, s.line) + ' sekolah baru dalam ' + R.naikSekolahBulan + ' bulan. Ketiganya harus terpenuhi.') : p('Senior', 'Level tertinggi. Yang dijaga hanya batas zona turun.')) +
-    p('Penilaian', 'Dihitung ulang setiap tanggal 1 dari bulan penuh terakhir. Bulan berjalan tampil sebagai perkiraan. Aplikasi tidak mengubah level; Mas Firman yang memutuskan.') +
+    p('Periode', 'Pencapaian bulan dihitung dari tanggal 21 bulan sebelumnya sampai tanggal 20. Contoh: Januari = 21 Desember sampai 20 Januari, dibayar 25 Januari. Order dan pelunasan setelah tanggal 20 masuk bulan berikutnya.') +
+    p('Penilaian', 'Dihitung ulang setiap tanggal 21 dari periode penuh terakhir. Bulan berjalan tampil sebagai perkiraan. Aplikasi tidak mengubah level; Mas Firman yang memutuskan.') +
     p('Insentif', 'Gaji pokok ' + rp(R.gaji) + ', ditambah ' + kpcDec(R.surplus) + ' dari omzet di atas target, insentif sekolah baru per order pertama, dan insentif tagihan lancar.') + '</details>';
 }
 // The team in tab KPI (Manajer): how many are ready to go up, safe, in the zone; per sales the
@@ -2434,6 +2519,73 @@ function sjDoc(s, school) {
     (s.note ? '<p class="small" style="white-space:pre-wrap">' + esc(s.note) + '</p>' : '') +
     '<div class="sign"><div>Pengirim<span></span></div><div>Penerima' + (s.gotBy ? '<span class="got">' + esc(s.gotBy) + '<br>' + esc(stampTxt(s.got)) + '</span>' : '<span></span>') + '</div></div></div>';
 }
+// Proses order (10 Nov, Muji and Firman): every order since SNAPP went live, from the order date to
+// goods received, against the target (Pengaturan, 12 days). The admin taps the two vendor steps;
+// sent and received come from the surat jalan.
+var SKA_STAGE = { order: ['Order masuk', ''], po: ['PO ke vendor', 'amber'], siap: ['Barang siap', 'amber'], dikirim: ['Dikirim', 'blue'], diterima: ['Diterima', 'green'] };
+function vAProses(d) {
+  var p = SKA.proses;
+  setTop('<div><div class="sub">Order sampai barang diterima sekolah</div><h1>Proses order</h1></div>');
+  if (!p) { loadProses(); return '<p class="muted" style="margin-top:16px">Memuat...</p>'; }
+  if (p.err) return '<div class="note amber" style="margin-top:16px">' + esc(p.err) + '</div><button class="btn block" style="margin-top:10px" onclick="SKA.proses=null;render()">Coba lagi</button>';
+  var open = p.list.filter(function (x) { return !x.got; }), done = p.list.filter(function (x) { return x.got; }), late = open.filter(function (x) { return x.late; }).length;
+  var h = '<div class="float lift rise" style="--i:0"><div class="stats"><div><b>' + open.length + '</b><span>order berjalan</span></div>' +
+    '<div' + (late ? ' class="warn"' : '') + '><b>' + late + '</b><span>lewat ' + p.target + ' hari</span></div>' +
+    '<div><b>' + done.length + '</b><span>diterima 14 hari terakhir</span></div></div></div>' +
+    '<p class="muted small" style="margin:12px 2px 0">Hitungan dari tanggal order sampai sekolah konfirmasi barang diterima di SNAPP. Tandai PO ke vendor dan barang siap di sini; dikirim dan diterima tercatat dari surat jalan.</p>';
+  if (!p.list.length) return h + '<div class="card" style="margin-top:14px">Belum ada order sejak ' + esc(tglPanjang(p.from)) + '.</div>';
+  return h + (open.length ? '<div class="caption">Berjalan</div>' + open.map(prosesCard).join('') : '') +
+    (done.length ? '<div class="caption">Sudah diterima</div>' + done.map(prosesCard).join('') : '');
+}
+function prosesCard(x) {
+  var p = SKA.proses, st = SKA_STAGE[x.stage] || ['', ''], q = jsq(x.inv);
+  var part = function (lbl, v) { return v === null || v === undefined ? '' : '<span>' + esc(lbl) + ' ' + v + ' hr</span>'; };
+  var step = function (k, lbl, on) {
+    return on ? '<button class="chip on" onclick="prosesStep(\'' + q + '\',\'' + k + '\',true)">' + esc(lbl) + ' ' + esc(tgl(on)) + '</button>'
+      : '<button class="chip" onclick="prosesStep(\'' + q + '\',\'' + k + '\',false)">' + esc(lbl) + '</button>';
+  };
+  var days = x.got ? x.days + ' hari, selesai' : x.late ? x.days + ' hari, lewat ' + (x.days - p.target) + ' hari' : 'hari ke-' + x.days + ' dari ' + p.target;
+  return '<div class="card proses' + (x.late ? ' late' : '') + '"><div class="prow"><b>' + esc(x.school || x.inv) + '</b><i class="tag ' + st[1] + '">' + esc(st[0]) + '</i></div>' +
+    '<div class="muted small">' + esc(x.inv) + ' · order ' + esc(tgl(x.date)) + '</div>' +
+    '<div class="pdays' + (x.late ? ' r' : '') + '">' + esc(days) + '</div>' +
+    '<div class="pbar"><i style="width:' + Math.min(100, Math.round(x.days / p.target * 100)) + '%"></i></div>' +
+    '<div class="pparts muted small">' + part('PO', x.parts.po) + part('Vendor', x.parts.siap) + part('Kirim', x.parts.kirim) + part('Sampai', x.parts.terima) + '</div>' +
+    (x.got ? '' : '<div class="chips" style="margin-top:8px">' + step('po', 'PO ke vendor', x.po) + step('siap', 'Barang siap', x.siap) +
+      (x.sj ? '' : '<button class="chip" onclick="go(\'acustd\',\'' + jsq(x.key) + '\')">Buat surat jalan</button>') + '</div>') +
+    (x.note ? '<div class="note">' + esc(x.note) + '</div>' : '') + '</div>';
+}
+function loadProses() {
+  if (SKA.prosesLoading) return;
+  SKA.prosesLoading = true;
+  call('skxProses', SKA.token).then(function (r) { SKA.prosesLoading = false; SKA.proses = r; if (SKA.view === 'aproses') render(); })
+    .catch(function (e) { SKA.prosesLoading = false; SKA.proses = { err: e.message }; if (SKA.view === 'aproses') render(); });
+}
+function prosesStep(inv, step, undo) {
+  if (undo && !confirm('Hapus tanda ini?')) return;
+  busy(true, 'Menyimpan...');
+  call('skxProsesStep', SKA.token, inv, step, !!undo).then(function (r) { busy(false); SKA.proses = r; render(); toast(undo ? 'Tanda dihapus.' : 'Tersimpan.'); })
+    .catch(function (e) { busy(false); toast(e.message); });
+}
+// Surat jalan as a PDF (Firman 10 Nov): on the phone it is saved and handed to the share menu
+// (WhatsApp, Drive, print); in a browser it downloads.
+function sjPdf(no) {
+  busy(true, 'Membuat PDF...');
+  call('skxSjPdf', SKA.token, no).then(function (r) {
+    var fs = nativePlugin('Filesystem'), sh = nativePlugin('Share');
+    if (fs && sh) {
+      return fs.writeFile({ path: r.name, data: r.b64, directory: 'CACHE' }).then(function (w) {
+        busy(false);
+        return sh.share({ title: r.name, files: [w.uri], dialogTitle: 'Simpan atau kirim PDF' });
+      });
+    }
+    busy(false);
+    var bin = atob(r.b64), arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    var url = URL.createObjectURL(new Blob([arr], { type: 'application/pdf' })), a = document.createElement('a');
+    a.href = url; a.download = r.name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+  }).catch(function (e) { busy(false); if (!/cancel/i.test(String(e && e.message))) toast(e.message); });
+}
 function canPrint() { return !nativePlugin('App') && typeof window.print === 'function'; }
 function vASj(d) {
   var x = (SKA.custD || {})[SKA.custKey], s = x && x.sjs ? x.sjs.filter(function (y) { return y.no === SKA.key; })[0] : null;
@@ -2441,7 +2593,8 @@ function vASj(d) {
   if (!x) { loadCustD(SKA.custKey); return '<p class="muted" style="margin-top:16px">Memuat...</p>'; }
   if (!s) return '<div class="note amber" style="margin-top:16px">Surat jalan tidak ditemukan. Muat ulang data.</div>';
   var h = '<div class="tags" style="margin-top:14px"><i class="tag ' + (SKA_SJ[s.status] || '') + '">' + esc(s.status) + '</i></div>' + sjDoc(s, x.name);
-  if (canPrint()) h += '<button class="btn block" style="margin-top:12px" onclick="window.print()">Cetak surat jalan</button>';
+  h += '<div class="btnrow" style="margin-top:12px"><button class="btn brand" onclick="sjPdf(\'' + jsq(s.no) + '\')">Unduh PDF</button>' +
+    (canPrint() ? '<button class="btn" onclick="window.print()">Cetak</button>' : '') + '</div>';
   var sh = SKA.ship && SKA.ship.no === s.no ? SKA.ship : null;
   if (s.status === 'Disiapkan') {
     h += '<div class="caption">Kirim barang</div><div class="card"><p class="muted small" style="margin:0">Foto barang saat diserahkan, atau foto surat jalan yang sudah ditandatangani. Bisa juga nomor resi kurir.</p>' +
@@ -2554,16 +2707,17 @@ var SKA_NAV = {
     '<button data-nav="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Riwayat</button>' +
     '<button data-nav="kp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.6 13.8L7 22l5-3 5 3-1.6-8.2"/></svg>KPI</button>',
   admin: '<button data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Beranda</button>' +
+    '<button data-nav="aproses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Proses</button>' +
     '<button data-nav="aorder" class="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Order</button>' +
     '<button data-nav="ainvoices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Tagihan</button>' +
-    '<button data-nav="acust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>Pelanggan</button>'
+    '<button data-nav="acust"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>SNAPP</button>'
 };
 // Sales and Manajer share the bar; the Manajer's KPI tab opens the team (kpteam), a sales' her own (kp).
 function setNav(d) {
   var role = isAdmin(d) ? 'admin' : isMgr(d) ? 'mgr' : 'sales', el = $('navIn');
   if (el && el.getAttribute('data-role') !== role) {
     el.innerHTML = role === 'mgr' ? SKA_NAV.sales.replace('data-nav="kp"', 'data-nav="kpteam"') : SKA_NAV[role];
-    el.setAttribute('data-role', role); el.classList.remove('three'); el.classList.toggle('five', role !== 'admin');
+    el.setAttribute('data-role', role); el.classList.remove('three'); el.classList.toggle('five', true);
   }
 }
 
