@@ -156,8 +156,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
     <h1>Papan Progres <span>Sadya Kersa</span></h1>
     <p class="lead">Semua yang sudah jalan di aplikasi Sales, SNAPP, dashboard dan website, lalu setiap permintaan Mas Firman sejak 30 Oktober beserta posisinya sekarang.</p>
     <div class="tally" aria-label="Ringkasan">
-      <div><b>35</b><span>permintaan dicatat</span></div>
-      <div class="g"><b>33</b><span>sudah live</span></div>
+      <div><b>41</b><span>permintaan dicatat</span></div>
+      <div class="g"><b>39</b><span>sudah live</span></div>
       <div class="w"><b>2</b><span>tinggal langkah akhir</span></div>
     </div>
   </header>
@@ -183,7 +183,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
         <ul>
           <li>Input order ke approval</li>
           <li>Proses order: target 12 hari sampai barang diterima</li>
-          <li>Surat jalan, unduh PDF, kabari PIC lewat WhatsApp</li>
+          <li>Cetak surat jalan dan invoice ke printer, unduh PDF, kabari PIC lewat WhatsApp</li>
           <li>Tagihan dan aging, akun SNAPP sekolah</li>
         </ul>
         <p class="stat">Pengingat harian muncul sebagai pop-up dan notifikasi HP.</p>
@@ -196,6 +196,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
           <li>Login sekolah yang dibuat admin</li>
           <li>Konfirmasi kiriman, cek per barang (sesuai, kurang, rusak)</li>
           <li>Cek invoice sesuai atau tidak, lihat tanggapan admin</li>
+          <li>Cetak dan unduh PDF surat jalan dan invoice</li>
           <li>Kirim file ke Sadya Kersa, ubah profil</li>
           <li>Jatuh tempo 30 hari setelah barang diterima</li>
           <li>Pengingat kiriman, cek invoice dan jatuh tempo</li>
@@ -208,8 +209,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
         <p class="where">internal.sadyakersa.com/dashboard, masuk dengan akun Google</p>
         <ul>
           <li>Menu ringkas: Ringkasan, Manajemen, Input order, Aplikasi</li>
-          <li>Aging invoice dihitung dari barang diterima</li>
-          <li>Insentif marketing per sales per bulan</li>
+          <li>Aging invoice dari tanggal order sampai bayar (pov manajemen)</li>
+          <li>Insentif marketing per sales per bulan, level sales diatur manajemen di sini</li>
           <li>Approval: ubah barang lalu approve, tanpa tombol tolak</li>
           <li>Data: klik nomor invoice untuk detail SNAPP</li>
           <li>Aplikasi: kegiatan sales dan data SNAPP</li>
@@ -245,8 +246,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
     <div class="sec-h"><h2 id="h-req">Permintaan Mas Firman</h2><p>Urut tanggal permintaan.</p></div>
     <div class="ledger">
       <div class="filters" role="group" aria-label="Saring status">
-        <button type="button" id="f-all" data-f="all" aria-pressed="true">Semua (35)</button>
-        <button type="button" id="f-ok" data-f="ok" aria-pressed="false">Live (33)</button>
+        <button type="button" id="f-all" data-f="all" aria-pressed="true">Semua (41)</button>
+        <button type="button" id="f-ok" data-f="ok" aria-pressed="false">Live (39)</button>
         <button type="button" id="f-open" data-f="open" aria-pressed="false">Langkah akhir (2)</button>
       </div>
 
@@ -295,18 +296,24 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
         <div class="req" data-s="ok"><div class="ask">Pengingat jadi pop-up, di Sales dan SNAPP</div><div class="done">Pop-up harian dan notifikasi HP; pengumuman bisa diisi tim sendiri di Pengaturan</div><span class="pill p-ok">Live, HP setelah update</span></div>
         <div class="req" data-s="ok"><div class="ask">Surat jalan bisa diunduh PDF atau dicetak dari HP</div><div class="done">Tombol Unduh PDF, lalu kirim, simpan atau cetak</div><span class="pill p-ok">Live, HP setelah update</span></div>
         <div class="req" data-s="ok"><div class="ask">Menu admin: input data, surat jalan, invoice, data, aging invoice, apps</div><div class="done">Di aplikasi admin dan di dashboard</div><span class="pill p-ok">Live</span></div>
-        <div class="req" data-s="ok"><div class="ask">Umur invoice dihitung dari barang diterima</div><div class="done">Berlaku di aplikasi, SNAPP, KPI dan dashboard</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Umur invoice dihitung dari barang diterima</div><div class="done">Berlaku di SNAPP, aplikasi Sales dan KPI. Dashboard memakai pov manajemen, lihat 11 Nov</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="ok"><div class="ask">Target 12 hari dari order sampai barang diterima</div><div class="done">Menu Proses order di aplikasi admin, lama tiap tahap terlihat</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="ok"><div class="ask">Invoice 2023 dan 2024 dianggap lunas</div><div class="done">36 baris (Rp 131.172.000) ditandai Lunas di file 2023 dan 2024 dan di dashboard, 11 Nov</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="ok"><div class="ask">Insentif: pencapaian 21 sampai 20, gaji tanggal 25</div><div class="done">Berlaku untuk surplus, sekolah baru dan aging</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="ok"><div class="ask">Promosi dan demosi dihitung akumulasi 3 bulan</div><div class="done">Rata-rata 3 bulan, bulan kurang bisa ditutup bulan yang lebih</div><span class="pill p-ok">Live</span></div>
-        <div class="req" data-s="open"><div class="ask">Update jumlah tester berkala</div><div class="done">Aplikasi Sales: 10 dari 12 tester (10 Nov)</div><span class="pill p-run">Berjalan</span></div>
+        <div class="req" data-s="ok"><div class="ask">Update jumlah tester berkala</div><div class="done">Aplikasi Sales sudah 12 tester (11 Nov). Rilis publik bisa diajukan sekitar 25 Nov</div><span class="pill p-ok">Live</span></div>
       </div>
 
       <div class="day"><h3>11 Nov</h3>
         <div class="req" data-s="ok"><div class="ask">Admin pegang semua sub menu admin dan aplikasi</div><div class="done">Menu Admin di dashboard, input data kembali</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="ok"><div class="ask">Pembagian mapping marketing</div><div class="done">Ari 45, Dede 79, Kantor 25 sekolah, sesuai file</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="ok"><div class="ask">Riwayat aktivitas dilihat marketing, manajemen cek progres</div><div class="done">Riwayat di aplikasi Sales, tab Aplikasi di dashboard</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Aging invoice pov manajemen<small>Dari tanggal order sampai bayar: SLA pengiriman + jangka waktu bayar</small></div><div class="done">Dashboard sudah. SNAPP dan Sales tetap 30 hari setelah barang diterima</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Cetak PDF surat jalan dari SNAPP</div><div class="done">Tombol Unduh PDF dan Cetak di surat jalan dan invoice sekolah</div><span class="pill p-ok">Live, HP setelah update</span></div>
+        <div class="req" data-s="ok"><div class="ask">Surat jalan dan invoice mudah dicetak ke printer</div><div class="done">Tombol Cetak membuka layar print Android, pilih printer kantor (Wi-Fi atau USB). Di web lewat print browser</div><span class="pill p-ok">Live, HP setelah update</span></div>
+        <div class="req" data-s="ok"><div class="ask">Link daftar SNAPP</div><div class="done">Join tester lewat Play Store, versi web pelanggan.sadyakersa.com. Akun sekolah dibuat admin</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Promosi dan demosi oleh manajemen, sales baru mulai Probation</div><div class="done">Dashboard, Insentif marketing: pilih level dan tanggal mulai, Simpan level. Hanya approver</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="open"><div class="ask">Approver untuk Mas Wildan dan Mas Fadhlulloh</div><div class="done">Sedang ditambahkan ke daftar approver di dashboard</div><span class="pill p-run">Sedang diatur</span></div>
       </div>
     </div>
   </section>
@@ -318,15 +325,14 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
         <h3><i>1</i> Dari Mas Firman</h3>
         <ul>
           <li>Konfirmasi isi laporan cashback sekolah</li>
-          <li>2 tester lagi untuk aplikasi Sales</li>
-          <li>Foto asli kegiatan untuk website</li>
+                    <li>Foto asli kegiatan untuk website</li>
         </ul>
       </div>
       <div class="wcard">
         <h3><i>2</i> Dari Google Play</h3>
         <ul>
-          <li>Review update Sales 1.6.8 dan SNAPP 1.1.2 (pop-up, PDF, jatuh tempo baru)</li>
-          <li>Rilis publik: setelah 12 tester aktif 14 hari, lalu review Google sekitar 7 hari</li>
+          <li>Review update Sales 1.6.9 dan SNAPP 1.1.3 (tombol Cetak, PDF invoice)</li>
+          <li>Rilis publik Sales: 12 tester sejak 11 Nov, ajukan sekitar 25 Nov, lalu review Google sekitar 7 hari</li>
         </ul>
       </div>
     </div>
