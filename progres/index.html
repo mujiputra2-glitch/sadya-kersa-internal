@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Papan Progres Sadya Kersa</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap">
+<style>
+/* Layout: a whiteboard. Marker headings, four product columns pinned as notes, then the request
+   ledger (what Mas Firman asked, when, and where it lives now), then the "still waiting" corner. */
+:root {
+  --board: #f5f6fa;
+  --panel: #ffffff;
+  --ink: #1b1d3a;
+  --ink-soft: #565a7a;
+  --line: #dfe2ee;
+  --brand: #2728c0;
+  --orange: #e8521a;
+  --note-blue: #e6e8fb;
+  --note-orange: #fdebe1;
+  --note-teal: #def3ee;
+  --note-gold: #fbf1d4;
+  --ok: #157a46;
+  --ok-bg: #dff3e7;
+  --wait: #9a4a00;
+  --wait-bg: #fdeedd;
+  --run: #23308f;
+  --run-bg: #e3e7fb;
+  --marker: "Caveat", "Segoe Print", "Comic Sans MS", cursive;
+  --body: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --shadow: 0 1px 0 rgba(27, 29, 58, .06), 0 6px 18px -10px rgba(27, 29, 58, .25);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --board: #14162a; --panel: #1c1f38; --ink: #eceefb; --ink-soft: #a7abc9; --line: #2e3256;
+    --brand: #8f93ff; --orange: #ff8a5c;
+    --note-blue: #232864; --note-orange: #3a2620; --note-teal: #17352f; --note-gold: #353019;
+    --ok: #7fdca6; --ok-bg: #173628; --wait: #ffb877; --wait-bg: #3a2918; --run: #aab3ff; --run-bg: #242a5c;
+    --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 8px 20px -12px rgba(0, 0, 0, .7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --board: #14162a; --panel: #1c1f38; --ink: #eceefb; --ink-soft: #a7abc9; --line: #2e3256;
+  --brand: #8f93ff; --orange: #ff8a5c;
+  --note-blue: #232864; --note-orange: #3a2620; --note-teal: #17352f; --note-gold: #353019;
+  --ok: #7fdca6; --ok-bg: #173628; --wait: #ffb877; --wait-bg: #3a2918; --run: #aab3ff; --run-bg: #242a5c;
+  --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 8px 20px -12px rgba(0, 0, 0, .7);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--board);
+  background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ink) 7%, transparent) 1px, transparent 0);
+  background-size: 22px 22px;
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-block: 36px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 40px;
+}
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+.mk { font-family: var(--marker); font-weight: 700; letter-spacing: .2px; }
+
+/* header */
+.head { display: grid; gap: 14px; }
+.date { font-size: 13px; font-weight: 600; color: var(--ink-soft); letter-spacing: .06em; text-transform: uppercase; }
+.head h1 { font-family: var(--marker); font-size: clamp(40px, 6vw, 62px); line-height: 1; color: var(--brand); }
+.head h1 span { color: var(--orange); }
+.lead { max-width: 64ch; color: var(--ink-soft); margin: 0; font-size: 16px; }
+.tally { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.tally div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; display: grid; min-width: 0; }
+.tally b { font-size: 26px; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.tally span { font-size: 13px; color: var(--ink-soft); }
+.tally .g b { color: var(--ok); }
+.tally .w b { color: var(--wait); }
+
+/* product columns */
+.sec-h { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.sec-h h2 { font-family: var(--marker); font-size: 34px; color: var(--ink); line-height: 1; }
+.sec-h p { margin: 0; color: var(--ink-soft); font-size: 14px; }
+.cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.note { border-radius: 4px 4px 14px 4px; padding: 18px 18px 16px; box-shadow: var(--shadow); position: relative; min-width: 0; }
+.note::before { content: ""; position: absolute; top: -7px; left: 50%; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--orange); box-shadow: 0 2px 3px rgba(0,0,0,.25); }
+.n1 { background: var(--note-blue); transform: rotate(-.6deg); }
+.n2 { background: var(--note-teal); transform: rotate(.5deg); }
+.n3 { background: var(--note-orange); transform: rotate(-.4deg); }
+.n4 { background: var(--note-gold); transform: rotate(.6deg); }
+.note h3 { font-family: var(--marker); font-size: 28px; line-height: 1.05; }
+.note .where { font-size: 12.5px; color: var(--ink-soft); margin: 4px 0 12px; overflow-wrap: anywhere; }
+.note .who { font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--brand); margin: 14px 0 6px; }
+.note .who:first-of-type { margin-top: 0; }
+.note ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; font-size: 14px; }
+.note li::marker { color: var(--orange); }
+.note .stat { margin-top: 14px; padding-top: 10px; border-top: 1px dashed color-mix(in srgb, var(--ink) 25%, transparent); font-size: 13px; color: var(--ink-soft); }
+
+/* request ledger */
+.ledger { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+.filters button { font: inherit; font-size: 13px; font-weight: 600; border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 999px; padding: 6px 14px; cursor: pointer; min-height: 34px; }
+.filters button[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: var(--panel); }
+.filters button:focus-visible, .ledger summary:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+.day { border-bottom: 1px solid var(--line); }
+.day:last-child { border-bottom: 0; }
+.day > h3 { font-family: var(--marker); font-size: 24px; color: var(--brand); padding: 14px 18px 2px; }
+.req { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.4fr) auto; gap: 6px 20px; padding: 10px 18px; align-items: start; }
+.req + .req { border-top: 1px dashed var(--line); }
+.req .ask { font-weight: 600; }
+.req .ask small { display: block; font-weight: 400; color: var(--ink-soft); font-size: 12.5px; margin-top: 2px; }
+.req .done { color: var(--ink-soft); font-size: 14px; }
+.pill { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 10px; white-space: nowrap; justify-self: end; }
+.p-ok { background: var(--ok-bg); color: var(--ok); }
+.p-wait { background: var(--wait-bg); color: var(--wait); }
+.p-run { background: var(--run-bg); color: var(--run); }
+
+/* waiting corner */
+.wait { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.wcard { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; min-width: 0; }
+.wcard h3 { font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.wcard h3 i { font-style: normal; font-family: var(--marker); font-size: 22px; color: var(--orange); }
+.wcard ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; }
+.foot { font-size: 13px; color: var(--ink-soft); border-top: 1px dashed var(--line); padding-top: 14px; }
+
+@media (max-width: 980px) { .cols { grid-template-columns: repeat(2, minmax(0, 1fr)); } .wait { grid-template-columns: 1fr; } }
+@media (max-width: 620px) {
+  .cols { grid-template-columns: 1fr; }
+  .note { transform: none; }
+  .req { grid-template-columns: 1fr; }
+  .pill { justify-self: start; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .note { transition: transform .2s ease; }
+  .note:hover { transform: rotate(0) translateY(-2px); }
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div class="date">Update 11 November 2026</div>
+    <h1>Papan Progres <span>Sadya Kersa</span></h1>
+    <p class="lead">Semua yang sudah jalan di aplikasi Sales, SNAPP, dashboard dan website, lalu setiap permintaan Mas Firman sejak 30 Oktober beserta posisinya sekarang.</p>
+    <div class="tally" aria-label="Ringkasan">
+      <div><b>35</b><span>permintaan dicatat</span></div>
+      <div class="g"><b>32</b><span>sudah live</span></div>
+      <div class="w"><b>3</b><span>tinggal langkah akhir</span></div>
+    </div>
+  </header>
+
+  <section aria-labelledby="h-live">
+    <div class="sec-h"><h2 id="h-live">Yang sudah jalan</h2><p>Per aplikasi, apa yang bisa dipakai hari ini.</p></div>
+    <div class="cols">
+      <article class="note n1">
+        <h3>Aplikasi Sales</h3>
+        <p class="where">Android (Play, uji tertutup) dan web internal.sadyakersa.com</p>
+        <div class="who">Sales</div>
+        <ul>
+          <li>Catat kegiatan dengan foto dan lokasi, ubah catatan</li>
+          <li>Sekolah saya: ikon per jenjang SD, SMP, SMA, SMK</li>
+          <li>Tindak lanjut, tagihan, kabar sekolah, order saya</li>
+          <li>KPI dan insentif: periode 21 sampai 20, dibayar tanggal 25</li>
+        </ul>
+        <div class="who">Manajer</div>
+        <ul>
+          <li>KPI tim, insight dan rekomendasi per sales</li>
+        </ul>
+        <div class="who">Admin</div>
+        <ul>
+          <li>Input order ke approval</li>
+          <li>Proses order: target 12 hari sampai barang diterima</li>
+          <li>Surat jalan, unduh PDF, kabari PIC lewat WhatsApp</li>
+          <li>Tagihan dan aging, akun SNAPP sekolah</li>
+        </ul>
+        <p class="stat">Pengingat harian muncul sebagai pop-up dan notifikasi HP.</p>
+      </article>
+
+      <article class="note n2">
+        <h3>SNAPP</h3>
+        <p class="where">Aplikasi sekolah: Android (Play, uji tertutup) dan pelanggan.sadyakersa.com</p>
+        <ul>
+          <li>Login sekolah yang dibuat admin</li>
+          <li>Konfirmasi kiriman, cek per barang (sesuai, kurang, rusak)</li>
+          <li>Cek invoice sesuai atau tidak, lihat tanggapan admin</li>
+          <li>Kirim file ke Sadya Kersa, ubah profil</li>
+          <li>Jatuh tempo 30 hari setelah barang diterima</li>
+          <li>Pengingat kiriman, cek invoice dan jatuh tempo</li>
+        </ul>
+        <p class="stat">Sekolah tidak melihat nama Sadya Kersa di aplikasi, kecuali di surat jalan dan kebijakan privasi.</p>
+      </article>
+
+      <article class="note n3">
+        <h3>Dashboard</h3>
+        <p class="where">internal.sadyakersa.com/dashboard, masuk dengan akun Google</p>
+        <ul>
+          <li>Menu ringkas: Ringkasan, Manajemen, Input order, Aplikasi</li>
+          <li>Aging invoice dihitung dari barang diterima</li>
+          <li>Insentif marketing per sales per bulan</li>
+          <li>Approval: ubah barang lalu approve, tanpa tombol tolak</li>
+          <li>Data: klik nomor invoice untuk detail SNAPP</li>
+          <li>Aplikasi: kegiatan sales dan data SNAPP</li>
+          <li>Invoice 2023 dan 2024 tampil lunas</li>
+        </ul>
+        <div class="who">Akses per email</div>
+        <ul>
+          <li>Owner: semua menu</li>
+          <li>Admin: menu Admin (input data, surat jalan, invoice, data, aging invoice) dan Aplikasi</li>
+          <li>Investor: ringkasan dan sekolah, tanpa piutang dan margin</li>
+        </ul>
+      </article>
+
+      <article class="note n4">
+        <h3>Website</h3>
+        <p class="where">sadyakersa.com</p>
+        <ul>
+          <li>Halaman utama, video untuk HP, tablet dan laptop</li>
+          <li>Peta sekolah mitra</li>
+          <li>"12.358 orang kenal Sadya Kersa", bertambah otomatis setiap kunjungan</li>
+          <li>Tautan SIPLah dan kontak</li>
+        </ul>
+        <div class="who">Data sekolah</div>
+        <ul>
+          <li>Pembagian marketing dari file Mas Firman: Ari 45, Dede 79, Kantor 25 sekolah</li>
+        </ul>
+        <p class="stat">Foto asli kegiatan menunggu kiriman Mas Firman.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-req">
+    <div class="sec-h"><h2 id="h-req">Permintaan Mas Firman</h2><p>Urut tanggal permintaan.</p></div>
+    <div class="ledger">
+      <div class="filters" role="group" aria-label="Saring status">
+        <button type="button" id="f-all" data-f="all" aria-pressed="true">Semua (35)</button>
+        <button type="button" id="f-ok" data-f="ok" aria-pressed="false">Live (32)</button>
+        <button type="button" id="f-open" data-f="open" aria-pressed="false">Langkah akhir (3)</button>
+      </div>
+
+      <div class="day"><h3>30 Okt</h3>
+        <div class="req" data-s="ok"><div class="ask">Dashboard bisa dibuka di web, PC dulu</div><div class="done">Dashboard di internal.sadyakersa.com, masuk dengan Google</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="open"><div class="ask">Laporan cashback untuk sekolah<small>Di SNAPP</small></div><div class="done">Butuh konfirmasi: apa yang ditampilkan, dan apakah pencairan cashback dicatat</div><span class="pill p-wait">Menunggu Mas Firman</span></div>
+      </div>
+
+      <div class="day"><h3>3 Nov</h3>
+        <div class="req" data-s="ok"><div class="ask">Catatan kunjungan bisa diubah setelah disimpan</div><div class="done">Tombol Ubah catatan, pop-up seperti isi PIC</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Wilayah dipilih dari daftar</div><div class="done">Kota Bandung, Kota Cimahi, Kab. Bandung, Bandung Barat</div><span class="pill p-ok">Live</span></div>
+      </div>
+
+      <div class="day"><h3>5 Nov</h3>
+        <div class="req" data-s="ok"><div class="ask">Admin input order, owner approve</div><div class="done">Cashback dalam rupiah, PPN dan PPh otomatis, pembelian per vendor, kategori dari nama barang</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Tampilan untuk investor</div><div class="done">Ringkasan dan sekolah saja, tanpa piutang dan margin</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Jumlah siswa per sekolah</div><div class="done">Di aplikasi dan dashboard, dipakai untuk potensi BOS</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Warna dan logo Sadya Kersa, domain sendiri</div><div class="done">Semua aplikasi dan sadyakersa.com</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Surat jalan dicek per barang oleh sekolah</div><div class="done">Sesuai, kurang, lebih, rusak, salah barang</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Daftar tester aplikasi</div><div class="done">Email tim masuk daftar uji tertutup kedua aplikasi</div><span class="pill p-ok">Live</span></div>
+      </div>
+
+      <div class="day"><h3>6 Nov</h3>
+        <div class="req" data-s="ok"><div class="ask">Input dari aplikasi Sales dan SNAPP terlihat di database</div><div class="done">Tab Aplikasi di dashboard</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Angka kunjungan di website</div><div class="done">12.358 orang kenal Sadya Kersa, ditambah setiap kunjungan</div><span class="pill p-ok">Live</span></div>
+      </div>
+
+      <div class="day"><h3>7 Nov</h3>
+        <div class="req" data-s="ok"><div class="ask">Tampilan aplikasi lebih clean tapi tetap informatif</div><div class="done">Tampilan baru Sales dan Manajer, ikon 3D</div><span class="pill p-ok">Live</span></div>
+      </div>
+
+      <div class="day"><h3>9 Nov</h3>
+        <div class="req" data-s="ok"><div class="ask">Akses dashboard dikunci per email</div><div class="done">Admin dan owner terpisah, daftar di tab Akses Dashboard</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Invoice SNAPP bisa diklik</div><div class="done">Surat jalan, konfirmasi invoice, file dan akun sekolah dalam satu jendela</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Menu dashboard lebih rapi, tanpa scroll</div><div class="done">Menu dikelompokkan</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Insentif marketing di dashboard</div><div class="done">Per sales per bulan, mengikuti aturan KPI</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Ubah barang sebelum approve</div><div class="done">Di menu Approval</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Admin mengingatkan kepala sekolah, surat jalan ikut terupdate</div><div class="done">Tombol WhatsApp ke PIC, tanggapan selisih barang</div><span class="pill p-ok">Live</span></div>
+      </div>
+
+      <div class="day"><h3>10 Nov</h3>
+        <div class="req" data-s="ok"><div class="ask">Order yang sudah di-approve tidak muncul di admin</div><div class="done">Diperbaiki, data baru muncul dalam 1 menit</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Approval tanpa tombol tolak</div><div class="done">Hanya ubah dan approve</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Ikon sekolah seragam per jenjang</div><div class="done">SD, SMP, SMA, SMK masing-masing satu gambar</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Tombol Baru di samping kolom cari sekolah</div><div class="done">Sudah dipindah</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Pengingat jadi pop-up, di Sales dan SNAPP</div><div class="done">Pop-up harian dan notifikasi HP; pengumuman bisa diisi tim sendiri di Pengaturan</div><span class="pill p-ok">Live, HP setelah update</span></div>
+        <div class="req" data-s="ok"><div class="ask">Surat jalan bisa diunduh PDF atau dicetak dari HP</div><div class="done">Tombol Unduh PDF, lalu kirim, simpan atau cetak</div><span class="pill p-ok">Live, HP setelah update</span></div>
+        <div class="req" data-s="ok"><div class="ask">Menu admin: input data, surat jalan, invoice, data, aging invoice, apps</div><div class="done">Di aplikasi admin dan di dashboard</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Umur invoice dihitung dari barang diterima</div><div class="done">Berlaku di aplikasi, SNAPP, KPI dan dashboard</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Target 12 hari dari order sampai barang diterima</div><div class="done">Menu Proses order di aplikasi admin, lama tiap tahap terlihat</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="open"><div class="ask">Invoice 2023 dan 2024 dianggap lunas</div><div class="done">Dashboard sudah. File tahunan: tombol siap di menu Dashboard SK, tinggal dijalankan</div><span class="pill p-run">Siap dijalankan</span></div>
+        <div class="req" data-s="ok"><div class="ask">Insentif: pencapaian 21 sampai 20, gaji tanggal 25</div><div class="done">Berlaku untuk surplus, sekolah baru dan aging</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Promosi dan demosi dihitung akumulasi 3 bulan</div><div class="done">Rata-rata 3 bulan, bulan kurang bisa ditutup bulan yang lebih</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="open"><div class="ask">Update jumlah tester berkala</div><div class="done">Aplikasi Sales: 10 dari 12 tester (10 Nov)</div><span class="pill p-run">Berjalan</span></div>
+      </div>
+
+      <div class="day"><h3>11 Nov</h3>
+        <div class="req" data-s="ok"><div class="ask">Admin pegang semua sub menu admin dan aplikasi</div><div class="done">Menu Admin di dashboard, input data kembali</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Pembagian mapping marketing</div><div class="done">Ari 45, Dede 79, Kantor 25 sekolah, sesuai file</div><span class="pill p-ok">Live</span></div>
+        <div class="req" data-s="ok"><div class="ask">Riwayat aktivitas dilihat marketing, manajemen cek progres</div><div class="done">Riwayat di aplikasi Sales, tab Aplikasi di dashboard</div><span class="pill p-ok">Live</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-wait">
+    <div class="sec-h"><h2 id="h-wait">Masih ditunggu</h2><p>Bukan pekerjaan yang tertinggal, tapi langkah dari pihak lain.</p></div>
+    <div class="wait">
+      <div class="wcard">
+        <h3><i>1</i> Dari Mas Firman</h3>
+        <ul>
+          <li>Konfirmasi isi laporan cashback sekolah</li>
+          <li>2 tester lagi untuk aplikasi Sales</li>
+          <li>Foto asli kegiatan untuk website</li>
+        </ul>
+      </div>
+      <div class="wcard">
+        <h3><i>2</i> Dari Google Play</h3>
+        <ul>
+          <li>Review update Sales 1.6.8 dan SNAPP 1.1.2 (pop-up, PDF, jatuh tempo baru)</li>
+          <li>Rilis publik: setelah 12 tester aktif 14 hari, lalu review Google sekitar 7 hari</li>
+        </ul>
+      </div>
+      <div class="wcard">
+        <h3><i>3</i> Dijalankan bersama</h3>
+        <ul>
+          <li>Tandai lunas invoice 2023 dan 2024 di file tahunan, lewat menu Dashboard SK (cek daftar dulu)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <p class="foot">Perubahan kecil tetap bisa diminta kapan saja selama masa dukungan sampai Oktober 2027.</p>
+</div>
+
+<script>
+(function () {
+  var btns = document.querySelectorAll('.filters button'), rows = document.querySelectorAll('.req'), days = document.querySelectorAll('.day');
+  function apply(f) {
+    btns.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-f') === f ? 'true' : 'false'); });
+    rows.forEach(function (r) { r.hidden = !(f === 'all' || r.getAttribute('data-s') === f); });
+    days.forEach(function (d) { d.hidden = !d.querySelector('.req:not([hidden])'); });
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { apply(b.getAttribute('data-f')); }); });
+})();
+</script>
+
+</body>
+</html>
