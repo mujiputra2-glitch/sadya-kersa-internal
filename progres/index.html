@@ -128,7 +128,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .p-run { background: var(--run-bg); color: var(--run); }
 
 /* waiting corner */
-.wait { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.wait { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .wcard { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; min-width: 0; }
 .wcard h3 { font-size: 15px; display: flex; align-items: center; gap: 8px; }
 .wcard h3 i { font-style: normal; font-family: var(--marker); font-size: 22px; color: var(--orange); }
@@ -157,8 +157,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
     <p class="lead">Semua yang sudah jalan di aplikasi Sales, SNAPP, dashboard dan website, lalu setiap permintaan Mas Firman sejak 30 Oktober beserta posisinya sekarang.</p>
     <div class="tally" aria-label="Ringkasan">
       <div><b>35</b><span>permintaan dicatat</span></div>
-      <div class="g"><b>32</b><span>sudah live</span></div>
-      <div class="w"><b>3</b><span>tinggal langkah akhir</span></div>
+      <div class="g"><b>33</b><span>sudah live</span></div>
+      <div class="w"><b>2</b><span>tinggal langkah akhir</span></div>
     </div>
   </header>
 
@@ -213,7 +213,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
           <li>Approval: ubah barang lalu approve, tanpa tombol tolak</li>
           <li>Data: klik nomor invoice untuk detail SNAPP</li>
           <li>Aplikasi: kegiatan sales dan data SNAPP</li>
-          <li>Invoice 2023 dan 2024 tampil lunas</li>
+          <li>Invoice 2023 dan 2024 lunas, juga di file tahunan</li>
         </ul>
         <div class="who">Akses per email</div>
         <ul>
@@ -246,8 +246,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
     <div class="ledger">
       <div class="filters" role="group" aria-label="Saring status">
         <button type="button" id="f-all" data-f="all" aria-pressed="true">Semua (35)</button>
-        <button type="button" id="f-ok" data-f="ok" aria-pressed="false">Live (32)</button>
-        <button type="button" id="f-open" data-f="open" aria-pressed="false">Langkah akhir (3)</button>
+        <button type="button" id="f-ok" data-f="ok" aria-pressed="false">Live (33)</button>
+        <button type="button" id="f-open" data-f="open" aria-pressed="false">Langkah akhir (2)</button>
       </div>
 
       <div class="day"><h3>30 Okt</h3>
@@ -297,7 +297,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
         <div class="req" data-s="ok"><div class="ask">Menu admin: input data, surat jalan, invoice, data, aging invoice, apps</div><div class="done">Di aplikasi admin dan di dashboard</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="ok"><div class="ask">Umur invoice dihitung dari barang diterima</div><div class="done">Berlaku di aplikasi, SNAPP, KPI dan dashboard</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="ok"><div class="ask">Target 12 hari dari order sampai barang diterima</div><div class="done">Menu Proses order di aplikasi admin, lama tiap tahap terlihat</div><span class="pill p-ok">Live</span></div>
-        <div class="req" data-s="open"><div class="ask">Invoice 2023 dan 2024 dianggap lunas</div><div class="done">Dashboard sudah. File tahunan: tombol siap di menu Dashboard SK, tinggal dijalankan</div><span class="pill p-run">Siap dijalankan</span></div>
+        <div class="req" data-s="ok"><div class="ask">Invoice 2023 dan 2024 dianggap lunas</div><div class="done">36 baris (Rp 131.172.000) ditandai Lunas di file 2023 dan 2024 dan di dashboard, 11 Nov</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="ok"><div class="ask">Insentif: pencapaian 21 sampai 20, gaji tanggal 25</div><div class="done">Berlaku untuk surplus, sekolah baru dan aging</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="ok"><div class="ask">Promosi dan demosi dihitung akumulasi 3 bulan</div><div class="done">Rata-rata 3 bulan, bulan kurang bisa ditutup bulan yang lebih</div><span class="pill p-ok">Live</span></div>
         <div class="req" data-s="open"><div class="ask">Update jumlah tester berkala</div><div class="done">Aplikasi Sales: 10 dari 12 tester (10 Nov)</div><span class="pill p-run">Berjalan</span></div>
@@ -327,12 +327,6 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
         <ul>
           <li>Review update Sales 1.6.8 dan SNAPP 1.1.2 (pop-up, PDF, jatuh tempo baru)</li>
           <li>Rilis publik: setelah 12 tester aktif 14 hari, lalu review Google sekitar 7 hari</li>
-        </ul>
-      </div>
-      <div class="wcard">
-        <h3><i>3</i> Dijalankan bersama</h3>
-        <ul>
-          <li>Tandai lunas invoice 2023 dan 2024 di file tahunan, lewat menu Dashboard SK (cek daftar dulu)</li>
         </ul>
       </div>
     </div>
