@@ -80,8 +80,9 @@ a{color:inherit}
 .tab:hover{color:var(--ink)}
 .tab.on,.tab.on:hover{background:#fff;color:var(--brand-ink);box-shadow:0 2px 8px rgba(15,23,42,.12)}
 .tab .count{font-size:10.5px;font-weight:800;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--down-bg);color:var(--down)}
-.tbr{margin-left:auto;display:flex;align-items:center;gap:8px;flex:0 0 auto}
-.pill{font-size:11.5px;font-weight:600;color:var(--ink2);padding:6px 11px;border-radius:999px;background:rgba(15,23,42,.05);white-space:nowrap}
+.tbr{margin-left:auto;display:flex;align-items:center;gap:8px;flex:0 1 auto;min-width:0}
+.pill{font-size:11.5px;font-weight:600;color:var(--ink2);padding:6px 11px;border-radius:999px;background:rgba(15,23,42,.05);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.tbr > :not(.pill){flex:0 0 auto}
 .ibtn{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;border:1px solid var(--line2);background:#fff;color:var(--ink2);cursor:pointer;text-decoration:none;transition:transform .15s,border-color .15s,color .15s,box-shadow .2s}
 .ibtn:hover{transform:translateY(-2px);border-color:var(--brand);color:var(--brand-ink);box-shadow:0 8px 16px -8px rgba(39,40,192,.5)}
 .ibtn svg{width:17px;height:17px}
@@ -447,6 +448,7 @@ html:has(.loader:not(.off)){overflow:hidden}
 .twrap td a{color:var(--brand-ink);font-weight:600}
 /* Aplikasi tab (7 Nov): what the sales app and SNAPP record */
 .axhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.inlevel{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:4px 0 10px;padding:10px 12px;border:1px dashed var(--line,#dfe2ee);border-radius:10px;font-size:13px}.inlevel .inlvh{flex-basis:100%;color:var(--muted,#5e6079)}.inlevel .inlvm{color:var(--muted,#5e6079)}
 .incard{margin-top:16px}
 .incard .inhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px}
 .incard .inhead b{font-size:16px}
@@ -526,7 +528,7 @@ html:has(.loader:not(.off)){overflow:hidden}
     <li><b>Invoice</b>: nilai invoice kotor (Qty x Harga), penjualan Barang.</li>
     <li data-cost><b>Margin</b> 2023 to 2024: Nett - Cash Back - HPP. 2025: Nett - CB Sekolah - Insentif - CB Marketing - HPP. 2026: Net Invoice - CB Sekolah - CB Marketing - Insentif - HPP.</li>
     <li data-cost>Setiap baris dihitung ulang dengan rumus barisnya sendiri di file asli. PPh 22 yang ditulis "0,5%" dibaca 0,5%.</li>
-    <li data-cost><b>Piutang</b>: invoice yang belum lunas. Umur = hari sejak barang diterima sekolah (SNAPP), atau sejak tanggal invoice bila belum ada surat jalan diterima. Jatuh tempo 30 hari setelahnya. Invoice 2023 dan 2024 dihitung lunas.</li>
+    <li data-cost><b>Piutang</b>: invoice yang belum lunas. Umur = hari sejak tanggal order (waktu kirim + jangka waktu bayar). Jatuh tempo sekolah 30 hari setelah barang diterima (SNAPP). Invoice 2023 dan 2024 dihitung lunas.</li>
     <li>Tahun mengikuti tanggal transaksi. Perbandingan tahun lalu memakai periode yang sama.</li>
   </ul>
 </div>
@@ -624,7 +626,7 @@ html:has(.loader:not(.off)){overflow:hidden}
         <div class="cbox"><canvas id="cAging"></canvas><div class="empty" id="eAging">Tidak ada piutang untuk filter ini</div></div>
       </div>
       <div class="card lift" style="--i:5">
-        <div class="chead"><div><h3>Rata-rata lama pelunasan</h3><p>Hari dari barang diterima (atau tanggal invoice) sampai uang masuk, invoice yang sudah lunas</p></div></div>
+        <div class="chead"><div><h3>Rata-rata lama pelunasan</h3><p>Hari dari tanggal order sampai uang masuk, invoice yang sudah lunas</p></div></div>
         <div class="cbox"><canvas id="cDays"></canvas><div class="empty" id="eDays">Tidak ada data pelunasan</div></div>
       </div>
     </div>
@@ -1716,9 +1718,10 @@ function skSchoolInvoices(id, span) {
 // ---------- Aging invoice ----------
 function skDayNum(n) { return n ? Math.floor(Date.UTC(Math.floor(n / 10000), Math.floor(n / 100) % 100 - 1, n % 100) / 864e5) : null; }
 function skAgeLimit() { var a = SKD.P.aging; return a && a.days > 0 ? a.days : 25; }
-// One entry per invoice. Age (10 Nov 2026, Muji): counted from the day the school received the goods
-// (SNAPP surat jalan, P.recv from Core.js) or, without a received surat jalan, from the invoice date;
-// today minus that start while unpaid, days to payment once paid. Due date = start + SK_DUE_DAYS.
+// One entry per invoice. Age on the dashboard = management's view (Firman 11 Nov 2026: "aging invoice
+// tetap menghitung dari tgl order ... SLA pengiriman + jangka waktu bayar"): from the order date
+// (Tanggal) to today while unpaid, to payment once paid. The school's due date (SNAPP, Sales app, KPI)
+// stays goods received + SK_DUE_DAYS (P.recv from Core.js), or order date + SK_DUE_DAYS before SNAPP.
 var SK_DUE_DAYS = 30;
 function skDayYmd(day) { var d = new Date(day * 864e5); return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate(); }
 function skInvoices(rows) {
@@ -1734,8 +1737,8 @@ function skInvoices(rows) {
   return Object.keys(by).map(function (k) {
     var o = by[k], no = skDict('inv', o.inv);
     o.recv = no && recv.hasOwnProperty(no) ? +recv[no] || 0 : 0;
-    var start = skDayNum(o.recv || o.date);
-    o.due = start !== null ? skDayYmd(start + SK_DUE_DAYS) : 0;
+    var start = skDayNum(o.date), dueFrom = skDayNum(o.recv || o.date);
+    o.due = dueFrom !== null ? skDayYmd(dueFrom + SK_DUE_DAYS) : 0;
     if (start !== null && o.unpaid && today !== null) o.age = Math.max(0, today - start);
     else if (start !== null && !o.unpaid && o.paid) o.age = Math.max(0, skDayNum(o.paid) - start);
     return o;
@@ -1762,7 +1765,7 @@ function skRenderAr(rows) {
   skKpi(box, 'ar1', { label: 'Belum lunas', icon: 'ar', bg: '#fdeee7', fg: '#b4471c', value: total, fmt: skRp, sub: [{ bold: skNum(list.length), after: ' invoice belum lunas' }] }, 0);
   skKpi(box, 'ar2', { label: 'Lewat ' + limit + ' hari', icon: 'ar', bg: '#fbeaea', fg: '#b42323', value: dueTotal, fmt: skRp, sub: [{ bold: skNum(due.length), after: ' invoice perlu ditagih, ' + skPct(total ? dueTotal / total : 0, 0) + ' dari piutang' }] }, 1);
   skKpi(box, 'ar3', { label: 'Rata-rata umur', icon: 'count', bg: '#e8f0fc', fg: '#1c5cab', value: avgAge, fmt: function (v) { return skNum(Math.round(v)) + ' hari'; }, sub: [{ text: 'per invoice belum lunas' }] }, 2);
-  skKpi(box, 'ar4', { label: 'Paling lama', icon: 'count', bg: '#efeafb', fg: '#4a3aa7', value: oldest, fmt: function (v) { return skNum(Math.round(v)) + ' hari'; }, sub: [{ text: 'sejak barang diterima' }] }, 3);
+  skKpi(box, 'ar4', { label: 'Paling lama', icon: 'count', bg: '#efeafb', fg: '#4a3aa7', value: oldest, fmt: function (v) { return skNum(Math.round(v)) + ' hari'; }, sub: [{ text: 'sejak tanggal order' }] }, 3);
 
   var bk = skAgeBuckets(limit), buckets = bk.map(function () { return 0; }), counts = bk.map(function () { return 0; });
   aged.forEach(function (o) { bk.forEach(function (b, i) { if (o.age >= b.from && o.age <= b.to) { buckets[i] += o.amount; counts[i]++; } }); });
@@ -1808,7 +1811,7 @@ function skRenderAr(rows) {
   note.appendChild(skEl('b', '', limit + ' hari'));
   note.appendChild(document.createTextNode('. Data dicek otomatis setiap hari.'));
   note.appendChild(skEl('br'));
-  note.appendChild(document.createTextNode('Umur dihitung dari tanggal barang diterima sekolah (SNAPP). Invoice tanpa surat jalan diterima memakai tanggal invoice. Jatuh tempo ' + SK_DUE_DAYS + ' hari setelahnya.'));
+  note.appendChild(document.createTextNode('Umur dihitung dari tanggal order sampai dibayar (waktu kirim + jangka waktu bayar). Jatuh tempo sekolah ' + SK_DUE_DAYS + ' hari setelah barang diterima di SNAPP; invoice tanpa surat jalan diterima memakai tanggal order.'));
   var shown = st.mode === 'all' ? all.slice() : st.mode === 'due' ? due.slice() : list.slice();
   var get = { school: function (o) { return skDict('school', o.school); }, age: function (o) { return o.age; }, amount: function (o) { return o.amount; }, date: function (o) { return o.date; },
     recv: function (o) { return o.recv; }, due: function (o) { return o.due; } };
@@ -1828,7 +1831,7 @@ function skRenderAr(rows) {
     tr.appendChild(skEl('td', '', skDict('cv', o.cv)));
     tr.appendChild(skEl('td', 'num', skDate(o.date)));
     var tdr = skEl('td', 'num' + (o.recv ? '' : ' muted'), o.recv ? skDate(o.recv) : '-');
-    if (!o.recv) tdr.title = 'Belum ada surat jalan diterima di SNAPP: umur dari tanggal invoice';
+    if (!o.recv) tdr.title = 'Belum ada surat jalan diterima di SNAPP: jatuh tempo dari tanggal order';
     tr.appendChild(tdr);
     if (st.mode === 'all') tr.appendChild(skEl('td', 'num' + (o.paid ? '' : ' muted'), o.unpaid ? '-' : skDate(o.paid)));
     tr.appendChild(skEl('td', 'num' + (o.unpaid ? '' : ' muted'), skDate(o.due)));
@@ -2914,6 +2917,7 @@ function skInRender() {
     head.appendChild(skEl('span', 'tag', x.level + (x.levelSet ? '' : ' (belum diatur)')));
     head.appendChild(skEl('span', 'tag ' + (SKIN2_ST[x.status] || ''), x.statusText || ''));
     card.appendChild(head);
+    if (d.canSetLevel) card.appendChild(skInLevelBox(x, si, d));
     var wrap = skEl('div', 'twrap'), t = skEl('table');
     skSortHead(t, [{ label: 'Bulan' }, { label: 'Omzet', num: true }, { label: 'Capaian', num: true }, { label: 'Gaji pokok', num: true }, { label: 'Surplus target', num: true },
       { label: 'Sekolah baru', num: true }, { label: 'Aging lancar', num: true }, { label: 'Total', num: true }], {}, function () {});
@@ -2934,6 +2938,30 @@ function skInRender() {
     t.appendChild(tb); wrap.appendChild(t); card.appendChild(wrap);
     cards.appendChild(card);
   });
+}
+
+// Promotion and demotion (11 Nov, Firman): only the approver sees this. The verdict above is advice;
+// Simpan writes Level and Mulai Level to the Sales Tracker (setSalesLevel in Sales.js).
+function skInLevelBox(x, si, d) {
+  var box = skEl('div', 'inlevel'), id = 'inLv' + si, idd = 'inLvD' + si;
+  var hint = x.status === 'naik' && x.next ? 'Saran: naik ke ' + x.next + '.' : x.status === 'turun' && x.prev ? 'Saran: pertimbangkan turun ke ' + x.prev + '.' : x.status === 'turun' ? 'Zona turun: pertimbangkan pembinaan.' : 'Tidak ada saran perubahan.';
+  box.appendChild(skEl('span', 'inlvh', 'Level (keputusan manajemen). ' + hint));
+  var lab = skEl('label', '', 'Level'); lab.setAttribute('for', id);
+  var sel = skEl('select', 'axsel'); sel.id = id;
+  (d.levels || ['Probation', 'Junior', 'Senior']).forEach(function (L) { var o = skEl('option', '', L); o.value = L; if (L === x.level) o.selected = true; sel.appendChild(o); });
+  var labd = skEl('label', '', 'Mulai'); labd.setAttribute('for', idd);
+  var dt = skEl('input', 'axsel'); dt.type = 'date'; dt.id = idd; dt.value = x.since && x.levelSet ? String(x.since).slice(0, 10) : String(d.today || '').slice(0, 10);
+  var btn = skEl('button', 'lbtn', 'Simpan level'); btn.type = 'button';
+  var msg = skEl('span', 'inlvm', '');
+  btn.addEventListener('click', function () {
+    if (sel.value === x.level && x.levelSet && dt.value === String(x.since || '').slice(0, 10)) { msg.textContent = 'Tidak ada perubahan.'; return; }
+    btn.disabled = true; msg.textContent = 'Menyimpan...';
+    google.script.run.withSuccessHandler(function (res) {
+      SKIN2.data = res || SKIN2.data; skInRender();
+    }).withFailureHandler(function (e) { btn.disabled = false; msg.textContent = skoMsg(e); }).setSalesLevel(x.name, sel.value, dt.value);
+  });
+  [lab, sel, labd, dt, btn, msg].forEach(function (el) { box.appendChild(el); });
+  return box;
 }
 
 // ---------- one invoice's SNAPP side (9 Nov, Firman: "bisa kita klik") ----------
