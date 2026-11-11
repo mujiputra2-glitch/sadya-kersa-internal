@@ -526,8 +526,8 @@ html:has(.loader:not(.off)){overflow:hidden}
   <h4>Cara angka dihitung</h4>
   <ul>
     <li><b>Invoice</b>: nilai invoice kotor (Qty x Harga), penjualan Barang.</li>
-    <li data-cost><b>Margin</b> 2023 to 2024: Nett - Cash Back - HPP. 2025: Nett - CB Sekolah - Insentif - CB Marketing - HPP. 2026: Net Invoice - CB Sekolah - CB Marketing - Insentif - HPP.</li>
-    <li data-cost>Setiap baris dihitung ulang dengan rumus barisnya sendiri di file asli. PPh 22 yang ditulis "0,5%" dibaca 0,5%.</li>
+    <li data-cost data-margin><b>Margin</b> 2023 to 2024: Nett - Cash Back - HPP. 2025: Nett - CB Sekolah - Insentif - CB Marketing - HPP. 2026: Net Invoice - CB Sekolah - CB Marketing - Insentif - HPP.</li>
+    <li data-cost data-margin>Setiap baris dihitung ulang dengan rumus barisnya sendiri di file asli. PPh 22 yang ditulis "0,5%" dibaca 0,5%.</li>
     <li data-cost><b>Piutang</b>: invoice yang belum lunas. Umur = hari sejak tanggal order (waktu kirim + jangka waktu bayar). Jatuh tempo sekolah 30 hari setelah barang diterima (SNAPP). Invoice 2023 dan 2024 dihitung lunas.</li>
     <li>Tahun mengikuti tanggal transaksi. Perbandingan tahun lalu memakai periode yang sama.</li>
   </ul>
@@ -1865,7 +1865,7 @@ function skRenderData(rows) {
   var table = document.getElementById('tblData');
   table.textContent = '';
   skSortHead(table, [{ label: 'Tanggal' }, { label: 'Jenis' }, { label: 'Sekolah' }, { label: 'Item' }, { label: 'No. invoice' }, { label: 'Qty', num: true },
-    { label: 'Invoice', num: true }, { label: 'Margin', num: true }, { label: 'Status' }, { label: 'Sumber' }], {}, function () {});
+    { label: 'Invoice', num: true }].concat(SKD.noCost ? [] : [{ label: 'Margin', num: true }]).concat([{ label: 'Status' }, { label: 'Sumber' }]), {}, function () {});
   var tb = skEl('tbody');
   slice.forEach(function (r) {
     var tr = skEl('tr');
@@ -1882,7 +1882,7 @@ function skRenderData(rows) {
     tr.appendChild(tdInv);
     tr.appendChild(skEl('td', 'num', skNum(r[SKI.QTY], r[SKI.QTY] % 1 ? 2 : 0) + ' ' + skDict('unit', r[SKI.UNIT])));
     tr.appendChild(skEl('td', 'num', skRpFull(r[SKI.INVOICE])));
-    tr.appendChild(skEl('td', 'num', skRpFull(r[SKI.MARGIN])));
+    if (!SKD.noCost) tr.appendChild(skEl('td', 'num', skRpFull(r[SKI.MARGIN])));
     var tst = skEl('td'); tst.appendChild(skEl('span', 'tag ' + (r[SKI.LUNAS] ? 'ok' : 'no'), r[SKI.LUNAS] ? 'Lunas' : 'Belum')); tr.appendChild(tst);
     tr.appendChild(skEl('td', 'muted', skDict('source', r[SKI.SOURCE])));
     tb.appendChild(tr);
@@ -1905,9 +1905,11 @@ function skAccess(a) {
   SKD.allow = null;
   // Investor (column Tab = Investor): sales value only; the server already zeroed cost, margin and payment.
   SKD.inv = !!(a && a.investor);
+  // Admin emails (11 Nov): no margin anywhere; the server already sends HPP and margin as 0.
+  SKD.noCost = SKD.inv || !!(a && a.noCost);
   if (SKD.inv) SKD.metric = 'invoice';
   document.getElementById('kpis').classList.toggle('k2', SKD.inv);
-  Array.prototype.forEach.call(document.querySelectorAll('#pop [data-cost]'), function (li) { li.hidden = SKD.inv; });
+  Array.prototype.forEach.call(document.querySelectorAll('#pop [data-cost]'), function (li) { li.hidden = SKD.inv || (!!(a && a.noCost) && li.hasAttribute('data-margin')); });
   if (a && a.tabs) { SKD.allow = {}; a.tabs.forEach(function (t) { SKD.allow[t] = 1; }); }
   var first = null;
   // Admin (11 Nov, Firman: "dia pegang admin (all sub menu + data) dan aplikasi"): an email with Input
