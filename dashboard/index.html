@@ -496,16 +496,19 @@ html:has(.loader:not(.off)){overflow:hidden}
       <div class="tgroup" id="tgMgr">
         <button class="tgbtn" id="tgMgrBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="tgMgrMenu">Manajemen<span class="tgcur" id="tgMgrCur"></span><span class="count" id="tgMgrCount" hidden></span><svg class="tgchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="tgmenu" id="tgMgrMenu">
+          <button class="tab" data-tab="order" data-admin hidden>Input data<small>Order baru, masuk ke persetujuan approver</small></button>
+          <button class="tab" data-tab="aplikasi" data-admin data-ax="snapp" hidden>Surat jalan<small>Surat jalan SNAPP dan cek barang dari sekolah</small></button>
+          <button class="tab" data-tab="piutang" data-admin data-armode="all" hidden>Invoice<small>Semua invoice, klik nomor untuk detail</small></button>
           <button class="tab" data-tab="insight">Insight bulanan<small>Ringkasan per bulan dan sarannya</small></button>
           <button class="tab" data-tab="sekolah">Sekolah<small>Database sekolah dan invoicenya</small></button>
-          <button class="tab" data-tab="piutang">Aging invoice<span class="count" id="piutangCount" hidden></span><small>Invoice belum lunas dan pengingat</small></button>
+          <button class="tab" data-tab="piutang" data-armode="unpaid">Aging invoice<span class="count" id="piutangCount" hidden></span><small>Invoice belum lunas dan pengingat</small></button>
           <button class="tab" data-tab="insentif">Insentif marketing<small>Gaji dan insentif per sales per bulan</small></button>
           <button class="tab" data-tab="approval">Approval<span class="count" id="approvalCount" hidden></span><small>Order yang menunggu persetujuan</small></button>
           <button class="tab" data-tab="data">Data<small>Semua baris invoice, klik nomor invoice</small></button>
         </div>
       </div>
       <button class="tab" data-tab="order">Input order</button>
-      <button class="tab" data-tab="aplikasi">Aplikasi</button>
+      <button class="tab" data-tab="aplikasi" data-ax="sales">Aplikasi</button>
     </nav>
     <div class="tbr">
       <span class="pill" id="updated">Memuat...</span>
@@ -1904,12 +1907,19 @@ function skAccess(a) {
   Array.prototype.forEach.call(document.querySelectorAll('#pop [data-cost]'), function (li) { li.hidden = SKD.inv; });
   if (a && a.tabs) { SKD.allow = {}; a.tabs.forEach(function (t) { SKD.allow[t] = 1; }); }
   var first = null;
+  // Admin (11 Nov, Firman: "dia pegang admin (all sub menu + data) dan aplikasi"): an email with Input
+  // order and no Approval gets the group named Admin with Input data, Surat jalan, Invoice, Data and
+  // Aging invoice, and Aplikasi beside it. Owners and approvers keep the Manajemen menu.
+  SKD.admin = !!(SKD.allow && SKD.allow.order && !SKD.allow.approval);
+  skAdminMenu(SKD.admin);
   Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
     var name = t.getAttribute('data-tab'), ok = skMay(name);
+    if (t.hasAttribute('data-admin')) ok = ok && SKD.admin;
+    else if (SKD.admin && name === 'order' && !t.closest('#tgMgr')) ok = false; // Input order sits in the Admin group
     t.hidden = !ok;
   });
   // The page an email lands on: the first open tab in the old menu order (an admin opens on Input order).
-  ['ringkasan', 'insight', 'sekolah', 'piutang', 'insentif', 'order', 'approval', 'data', 'aplikasi'].forEach(function (n) { if (first === null && skMay(n)) first = n; });
+  (SKD.admin ? ['order', 'data', 'piutang', 'aplikasi'] : ['ringkasan', 'insight', 'sekolah', 'piutang', 'insentif', 'order', 'approval', 'data', 'aplikasi']).forEach(function (n) { if (first === null && skMay(n)) first = n; });
   Array.prototype.forEach.call(document.querySelectorAll('[data-goto]'), function (b) { b.hidden = !skMay(b.getAttribute('data-goto')); });
   skTgUpdate();
   if (!SKD.allow) return null;
@@ -1919,6 +1929,15 @@ function skAccess(a) {
   return first;
 }
 function skMay(name) { return !SKD.allow || !!SKD.allow[name]; }
+// Admin mode: the group reads Admin and Data comes before Aging invoice (Firman's order); back to
+// Manajemen otherwise. The word is the button's first text node.
+function skAdminMenu(on) {
+  var btn = document.getElementById('tgMgrBtn'), menu = document.getElementById('tgMgrMenu');
+  if (!btn || !menu) return;
+  btn.firstChild.nodeValue = on ? 'Admin' : 'Manajemen';
+  var data = menu.querySelector('.tab[data-tab=data]'), aging = menu.querySelector('.tab[data-tab=piutang][data-armode=unpaid]');
+  if (on) menu.insertBefore(data, aging); else menu.appendChild(data);
+}
 // The Manajemen group (9 Nov): lit while one of its tabs is open (its name beside the word on wide
 // screens), its badge the sum of Aging and Approval, hidden when none of its tabs is open to this email.
 function skTgUpdate() {
@@ -1939,10 +1958,17 @@ function skTgOpen(open) {
   if (open && window.innerWidth <= 760) { var r = document.getElementById('tabs').getBoundingClientRect(); document.getElementById('tgMgrMenu').style.top = (r.bottom + 8) + 'px'; }
 }
 
-function skShowTab(name) {
+function skShowTab(name, el) {
   if (!skMay(name)) return;
   SKD.tab = name;
-  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) { t.classList.toggle('on', t.getAttribute('data-tab') === name); });
+  if (el && el.hidden) el = null; // a hidden admin item never sets a view
+  // an item that names its view (Invoice = all invoices, Aging invoice = unpaid, Surat jalan = SNAPP)
+  if (el && el.getAttribute('data-armode') && SKD.ar) SKD.ar.mode = el.getAttribute('data-armode');
+  if (el && el.getAttribute('data-ax') && typeof SKAX !== 'undefined') { SKAX.src = el.getAttribute('data-ax'); if (SKAX.src === 'snapp') SKAX.sn = 'sj'; }
+  var same = [].slice.call(document.querySelectorAll('.tab')).filter(function (t) { return t.getAttribute('data-tab') === name && !t.hidden; });
+  var fits = function (t) { var m = t.getAttribute('data-armode'), x = t.getAttribute('data-ax'); return (!m || (SKD.ar && m === SKD.ar.mode)) && (!x || (typeof SKAX !== 'undefined' && x === SKAX.src)); };
+  var lit = el && !el.hidden ? el : same.filter(fits)[0] || same[0];
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) { t.classList.toggle('on', t === lit); });
   skTgOpen(false); skTgUpdate();
   Array.prototype.forEach.call(document.querySelectorAll('.view'), function (v) {
     var on = v.id === 'v-' + name;
@@ -1989,7 +2015,7 @@ function skShowInsight(res) {
 }
 document.getElementById('selMonth').addEventListener('change', function (e) { skLoadInsight(+e.target.value); });
 Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
-  t.addEventListener('click', function () { skShowTab(t.getAttribute('data-tab')); });
+  t.addEventListener('click', function () { skShowTab(t.getAttribute('data-tab'), t); });
 });
 document.getElementById('tgMgrBtn').addEventListener('click', function (e) { e.stopPropagation(); skTgOpen(!document.getElementById('tgMgr').classList.contains('open')); });
 document.addEventListener('click', function (e) { if (!e.target.closest || !e.target.closest('#tgMgr')) skTgOpen(false); });
