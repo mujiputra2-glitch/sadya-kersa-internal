@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.8","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.6.9","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -2103,6 +2103,8 @@ function vAInvoice(d) {
       '<div class="lrows">' + i.lines.map(function (l) {
         return '<div class="lrow"><span>' + esc(l[0] || 'Barang') + '<em>' + esc(String(l[1]).replace('.', ',')) + ' ' + esc(l[2]) + '</em></span><b>' + esc(nbRp(rpPenuh(l[3]))) + '</b></div>';
       }).join('') + '</div>' +
+      '<div class="btnrow"><button class="btn" onclick="docRun(\'print\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">Cetak invoice</button>' +
+      '<button class="btn" onclick="docRun(\'pdf\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">PDF</button></div>' +
       (ph && d.settings.waTagih ? '<a class="btn remind block" href="' + esc(waTagihHref({ school: s.name || u0.name, inv: i.inv, date: i.date, amount: i.amount, picName: s.pic, picPhone: s.picPhone })) +
         '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Ingatkan lewat WhatsApp</a>' : '') + '</div>';
   }).join('');
@@ -2284,14 +2286,14 @@ function kpHelp(k) {
     (up ? p('Naik ke ' + k.next, 'Omzet rata-rata ' + R.naikOmzetBulan + ' bulan minimal ' + kpc(v(R.naikOmzet, o.line)) + ', tagihan lancar ' + R.naikAgingBulan + ' bulan minimal ' + kpc(v(R.naikAging, a.line)) +
       ', dan ' + v(R.naikSekolah, s.line) + ' sekolah baru dalam ' + R.naikSekolahBulan + ' bulan. Ketiganya harus terpenuhi.') : p('Senior', 'Level tertinggi. Yang dijaga hanya batas zona turun.')) +
     p('Periode', 'Pencapaian bulan dihitung dari tanggal 21 bulan sebelumnya sampai tanggal 20. Contoh: Januari = 21 Desember sampai 20 Januari, dibayar 25 Januari. Order dan pelunasan setelah tanggal 20 masuk bulan berikutnya.') +
-    p('Penilaian', 'Dihitung ulang setiap tanggal 21 dari periode penuh terakhir. Bulan berjalan tampil sebagai perkiraan. Aplikasi tidak mengubah level; Mas Firman yang memutuskan.') +
+    p('Penilaian', 'Dihitung ulang setiap tanggal 21 dari periode penuh terakhir. Bulan berjalan tampil sebagai perkiraan. Aplikasi hanya memberi saran; level diatur manajemen di dashboard, menu Insentif marketing. Sales baru mulai di Probation.') +
     p('Insentif', 'Gaji pokok ' + rp(R.gaji) + ', ditambah ' + kpcDec(R.surplus) + ' dari omzet di atas target, insentif sekolah baru per order pertama, dan insentif tagihan lancar.') + '</details>';
 }
 // The team in tab KPI (Manajer): how many are ready to go up, safe, in the zone; per sales the
 // reason in one line and where this month is heading; a tap opens that sales' full KPI.
 function vKpTeam(d) {
   var l = kpTeamShown(d), f0 = l.length && l[0].fc;
-  setTop('<div><h1>KPI tim</h1><div class="sub">' + esc((f0 ? 'Penilaian berikutnya ' + tglPanjang(f0.review) + '. ' : '') + 'Level diubah di tab Akun, aturan di tab Aturan KPI') + '</div></div>');
+  setTop('<div><h1>KPI tim</h1><div class="sub">' + esc((f0 ? 'Penilaian berikutnya ' + tglPanjang(f0.review) + '. ' : '') + 'Level diatur manajemen di dashboard, menu Insentif marketing') + '</div></div>');
   if (!l.length) return '<div class="note amber" style="margin-top:16px">' + esc(d.kpiError || 'Belum ada akun Sales yang aktif.') + '</div>';
   var n = function (s) { return l.filter(function (k) { return k.status === s; }).length; };
   return '<div class="ksum rise" style="--i:0">' + [['naik', 'Siap naik', 'g', 'up'], ['aman', 'Aman', '', 'shield'], ['turun', 'Zona turun', 'r', 'dn']].map(function (x) {
@@ -2302,7 +2304,7 @@ function vKpTeam(d) {
       '<span class="t"><b>' + esc(k.name) + '</b><span>' + esc(k.level + (k.levelSet ? '' : ' (belum diatur)') + ' · ' + kpReason(k)) + '</span>' + kstTag(k) +
       '<span class="kfcb' + (f && f.next === 'turun' ? ' r' : '') + '">' + (f ? '<span class="kfc1">' + (f.next === 'turun' ? SKA_ICON.alert : SKA_ICON.shield) + esc(nbRp('Perkiraan ' + tgl(f.review) + ': ' + (SKA_KST[f.next] || SKA_KST.aman)[1] + (gap ? ', perlu ' + rp(gap) + ' lagi bulan ini' : ''))) + '</span>' : '') +
       '<span class="kpay1">' + SKA_ICON.gift + '<b>' + esc(nbRp(rp(k.pay.total))) + '</b> insentif bulan ini</span></span></span>' + SKA_ICON.right + '</button>';
-  }).join('') + '<p class="muted small" style="margin-top:12px">Omzet dihitung dari sekolah yang dipegang tiap sales (kolom Sales di tab Sekolah). Aplikasi tidak mengubah level; Mas Firman yang memutuskan.</p>';
+  }).join('') + '<p class="muted small" style="margin-top:12px">Omzet dihitung dari sekolah yang dipegang tiap sales (kolom Sales di tab Sekolah). Aplikasi hanya memberi saran; level diatur manajemen di dashboard, menu Insentif marketing. Sales baru mulai di Probation.</p>';
 }
 function kpReason(k) {
   var o = k.ind.omzet, a = k.ind.aging, s = k.ind.sekolah;
@@ -2385,6 +2387,8 @@ function vACustD(d) {
       (i.sj.length ? '<div class="sjlinks">' + i.sj.map(function (no) { return '<button class="chip" onclick="go(\'asj\',\'' + jsq(no) + '\')">' + esc(no) + '</button>'; }).join('') + '</div>' : '') +
       (v && v.status === 'Tidak sesuai' ? '<div class="note' + (dispute ? ' amber' : '') + '"><b>Sekolah: tidak sesuai.</b> ' + esc(v.note) + (v.answered ? '<br><b>Tanggapan:</b> ' + esc(v.answer) : '') + '</div>' : '') +
       '<div class="btnrow">' + (dispute ? '<button class="btn amber" onclick="answerSheet(\'' + jsq(i.inv) + '\')">Tanggapi</button>' : '') +
+        '<button class="btn" onclick="docRun(\'print\',\'skxInvPdf\',\'' + jsq(SKA.custKey) + '\',\'' + jsq(i.inv) + '\')">Cetak invoice</button>' +
+        '<button class="btn" onclick="docRun(\'pdf\',\'skxInvPdf\',\'' + jsq(SKA.custKey) + '\',\'' + jsq(i.inv) + '\')">PDF</button>' +
       (young && i.step.code !== 'lunas' ? '<button class="btn" onclick="openSjForm(\'' + jsq(key) + '\',\'' + jsq(i.inv) + '\')">' + SKA_ICON.box + 'Buat surat jalan</button>' : '') + '</div>' +
       (i.status === 'Lunas' ? '' : picWa(x, invWaText(i, x), 'Kabari PIC soal invoice ini')) + '</div>';
   }).join('') : '<p class="muted">Belum ada invoice.</p>');
@@ -2566,11 +2570,37 @@ function prosesStep(inv, step, undo) {
   call('skxProsesStep', SKA.token, inv, step, !!undo).then(function (r) { busy(false); SKA.proses = r; render(); toast(undo ? 'Tanda dihapus.' : 'Tersimpan.'); })
     .catch(function (e) { busy(false); toast(e.message); });
 }
-// Surat jalan as a PDF (Firman 10 Nov): on the phone it is saved and handed to the share menu
-// (WhatsApp, Drive, print); in a browser it downloads.
-function sjPdf(no) {
-  busy(true, 'Membuat PDF...');
-  call('skxSjPdf', SKA.token, no).then(function (r) {
+// Cetak and Unduh PDF (11 Nov: surat jalan and invoice easier to print). The server makes the PDF;
+// Cetak opens the phone's own print screen (native SkPrint plugin, any printer Android reaches), and in
+// a browser the PDF is printed from a hidden frame, or opened in a new tab when the browser refuses.
+// Unduh PDF: phone = save and share menu (WhatsApp, Drive), browser = download.
+function docPlugin(name) {
+  var c = window.Capacitor;
+  if (!c || !c.isNativePlatform || !c.isNativePlatform()) return null;
+  return (c.Plugins && c.Plugins[name]) || (c.registerPlugin ? c.registerPlugin(name) : null);
+}
+function docBlobUrl(r) {
+  var bin = atob(r.b64), arr = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return URL.createObjectURL(new Blob([arr], { type: 'application/pdf' }));
+}
+function docRun(mode, fn) {
+  var args = Array.prototype.slice.call(arguments, 2);
+  busy(true, mode === 'print' ? 'Menyiapkan cetak...' : 'Membuat PDF...');
+  call.apply(null, [fn, docToken()].concat(args)).then(function (r) {
+    if (mode === 'print') {
+      var pr = docPlugin('SkPrint');
+      if (pr) return pr.printPdf({ base64: r.b64, name: r.name }).then(function () { busy(false); });
+      busy(false);
+      var url = docBlobUrl(r), fr = document.createElement('iframe');
+      fr.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0';
+      fr.onload = function () {
+        try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (e) { window.open(url, '_blank'); }
+        setTimeout(function () { fr.remove(); URL.revokeObjectURL(url); }, 60000);
+      };
+      fr.src = url; document.body.appendChild(fr);
+      return;
+    }
     var fs = nativePlugin('Filesystem'), sh = nativePlugin('Share');
     if (fs && sh) {
       return fs.writeFile({ path: r.name, data: r.b64, directory: 'CACHE' }).then(function (w) {
@@ -2579,13 +2609,13 @@ function sjPdf(no) {
       });
     }
     busy(false);
-    var bin = atob(r.b64), arr = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-    var url = URL.createObjectURL(new Blob([arr], { type: 'application/pdf' })), a = document.createElement('a');
-    a.href = url; a.download = r.name; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
+    var u = docBlobUrl(r), a = document.createElement('a');
+    a.href = u; a.download = r.name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
   }).catch(function (e) { busy(false); if (!/cancel/i.test(String(e && e.message))) toast(e.message); });
 }
+function docToken() { return SKA.token; }
+function sjPdf(no) { docRun('pdf', 'skxSjPdf', no); }
 function canPrint() { return !nativePlugin('App') && typeof window.print === 'function'; }
 function vASj(d) {
   var x = (SKA.custD || {})[SKA.custKey], s = x && x.sjs ? x.sjs.filter(function (y) { return y.no === SKA.key; })[0] : null;
@@ -2593,8 +2623,8 @@ function vASj(d) {
   if (!x) { loadCustD(SKA.custKey); return '<p class="muted" style="margin-top:16px">Memuat...</p>'; }
   if (!s) return '<div class="note amber" style="margin-top:16px">Surat jalan tidak ditemukan. Muat ulang data.</div>';
   var h = '<div class="tags" style="margin-top:14px"><i class="tag ' + (SKA_SJ[s.status] || '') + '">' + esc(s.status) + '</i></div>' + sjDoc(s, x.name);
-  h += '<div class="btnrow" style="margin-top:12px"><button class="btn brand" onclick="sjPdf(\'' + jsq(s.no) + '\')">Unduh PDF</button>' +
-    (canPrint() ? '<button class="btn" onclick="window.print()">Cetak</button>' : '') + '</div>';
+  h += '<div class="btnrow" style="margin-top:12px"><button class="btn brand" onclick="docRun(\'print\',\'skxSjPdf\',\'' + jsq(s.no) + '\')">Cetak</button>' +
+    '<button class="btn" onclick="sjPdf(\'' + jsq(s.no) + '\')">Unduh PDF</button></div>';
   var sh = SKA.ship && SKA.ship.no === s.no ? SKA.ship : null;
   if (s.status === 'Disiapkan') {
     h += '<div class="caption">Kirim barang</div><div class="card"><p class="muted small" style="margin:0">Foto barang saat diserahkan, atau foto surat jalan yang sudah ditandatangani. Bisa juga nomor resi kurir.</p>' +
