@@ -2277,7 +2277,7 @@ function kpHelp(k) {
   var v = function (x, y) { return x === null || x === undefined ? y : x; };
   var p = function (t, txt) { return '<p><b>' + esc(t) + '.</b> ' + esc(nbRp(txt)) + '</p>'; };
   return '<details class="float khelp"><summary>Cara KPI dihitung</summary>' +
-    p('Omzet', 'Jumlah invoice dari sekolah yang dipegang (kolom Sales di Sales Tracker), dibanding target ' + k.level + ' ' + rp(R.target) + ' per bulan. Yang dinilai rata-rata bulan penuh terakhir.') +
+    p('Omzet', 'Jumlah invoice dari sekolah yang dipegang (kolom Sales di Sales Tracker), dibanding target ' + k.level + ' ' + rp(R.target) + ' per bulan. Yang dinilai akumulasi (rata-rata) bulan penuh terakhir: bulan yang kurang bisa ditutup bulan yang lebih.') +
     p('Tagihan lunas tepat waktu', 'Dari tagihan yang jatuh tempo (tanggal barang diterima sekolah di SNAPP + ' + R.lancarHari + ' hari; invoice tanpa surat jalan diterima memakai tanggal invoice), berapa rupiah yang lunas sebelum jatuh tempo. Tagihan yang belum jatuh tempo belum dihitung.') +
     p('Sekolah baru', 'Sekolah yang order pertamanya minimal ' + rp(v(R.minSekolahBaru, s.min)) + '.' + (up ? '' : ' Untuk Senior tidak dinilai, insentifnya tetap dibayar.')) +
     p('Zona turun', 'Omzet rata-rata ' + R.turunBulan + ' bulan ' + kpc(v(R.turunOmzet, o.down)) + ' atau kurang, atau tagihan lancar ' + kpc(v(R.turunAging, a.down)) + ' atau kurang. Satu saja sudah masuk zona.') +
