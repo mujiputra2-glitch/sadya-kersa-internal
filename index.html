@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.0","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.1","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -117,11 +117,24 @@
   .sheet .panel h2 { margin-top: 0; }
   .pickrow { display: flex; gap: 8px; }
   .pickrow input { flex: 1; }
-  .popn .popnhead { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
-  .popn .popnhead b { display: block; font-size: 18px; }
-  .popn .popnhead span { color: var(--muted); font-size: 13px; }
-  .popn .lrow em { font-style: normal; font-weight: 700; color: var(--teal); }
-  .popann { margin-bottom: 8px; white-space: pre-wrap; }
+  .popn .popnhead { display: flex; gap: 14px; align-items: center; margin: 2px 2px 16px; }
+  .popn .pic { flex: none; width: 52px; height: 52px; border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; background: var(--tint); color: var(--teal2); overflow: hidden; }
+  .popn .pic img { display: block; width: 52px; height: 52px; }
+  .popn .pic svg { width: 26px; height: 26px; }
+  .popn .popnhead b { display: block; font-size: 20px; line-height: 1.25; font-weight: 800; color: var(--ink); }
+  .popn .pdate { display: block; margin-top: 2px; font-size: 14px; color: var(--muted); }
+  .popn .float { margin-top: 0; padding: 2px 16px; }
+  .popn .attn { min-height: 66px; padding: 12px 0; }
+  .popn .attn .t b { display: block; font-weight: 700; }
+  .popn .attn .adv { overflow-wrap: anywhere; }
+  .popn .btn.block { margin-top: 16px; }
+  .popann { display: flex; gap: 12px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; margin-bottom: 12px; }
+  .popann .ai { flex: none; width: 34px; height: 34px; border-radius: 11px; display: inline-flex; align-items: center; justify-content: center; background: var(--tint); color: var(--teal2); }
+  .popann .ai svg { width: 20px; height: 20px; }
+  .popann b { display: block; font-size: 15px; color: var(--ink); }
+  .popann p { margin: 2px 0 0; font-size: 15px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .popn .rise { animation: rise .42s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--i, 0) * 60ms); }
+  @media (prefers-reduced-motion: reduce) { .popn .rise { animation: none; } }
   .card.proses .prow { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
   .card.proses.late { box-shadow: inset 3px 0 0 var(--red), var(--shadow, 0 2px 10px rgba(0,0,0,.06)); }
   .pdays { font-weight: 800; margin-top: 8px; color: var(--ink); }
@@ -872,21 +885,23 @@ function refreshHome() {
 function school(key) { var l = SKA.data ? SKA.data.schools : []; for (var i = 0; i < l.length; i++) if (l[i].key === key) return l[i]; return null; }
 
 // ---------- reminders (Firman 10 Nov: as a pop-up, like a bank app's notification) ----------
-// What needs doing today, per role, from the Beranda data. Each: [text, view to open].
+// What needs doing today, per role, from the Beranda data. Each: [text, view to open, icon, icon colour
+// ('' red, 'a' amber, 'g' blue), detail line]. The phone notification uses the text only.
 function remindList(d) {
   var out = [], n;
   if (isAdmin(d)) {
     var a = d.admin || {}, t = a.totals || {}, c = a.customers && !a.customers.error ? a.customers : {};
-    if (t.deals) out.push([t.deals + ' deal dari sales menunggu input order', 'home']);
-    if (c.toShip) out.push([c.toShip + ' invoice belum punya surat jalan', 'acust']);
-    if (c.disputes) out.push([c.disputes + ' laporan barang atau invoice tidak sesuai dari sekolah', 'acust']);
-    if (t.overdueSchools) out.push([t.overdueSchools + ' sekolah punya tagihan lewat ' + (d.settings.overdueDays || 25) + ' hari', 'ainvoices']);
+    if (t.deals) out.push([t.deals + ' deal dari sales menunggu input order', 'home', 'box', 'g', 'Masukkan ordernya di Beranda.']);
+    if (c.toShip) out.push([c.toShip + ' invoice belum punya surat jalan', 'acust', 'box', 'a', 'Buat surat jalannya di Pelanggan.']);
+    if (c.disputes) out.push([c.disputes + ' laporan barang atau invoice tidak sesuai dari sekolah', 'acust', 'alert', '', 'Cek laporannya di Pelanggan.']);
+    if (t.overdueSchools) out.push([t.overdueSchools + ' sekolah punya tagihan lewat ' + (d.settings.overdueDays || 25) + ' hari', 'ainvoices', 'bill', '', 'Lihat daftarnya di Invoice.']);
     return out;
   }
-  var fu = d.follow || { due: [] };
-  if (fu.due.length) out.push([fu.due.length + ' tindak lanjut jatuh tempo hari ini', 'follow']);
-  if ((n = overdueCount(d))) out.push([n + ' tagihan lewat jatuh tempo', 'tagihan']);
-  if (!isMgr(d) && d.kpi && d.kpi.fc && d.kpi.fc.pendingCount) out.push([d.kpi.fc.pendingCount + ' tagihan jatuh tempo periode ini, ingatkan sekolahnya', 'kp']);
+  var fu = d.follow || { due: [] }, f0 = fu.due[0], w = (d.tagihan || [])[0];
+  if (fu.due.length) out.push([fu.due.length + ' tindak lanjut sudah jatuh tempo', 'follow', 'cal', 'a',
+    f0 ? f0.school + (f0.late ? ', lewat ' + f0.late + ' hari' : ', hari ini') + (fu.due.length > 1 ? ', dan ' + (fu.due.length - 1) + ' lainnya' : '') : '']);
+  if ((n = overdueCount(d))) out.push([n + ' tagihan lewat jatuh tempo', 'tagihan', 'bill', '', w && w.school ? 'Terlama ' + w.age + ' hari: ' + w.school + (n > 1 ? ', dan ' + (n - 1) + ' lainnya' : '') : '']);
+  if (!isMgr(d) && d.kpi && d.kpi.fc && d.kpi.fc.pendingCount) out.push([d.kpi.fc.pendingCount + ' tagihan jatuh tempo bulan ini', 'kp', 'wallet', 'g', (d.kpi.fc.pendingRp ? rp(d.kpi.fc.pendingRp) + '. ' : '') + 'Ingatkan sekolahnya sebelum jatuh tempo.']);
   return out;
 }
 function remindHash(t) { var h = 0; t = String(t || ''); for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return String(h); }
@@ -900,11 +915,15 @@ function remindAfterHome(d) {
     if ((seenDay || !list.length) && !newAnn) return;
     store('skx_pop', popKey); if (ah) store('skx_ann', ah);
     if (!$('sheet').classList.contains('hide')) return; // never over a form the user has open
-    openSheet('<div class="popn"><div class="popnhead">' + (SKA_ART.ic_bell ? '<img src="' + SKA_ART.ic_bell + '" alt="" width="40" height="40">' : ico('clock')) +
-      '<div><b>Pengingat hari ini</b><span>' + esc(hari(d.today)) + '</span></div></div>' +
-      (ann ? '<div class="note popann"><b>Pengumuman</b><br>' + esc(ann) + '</div>' : '') +
-      list.map(function (x) { return '<button class="lrow" onclick="closeSheet();go(\'' + jsq(x[1]) + '\')"><span>' + esc(x[0]) + '</span><em>Lihat</em></button>'; }).join('') +
-      '<button class="btn block" style="margin-top:12px" onclick="closeSheet()">Tutup</button></div>');
+    var art = SKA_ART.ic_tasks || SKA_ART.ic_cal;
+    openSheet('<div class="popn"><div class="popnhead"><span class="pic">' + (art ? '<img src="' + art + '" alt="" width="52" height="52">' : SKA_ICON.clock) + '</span>' +
+      '<div><b>Pengingat hari ini</b><span class="pdate">' + esc(hari(d.today)) + '</span></div></div>' +
+      (ann ? '<div class="popann rise"><span class="ai">' + SKA_ICON.news + '</span><div><b>Pengumuman</b><p>' + esc(ann) + '</p></div></div>' : '') +
+      (list.length ? '<div class="float">' + list.map(function (x, i) {
+        return '<button class="attn rise" style="--i:' + (i + 1) + '" onclick="closeSheet();go(\'' + jsq(x[1]) + '\')"><span class="ai' + (x[3] ? ' ' + x[3] : '') + '">' + (SKA_ICON[x[2]] || SKA_ICON.alert) + '</span>' +
+          '<span class="t"><b>' + esc(x[0]) + '</b>' + (x[4] ? '<span class="adv">' + esc(x[4]) + '</span>' : '') + '</span>' + SKA_ICON.right + '</button>';
+      }).join('') + '</div>' : '') +
+      '<button class="btn block" onclick="closeSheet()">Tutup</button></div>');
   } catch (e) { return; } // a reminder never blocks Beranda
 }
 function remindNotify(d, list, ann, newAnn) {
