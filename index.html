@@ -454,6 +454,29 @@
   .kbig.g { background: linear-gradient(135deg, #D8F4E2, #C2ECD2); color: #13642F; }
   .kbig.r { background: linear-gradient(135deg, #FDE7E7, #FAD3D0); color: #B42318; }
   .kstat > p { text-align: center; }
+  .invrow { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 64px; text-align: left; background: var(--card); border: 1px solid rgba(226, 230, 244, .9); border-radius: 16px; padding: 12px 12px 12px 14px; margin-top: 8px; color: inherit; font: inherit; box-shadow: 0 6px 20px rgba(39, 40, 192, .07); }
+  .invrow .t { flex: 1; min-width: 0; }
+  .invrow .t b { display: block; color: var(--ink); font-size: 16px; }
+  .invrow .t > span { display: block; font-size: 13.5px; color: var(--muted); margin: 2px 0 6px; }
+  .invrow .amt { flex: none; font-size: 15px; color: var(--ink); }
+  .invrow svg { flex: none; width: 18px; height: 18px; color: var(--grey); }
+  .invrow:active { transform: scale(.98); }
+  button.tgrow { width: 100%; min-height: 48px; border: 0; background: transparent; padding: 0; text-align: left; color: inherit; font: inherit; align-items: center; }
+  button.tgrow .more { display: block; margin-top: 2px; color: var(--teal); font-weight: 700; font-size: 13.5px; }
+  .dtab.itab { table-layout: auto; }
+  .itab td:first-child, .itab th:first-child, .itab td:last-child, .itab th:last-child { width: auto; }
+  .itab td.n, .itab th.n { text-align: right; white-space: nowrap; padding-left: 10px; }
+  .itab tfoot td { font-weight: 800; border-top: 2px solid var(--ink); border-bottom: 0; }
+  .dochead .doctl { text-align: left; }
+  .dochead .doctl b { display: block; font-size: 18px; letter-spacing: 1px; color: var(--brand); }
+  .dochead .doctl span { font-size: 13.5px; font-weight: 700; color: var(--muted); }
+  .dochead .doccomp { text-align: right; }
+  .dochead .doccomp img { display: block; max-height: 48px; max-width: 170px; margin-left: auto; }
+  .dochead .doccomp span { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+  .dochead .doccomp b { display: block; font-size: 15px; letter-spacing: 0; color: var(--ink); }
+  .docschool { font-size: 18px; font-weight: 800; color: var(--amber); margin: 2px 0 10px; }
+  .docfoot { margin-top: 16px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+  .sign b { display: block; color: var(--ink); font-size: 13px; }
   .kwhy.kmets > div.kmet { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; margin-top: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
   .kwhy.kmets i.mi { width: 46px; height: 46px; border-radius: 50%; background: var(--tint); color: var(--teal); }
   .kwhy.kmets i.mi svg { width: 24px; height: 24px; }
@@ -817,7 +840,7 @@ function doLogin() {
 }
 function logoutLocal(msg) {
   SKA.token = ''; SKA.data = null; SKA.salesFilter = ''; SKA.histSales = ''; SKA.recSales = ''; SKA.filter = 'all'; SKA.linkFilter = false; store('skx_token', null); store('skx_home', null); store('skx_name', null);
-  SKA.of = null; SKA.ofData = null; SKA.ofErr = ''; SKA.aInv = {}; SKA.aSearch = ''; SKA.aFilter = 'all';
+  SKA.of = null; SKA.ofData = null; SKA.ofErr = ''; SKA.aInv = {}; SKA.sinv = {}; SKA.sinvAll = ''; SKA.aSearch = ''; SKA.aFilter = 'all';
   busy(false); showLogin(msg);
 }
 function doLogout() {
@@ -996,7 +1019,7 @@ function render() {
   m.classList.toggle('anim', SKA.shown !== SKA.view); // cards rise in when a screen opens, not on every redraw
   SKA.shown = SKA.view;
   $('vApp').querySelector('.top').classList.toggle('homebar', SKA.view === 'home');
-  if (SKA.view === 'school') loadSchoolActs(SKA.key);
+  if (SKA.view === 'school') { loadSchoolActs(SKA.key); loadSchoolInv(SKA.key); }
   if (SKA.view === 'schools') {
     drawSchoolList();
     Array.prototype.forEach.call(document.querySelectorAll('#main .seg'), function (sg) { var c = sg.querySelector('.chip.on'); if (c) sg.scrollLeft = Math.max(0, c.offsetLeft - 16); });
@@ -1349,7 +1372,7 @@ function vPriority(d) {
 function tagihItem(d, x, one) {
   var ph = phoneOk(x.picPhone);
   return '<div class="card">' + (one ? '' : '<button class="head" onclick="openSchool(\'' + jsq(x.key) + '\')"><b>' + esc(x.school) + '</b>' + (isMgr(d) ? '<span class="who">' + esc(salesLabel(x.sales)) + '</span>' : '') + '</button>') +
-    '<div class="tgrow"><span>' + esc(x.inv || 'Tanpa nomor') + ', ' + esc(tgl(x.date)) + '<br>umur ' + x.age + ' hari</span><b class="amt">' + rp(x.amount) + '</b></div>' +
+    '<button class="tgrow" onclick="invSheet(\'' + jsq(x.key) + '\',\'' + jsq(x.inv) + '\')"><span>' + esc(x.inv || 'Tanpa nomor') + ', ' + esc(tgl(x.date)) + '<br>umur ' + x.age + ' hari<span class="more">Lihat rincian invoice</span></span><b class="amt">' + rp(x.amount) + '</b></button>' +
     (ph ? '<a class="btn remind block" href="' + esc(waTagihHref(x)) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Ingatkan lewat WhatsApp</a>'
       : '<div class="muted small" style="margin-top:8px">Belum ada nomor PIC untuk WhatsApp.</div><button class="btn block" style="margin-top:8px" onclick="contactSheet(\'' + jsq(x.key) + '\',false,true)">' + SKA_ICON.user + 'Isi PIC</button>') + '</div>';
 }
@@ -1605,8 +1628,10 @@ function vSchool(d) {
     }).join('') + (late && !ph ? '<div class="small" style="margin-top:6px">Isi No HP PIC di bawah untuk mengirim pengingat lewat WhatsApp.</div>' : '') + '</div>';
   }
   h += '</div>';
+  h += '<h2>Invoice sekolah ini</h2><div id="schoolInv">' + schoolInvHtml(s.key) + '</div>';
   h += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b style="color:var(--ink)">Kontak sekolah</b><button class="chip" style="min-height:44px;padding:6px 14px" onclick="contactSheet()">Ubah</button></div>' +
     '<dl class="kv" style="margin-top:10px"><dt>PIC</dt><dd>' + esc(s.pic || 'belum diisi') + '</dd><dt>No HP</dt><dd>' + esc(s.picPhone || 'belum diisi') + '</dd></dl>' +
+    '<div class="muted small" style="margin-top:6px">Tersambung dengan aplikasi SNAPP sekolah: perubahan terakhir, dari sales atau dari sekolah, yang dipakai di kedua aplikasi dan di surat jalan.</div>' +
     '<div class="btnrow"><a class="btn' + (s.picPhone ? '' : ' off') + '" href="tel:' + esc(s.picPhone) + '" target="_blank">' + SKA_ICON.phone + 'Telepon</a>' +
     '<a class="btn wa' + (s.picPhone ? '' : ' off') + '" href="' + esc(waHref(s)) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'WhatsApp</a></div>' +
     (s.picPhone ? (d.settings.catalog ? '<div class="muted small" style="margin-top:8px">Tombol WhatsApp mengirim pesan follow up dengan link katalog.</div>'
@@ -1681,6 +1706,56 @@ function byDay(list, showSchool) {
     h += actItem(a, showSchool);
   });
   return h;
+}
+// 13 Nov (Firman): every invoice of the school for its sales person (paid or not); each opens with its
+// items, company, delivery notes and due date (skxSalesInvoices: own schools only, never HPP).
+function salesInv(key) {
+  SKA.sinv = SKA.sinv || {};
+  return call('skxSalesInvoices', SKA.token, key).then(function (r) { SKA.sinv[key] = r; return r; }, function (e) { SKA.sinv[key] = { err: e.message }; throw e; });
+}
+function loadSchoolInv(key) {
+  SKA.sinv = SKA.sinv || {};
+  var show = function () { var el = $('schoolInv'); if (el && SKA.key === key) el.innerHTML = schoolInvHtml(key); };
+  if (SKA.sinv[key] && !SKA.sinv[key].err) { show(); return; }
+  salesInv(key).then(show, show);
+}
+function invStatus(i, days) {
+  if (i.status === 'Lunas') return '<i class="tag green">Lunas' + (i.paidDate ? ' ' + esc(tgl(i.paidDate)) : '') + '</i>';
+  return '<i class="tag ' + (i.age > days ? 'red' : 'amber') + '">Belum lunas, ' + i.age + ' hari</i>';
+}
+function schoolInvHtml(key) {
+  var r = (SKA.sinv || {})[key];
+  if (!r) return '<p class="muted">Memuat invoice...</p>';
+  if (r.err) return '<p class="err">' + esc(r.err) + '</p><button class="btn block" onclick="delete SKA.sinv[\'' + jsq(key) + '\'];loadSchoolInv(\'' + jsq(key) + '\')">Coba lagi</button>';
+  if (!r.invoices.length) return '<p class="muted">Belum ada invoice untuk sekolah ini.</p>';
+  var days = r.overdueDays || 25, list = SKA.sinvAll === key ? r.invoices : r.invoices.slice(0, 8);
+  return list.map(function (i) {
+    return '<button class="invrow" onclick="invSheet(\'' + jsq(key) + '\',\'' + jsq(i.inv) + '\')"><span class="t"><b>' + esc(i.inv || 'Tanpa nomor') + '</b><span>' + esc(tgl(i.date)) + ' · ' + i.lines.length + ' jenis barang</span>' +
+      invStatus(i, days) + '</span><b class="amt">' + esc(nbRp(rp(i.total))) + '</b>' + SKA_ICON.right + '</button>';
+  }).join('') + (r.invoices.length > list.length ? '<button class="btn block" style="margin-top:8px" onclick="SKA.sinvAll=\'' + jsq(key) + '\';loadSchoolInv(\'' + jsq(key) + '\')">Tampilkan semua (' + r.invoices.length + ')</button>' : '');
+}
+function invSheet(key, no) {
+  var r = (SKA.sinv || {})[key];
+  if (!r || r.err) {
+    openSheet('<h2>' + esc(no || 'Invoice') + '</h2><p class="muted">Memuat rincian invoice...</p>');
+    salesInv(key).then(function () { if (!$('sheet').classList.contains('hide')) invSheet(key, no); },
+      function (e) { openSheet('<h2>' + esc(no || 'Invoice') + '</h2><p class="err">' + esc(e.message) + '</p><button class="btn block" onclick="closeSheet()">Tutup</button>'); });
+    return;
+  }
+  var i = r.invoices.filter(function (x) { return x.inv === no; })[0];
+  if (!i) { openSheet('<h2>' + esc(no || 'Invoice') + '</h2><p class="muted">Invoice tidak ditemukan. Muat ulang data.</p><button class="btn block" onclick="closeSheet()">Tutup</button>'); return; }
+  var s = school(key) || {}, days = r.overdueDays || 25, ph = phoneOk(s.picPhone), st = (SKA.data && SKA.data.settings) || {};
+  openSheet('<h2 style="margin-bottom:2px">' + esc(i.inv || 'Tanpa nomor') + '</h2><div class="muted small">' + esc(r.name) + ' · ' + esc(tglPanjang(i.date)) + '</div>' +
+    '<div class="tags" style="margin-top:10px">' + invStatus(i, days) + (i.status !== 'Lunas' && i.step && i.step.text ? '<i class="tag">' + esc(i.step.text) + '</i>' : '') + '</div>' +
+    '<div class="card" style="margin-top:12px"><table class="dtab itab"><thead><tr><th>Barang</th><th class="n">Jumlah</th><th class="n">Nilai (Rp)</th></tr></thead><tbody>' + i.lines.map(function (l) {
+      return '<tr><td>' + esc(l[0] || 'Barang') + '</td><td class="n">' + esc(String(l[1]).replace('.', ',')) + ' ' + esc(l[2]) + '</td><td class="n">' + esc(rpPenuh(l[3]).replace('Rp ', '')) + '</td></tr>';
+    }).join('') + '</tbody><tfoot><tr><td colspan="2">Total</td><td class="n">' + esc(rpPenuh(i.total)) + '</td></tr></tfoot></table></div>' +
+    '<dl class="kv" style="margin-top:12px"><dt>Perusahaan</dt><dd>' + esc(i.company || '-') + '</dd>' + (i.mkt && i.mkt !== '-' ? '<dt>Melalui</dt><dd>' + esc(i.mkt) + '</dd>' : '') +
+    '<dt>Surat jalan</dt><dd>' + (i.sj && i.sj.length ? i.sj.map(function (x) { return esc(x.no) + ' (' + esc(x.status) + ')'; }).join('<br>') : 'Belum ada') + '</dd>' +
+    (i.received ? '<dt>Barang diterima</dt><dd>' + esc(tglPanjang(i.received)) + '</dd>' : '') + (i.status !== 'Lunas' && i.due ? '<dt>Jatuh tempo</dt><dd>' + esc(tglPanjang(i.due)) + '</dd>' : '') + '</dl>' +
+    (i.status !== 'Lunas' && ph && st.waTagih ? '<a class="btn remind block" style="margin-top:14px" href="' + esc(waTagihHref({ key: s.key, school: s.name, sales: s.sales, inv: i.inv, date: i.date, age: i.age, amount: i.total, picName: s.pic, picPhone: s.picPhone })) +
+      '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Ingatkan lewat WhatsApp</a>' : '') +
+    '<button class="btn block" style="margin-top:12px" onclick="closeSheet()">Tutup</button>');
 }
 function loadSchoolActs(key) {
   call('skxSchool', SKA.token, key).then(function (l) {
@@ -2099,7 +2174,7 @@ function vAInvoice(d) {
   return h + '<div class="caption">Invoice dan barang yang ditagih</div>' + x.invoices.map(function (i) {
     var late = i.age > days;
     return '<div class="card"><div class="tgrow"><span><b style="color:var(--ink)">' + esc(i.inv) + '</b><br>' + esc(tgl(i.date)) + ' · umur ' + i.age + ' hari' +
-      (i.cv && i.cv !== '-' ? ' · CV ' + esc(i.cv) : '') + (i.mkt && i.mkt !== '-' ? ' · ' + esc(i.mkt) : '') + '</span><b class="amt"' + (late ? ' style="color:var(--red)"' : '') + '>' + esc(nbRp(rp(i.amount))) + '</b></div>' +
+      (i.company ? ' · ' + esc(i.company) : i.cv && i.cv !== '-' ? ' · CV ' + esc(i.cv) : '') + (i.mkt && i.mkt !== '-' ? ' · ' + esc(i.mkt) : '') + '</span><b class="amt"' + (late ? ' style="color:var(--red)"' : '') + '>' + esc(nbRp(rp(i.amount))) + '</b></div>' +
       '<div class="lrows">' + i.lines.map(function (l) {
         return '<div class="lrow"><span>' + esc(l[0] || 'Barang') + '<em>' + esc(String(l[1]).replace('.', ',')) + ' ' + esc(l[2]) + '</em></span><b>' + esc(nbRp(rpPenuh(l[3]))) + '</b></div>';
       }).join('') + '</div>' +
@@ -2509,19 +2584,37 @@ function fileDone(id) {
   call('skxFileDone', SKA.token, id).then(function () { busy(false); SKA.files = null; toast('File ditandai sudah diproses.'); render(); })
     .catch(function (e) { busy(false); toast(e.message); });
 }
-// The delivery note as a document (printable in a browser), then where it stands.
-function sjDoc(s, school) {
-  var logo = document.querySelector('#vLogin .logo');
-  return '<div class="doc"><div class="dochead">' + (logo ? logo.outerHTML : '<b>Sadya Kersa</b>') + '<div><b>SURAT JALAN</b><span>' + esc(s.no) + '</span></div></div>' +
-    '<dl class="kv"><dt>Tanggal kirim</dt><dd>' + esc(tglPanjang(s.date)) + '</dd><dt>Kepada</dt><dd>' + esc(school) + '</dd><dt>Alamat</dt><dd style="white-space:pre-wrap">' + esc(s.address) + '</dd>' +
-    '<dt>No. invoice</dt><dd>' + esc(s.inv) + '</dd></dl><table class="dtab"><thead><tr><th>No</th><th>Barang</th><th>Jumlah</th>' + (s.checks ? '<th>Cek sekolah</th>' : '') + '</tr></thead><tbody>' +
+// The delivery note as a document, the same as the printed PDF (13 Nov, Firman): SURAT JALAN with the
+// company of the order top right (logo or name), Firman's fields (No. = invoice, PIC, No. Telp), the
+// company as sender and a footer with the date, time and company. x: the school (skxCustomer).
+function docCompany(x, invNo) {
+  var c = (x && x.companies) || {}, i = x && x.invoices ? x.invoices.filter(function (v) { return v.inv === invNo; })[0] : null, k = i && i.cv ? String(i.cv).toUpperCase() : 'SK';
+  return c[k] || c.SK || { name: 'CV Sadya Kersa', logo: '' };
+}
+function docCo(co) {
+  co = co || {};
+  return '<div class="doccomp">' + (co.logo ? '<img src="' + esc(co.logo) + '" alt=""><span>' + esc(co.name) + '</span>' : '<b>' + esc(co.name || '') + '</b>') + '</div>';
+}
+function docFoot(co) {
+  var n = new Date(), p = function (v) { return ('0' + v).slice(-2); };
+  return '<div class="docfoot">Dicetak ' + n.getDate() + ' ' + SKA_BULAN_PANJANG[n.getMonth()] + ' ' + n.getFullYear() + ', ' + p(n.getHours()) + ':' + p(n.getMinutes()) + ' WIB' + (co && co.name ? ' · ' + esc(co.name) : '') + '</div>';
+}
+function sjDoc(s, school, x) {
+  var co = docCompany(x, s.inv), p = (x && x.profile) || {}, inv = x && x.invoices ? x.invoices.filter(function (v) { return v.inv === s.inv; })[0] : null;
+  return '<div class="doc"><div class="dochead"><div class="doctl"><b>SURAT JALAN</b><span>' + esc(s.no) + (inv && /siplah/i.test(inv.mkt || '') ? ' · SIPLah' : '') + '</span></div>' + docCo(co) + '</div>' +
+    '<div class="docschool">' + esc(school) + '</div>' +
+    '<dl class="kv"><dt>No.</dt><dd>' + esc(s.inv) + '</dd><dt>Tanggal</dt><dd>' + esc(tglPanjang(s.date)) + '</dd><dt>PIC</dt><dd>' + esc(p.pic || '-') + '</dd>' +
+    '<dt>No. Telp</dt><dd>' + esc(p.phone || '-') + '</dd><dt>Alamat</dt><dd style="white-space:pre-wrap">' + esc(s.address) + '</dd></dl>' +
+    '<p class="small" style="margin:14px 0 0">Berikut kami kirimkan barang-barang sebagai berikut:</p>' +
+    '<table class="dtab"><thead><tr><th>No</th><th>Nama barang</th><th>Jumlah</th><th>Cek</th></tr></thead><tbody>' +
     s.lines.map(function (l, i) {
       var c = s.checks && s.checks[i];
       return '<tr><td>' + (i + 1) + '</td><td>' + esc(l.item) + '</td><td>' + esc(String(l.qty).replace('.', ',')) + ' ' + esc(l.unit) + '</td>' +
-        (s.checks ? '<td>' + (c && c.ok ? 'v' : c ? '<b style="color:var(--red)">x</b> ' + esc(c.ket) + ' ' + esc(c.diff) : '-') + '</td>' : '') + '</tr>';
+        '<td>' + (c && c.ok ? 'v' : c ? '<b style="color:var(--red)">x</b> ' + esc(c.ket) + ' ' + esc(c.diff) : '-') + '</td></tr>';
     }).join('') + '</tbody></table>' +
     (s.note ? '<p class="small" style="white-space:pre-wrap">' + esc(s.note) + '</p>' : '') +
-    '<div class="sign"><div>Pengirim<span></span></div><div>Penerima' + (s.gotBy ? '<span class="got">' + esc(s.gotBy) + '<br>' + esc(stampTxt(s.got)) + '</span>' : '<span></span>') + '</div></div></div>';
+    '<div class="sign"><div>Pengirim<span></span><b>' + esc(co.name) + '</b></div><div>Penerima' + (s.gotBy ? '<span class="got">' + esc(s.gotBy) + '<br>' + esc(stampTxt(s.got)) + '</span>' : '<span></span>') + '</div></div>' +
+    docFoot(co) + '</div>';
 }
 // Proses order (10 Nov, Muji and Firman): every order since SNAPP went live, from the order date to
 // goods received, against the target (Pengaturan, 12 days). The admin taps the two vendor steps;
@@ -2622,7 +2715,7 @@ function vASj(d) {
   setTop('<div><button class="back" onclick="go(\'acustd\',SKA.custKey)">' + SKA_ICON.left + 'Kembali</button><h1>' + esc(SKA.key) + '</h1>' + (x ? '<div class="sub">' + esc(x.name) + '</div>' : '') + '</div>');
   if (!x) { loadCustD(SKA.custKey); return '<p class="muted" style="margin-top:16px">Memuat...</p>'; }
   if (!s) return '<div class="note amber" style="margin-top:16px">Surat jalan tidak ditemukan. Muat ulang data.</div>';
-  var h = '<div class="tags" style="margin-top:14px"><i class="tag ' + (SKA_SJ[s.status] || '') + '">' + esc(s.status) + '</i></div>' + sjDoc(s, x.name);
+  var h = '<div class="tags" style="margin-top:14px"><i class="tag ' + (SKA_SJ[s.status] || '') + '">' + esc(s.status) + '</i></div>' + sjDoc(s, x.name, x);
   h += '<div class="btnrow" style="margin-top:12px"><button class="btn brand" onclick="docRun(\'print\',\'skxSjPdf\',\'' + jsq(s.no) + '\')">Cetak</button>' +
     '<button class="btn" onclick="sjPdf(\'' + jsq(s.no) + '\')">Unduh PDF</button></div>';
   var sh = SKA.ship && SKA.ship.no === s.no ? SKA.ship : null;
