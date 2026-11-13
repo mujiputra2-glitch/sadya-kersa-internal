@@ -845,11 +845,16 @@ function showLogin(msg) {
 function doLogin() {
   var who = $('lgWho').value.trim(), pin = $('lgPin').value.trim();
   if (!who || !/^\d{6}$/.test(pin)) { showLogin('Isi username dan PIN 6 angka.'); return; }
+  // 13 Nov (Muji: login slow): Beranda comes back with the login, one round trip instead of two. An
+  // older API (or a Beranda error) leaves r.home out, and the app loads it as before.
   busy(true, 'Masuk...');
-  call('skxLogin', who, pin).then(function (r) {
+  var slow = setTimeout(function () { busy(true, 'Menyiapkan Beranda...'); }, 2500);
+  call('skxLogin', who, pin, true).then(function (r) {
+    clearTimeout(slow);
     SKA.token = r.token; SKA.name = r.name; store('skx_token', r.token); store('skx_name', r.name); store('skx_who', who); $('lgPin').value = '';
+    if (r.home) { homeReady(r.home); return true; }
     return loadHome(true);
-  }).catch(function (e) { busy(false); showLogin(e.message); });
+  }).catch(function (e) { clearTimeout(slow); busy(false); showLogin(e.message); });
 }
 function logoutLocal(msg) {
   SKA.token = ''; SKA.data = null; SKA.salesFilter = ''; SKA.histSales = ''; SKA.recSales = ''; SKA.filter = 'all'; SKA.linkFilter = false; store('skx_token', null); store('skx_home', null); store('skx_name', null);
@@ -862,12 +867,15 @@ function doLogout() {
 }
 
 // ---------- data ----------
+function homeReady(d) {
+  SKA.data = d; store('skx_home', JSON.stringify(d));
+  busy(false); $('vLogin').classList.add('hide'); $('vApp').classList.remove('hide');
+  render(); flushQueue(); remindAfterHome(d);
+}
 function loadHome(spinner) {
   if (spinner) busy(true);
   return call('skxHome', SKA.token).then(function (d) {
-    SKA.data = d; store('skx_home', JSON.stringify(d));
-    busy(false); $('vLogin').classList.add('hide'); $('vApp').classList.remove('hide');
-    render(); flushQueue(); remindAfterHome(d);
+    homeReady(d);
     return true;
   }).catch(function (e) {
     busy(false);
