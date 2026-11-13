@@ -874,6 +874,7 @@ function logoutLocal(msg) {
   SKA.of = null; SKA.ofData = null; SKA.ofErr = ''; SKA.aInv = {}; SKA.sinv = {}; SKA.sinvAll = ''; SKA.aSearch = ''; SKA.aFilter = 'all';
   // the next account starts on Beranda with nothing of this one (13 Nov audit)
   SKA.view = 'home'; SKA.key = ''; SKA.from = ''; SKA.search = ''; SKA.form = null; SKA.schoolActs = null; SKA.shown = ''; SKA_ACTS = {}; SKA_SCROLL = {};
+  SKA.pack = null; SKA.packing = false; SKA.dataAt = 0; store('skx_pack', null); store('skx_home_at', null);
   SKA.cust = null; SKA.custD = null; SKA.files = null; SKA.proses = null; SKA.sjf = null; SKA.ship = null;
   SKA.ofLoading = false; SKA.custLoading = false; SKA.filesLoading = false; SKA.prosesLoading = false; SKA.aInvLoading = ''; SKA.custDLoading = '';
   $('sheet').classList.add('hide');
@@ -890,14 +891,56 @@ function doLogout() {
 // ---------- data ----------
 // ownsBusy: this load put up the overlay (login, first load). A background reload never hides an
 // overlay a save owns, and never redraws a screen while its search or form field has the keyboard.
-function homeReady(d, ownsBusy) {
+// Step 1 (13 Nov): every visible school's activities and invoices in one background call after Beranda,
+// kept on the phone, so a school opens with them at once. Fetched again after 5 minutes.
+function usePack(p) {
+  if (!p || !p.acts) return;
+  SKA.pack = p; SKA.sinv = SKA.sinv || {};
+  Object.keys(p.acts).forEach(function (k) { if (!SKA_ACTS[k] || SKA_ACTS[k].t < p.at) SKA_ACTS[k] = { l: p.acts[k], t: p.at }; });
+  Object.keys(p.inv || {}).forEach(function (k) { if (!SKA.sinv[k] || SKA.sinv[k].err || (SKA.sinv[k].at || 0) < p.at) { SKA.sinv[k] = p.inv[k]; SKA.sinv[k].at = p.at; } });
+  if (SKA.view === 'school' && SKA.key) { loadSchoolActs(SKA.key); var el = $('schoolInv'); if (el && SKA.sinv[SKA.key]) el.innerHTML = schoolInvHtml(SKA.key); }
+}
+function keepPack(p) {
+  usePack(p);
+  try { store('skx_pack', JSON.stringify(p)); } catch (e) { store('skx_pack', null); } // too big for this phone: memory only
+}
+function loadPack(force) {
+  if (!SKA.token || SKA.packing || (!force && SKA.pack && Date.now() - SKA.pack.at < 300000)) return;
+  SKA.packing = true;
+  var fromGoogle = function () { return call('skxPack', SKA.token).then(function (p) { SKA.packing = false; keepPack(p); }, function () { SKA.packing = false; }); };
+  fastGet('pack').then(function (c) {
+    if (Date.now() - c.at > 600000 || (SKA.pack && SKA.pack.at >= c.d.at)) return fromGoogle(); // the copy is older than 10 minutes, or older than ours
+    SKA.packing = false; keepPack(c.d);
+  }, fromGoogle);
+}
+// Step 2 (13 Nov): the fast copy on Hostinger (Fast.js pushes it within a minute of a change). Read first,
+// about 0.4 s; Google answers when there is no copy, it is older than 3 minutes, or Hostinger does not
+// answer within 4 s. Saves and logins always go to Google. Web and phone builds only (not dev, not tests).
+var SKX_FAST = window.SKX_API && window.SKX_API.mode === 'prod' ? 'https://api.sadyakersa.com/api.php' : '';
+function fastGet(kind) {
+  if (!SKX_FAST || !SKA.token || typeof fetch === 'undefined') return Promise.reject(new Error('no fast copy'));
+  var gen = SKA_GEN, ctl = typeof AbortController !== 'undefined' ? new AbortController() : null, timer = setTimeout(function () { if (ctl) ctl.abort(); }, 4000);
+  return fetch(SKX_FAST, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ act: 'get', token: SKA.token, kind: kind }), signal: ctl ? ctl.signal : undefined })
+    .then(function (r) { clearTimeout(timer); return r.json(); }, function (e) { clearTimeout(timer); throw e; })
+    .then(function (j) { if (gen !== SKA_GEN) return staleCall(); if (!j || !j.ok || !j.data || !j.data.d) throw new Error('no fast copy'); return j.data; });
+}
+function fastHome(spinner) {
+  if (spinner) busy(true);
+  return fastGet('home').then(function (c) {
+    if ((SKA.dataAt || 0) >= c.at) { if (spinner) busy(false); return loadHome(false); } // what the phone has is newer
+    homeReady(c.d, spinner, c.at);
+    if (Date.now() - c.at > 180000) loadHome(false); // older than 3 minutes: Google refreshes it quietly
+    return true;
+  }, function () { return loadHome(spinner); });
+}
+function homeReady(d, ownsBusy, at) {
   if (!SKA.token) return;
-  SKA.data = d; store('skx_home', JSON.stringify(d));
+  SKA.data = d; SKA.dataAt = at || Date.now(); store('skx_home', JSON.stringify(d)); store('skx_home_at', String(SKA.dataAt));
   if (ownsBusy) busy(false);
   $('vLogin').classList.add('hide'); $('vApp').classList.remove('hide');
   var a = document.activeElement, typing = !ownsBusy && a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && $('main').contains(a);
   if (!typing) render();
-  flushQueue(); remindAfterHome(d);
+  flushQueue(); remindAfterHome(d); loadPack();
 }
 function loadHome(spinner) {
   if (spinner) busy(true);
@@ -3058,8 +3101,10 @@ $('lgPin').addEventListener('keydown', function (e) { if (e.key === 'Enter') doL
   if (store('skx_who')) $('lgWho').value = store('skx_who');
   if (!SKA.token) { showLogin(''); return; }
   try { SKA.data = JSON.parse(store('skx_home') || 'null'); } catch (e) { SKA.data = null; }
+  try { usePack(JSON.parse(store('skx_pack') || 'null')); } catch (e) { SKA.pack = null; }
+  SKA.dataAt = SKA.data ? +(store('skx_home_at') || 0) : 0;
   if (SKA.data) { $('vApp').classList.remove('hide'); render(); }
-  loadHome(!SKA.data);
+  fastHome(!SKA.data);
 })();
 </script>
 </body>
