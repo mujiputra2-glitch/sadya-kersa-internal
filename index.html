@@ -709,9 +709,17 @@ function jenjangOf(s) {
 }
 function schoolThumb(color, s) {
   var j = jenjangOf(s), a = SKA_ART[SKA_JENJANG_ART[j]] || SKA_ART.ic_school;
-  return '<span class="sth' + (a ? ' art' : '') + '">' + (a ? '<img src="' + a + '" alt="" width="44" height="44">' : SKA_ICO.school) +
+  var k = a ? (SKA_JENJANG_ART[j] && SKA_ART[SKA_JENJANG_ART[j]] ? SKA_JENJANG_ART[j] : 'ic_school') : '';
+  return '<span class="sth' + (a ? ' art' : '') + '">' + (a ? '<i class="ja ja-' + k + '"></i>' : SKA_ICO.school) +
     (j ? '<span class="jl jl-' + esc(j.toLowerCase()) + '">' + esc(j) + '</span>' : '') + '<span class="dot ' + esc(color || 'grey') + '"></span></span>';
 }
+// 13 Nov (audit): a list of 218 schools carried the picture's data in every row (about 1.3 MB of HTML per
+// letter typed in search). Each picture is now one CSS rule, added once.
+(function schoolArtCss() {
+  var css = '';
+  ['sch_1', 'sch_2', 'sch_3', 'sch_4', 'ic_school'].forEach(function (k) { if (SKA_ART[k]) css += '.sth .ja-' + k + '{background-image:url(' + SKA_ART[k] + ')}'; });
+  var el = document.createElement('style'); el.textContent = '.sth .ja{display:block;width:44px;height:44px;background:center/contain no-repeat}' + css; document.head.appendChild(el);
+})();
 // The app mark from the brand sheet (aplikasi sadya.pdf, 5 Nov 2026): blue square, orange corner, white ST.
 var SKA_MARK = '<svg viewBox="26.24 136.16 106.04 106.04" aria-hidden="true"><path fill="#2728c0" d="M54.59 136.16L103.93 136.16C119.53 136.16 132.28 148.92 132.28 164.51L132.28 213.85C132.28 229.44 119.53 242.20 103.93 242.20L54.59 242.20C39.00 242.20 26.24 229.44 26.24 213.85L26.24 164.51C26.24 148.92 39.00 136.16 54.59 136.16"/><path fill="#3152bf" d="M59.64 136.16L57.05 161.73L26.24 184.02L26.24 164.51C26.24 148.92 39.00 136.16 54.59 136.16L59.64 136.16Z"/><path fill="#fb4305" d="M76.71 203.44L132.28 175.41L132.28 213.85C132.28 229.44 119.53 242.20 103.93 242.20L54.59 242.20C53.73 242.20 52.87 242.16 52.03 242.08L76.71 203.44Z"/><path fill="#ffffff" d="M81.74 183.00L112.71 183.00L112.71 195.36L112.71 195.36L95.28 195.36C94.28 195.36 93.45 196.19 93.45 197.19L93.45 197.19C93.45 198.19 94.28 199.02 95.28 199.02L112.71 199.02L112.71 219.16L96.81 219.16L96.81 203.25C96.81 202.25 95.99 201.43 94.99 201.43L94.99 201.43C93.98 201.43 93.16 202.25 93.16 203.25L93.16 219.16L77.26 219.16L77.26 195.36L45.81 195.36L45.81 188.30L45.81 183.35L67.66 183.35C68.67 183.35 69.49 182.53 69.49 181.53L69.49 181.53C69.49 180.52 68.67 179.70 67.66 179.70L45.81 179.70L45.81 159.21L81.74 159.21L81.74 171.69L59.89 171.69C58.88 171.69 58.06 172.51 58.06 173.52L58.06 173.52C58.06 174.52 58.88 175.34 59.89 175.34L81.74 175.34L81.74 183.00Z"/></svg>';
 var SKA_BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -812,22 +820,24 @@ function setUpdate(on) {
   var b = $('updBar'); if (b) b.classList.toggle('hide', !on);
 }
 function isUpdateErr(e) { return !!(e && (e.update || /Versi aplikasi/.test(String(e.message)))); }
+// 13 Nov (audit, "Keluar jumps back to Beranda"): every login and logout starts a new session number.
+// An answer that arrives for an older session never runs its then/catch, so it cannot redraw the app,
+// store the old account's data or log the next account out. A SESI_HABIS of the current session still
+// reaches its catch (saveLog keeps the visit on the phone).
+var SKA_GEN = 0, SKA_HOMESEQ = 0, SKA_HOMEDONE = 0, SKA_LOGGING = false;
+function staleCall() { return new Promise(function () {}); }
 function call(fn) {
-  var args = Array.prototype.slice.call(arguments, 1);
-  if (window.SKX_API) {
-    return apiCall(fn, args).catch(function (e) {
-      if (/SESI_HABIS/.test(e.message)) logoutLocal('Sesi habis, silakan masuk lagi.');
-      throw e;
-    });
-  }
-  return new Promise(function (resolve, reject) {
+  var args = Array.prototype.slice.call(arguments, 1), gen = SKA_GEN, p;
+  if (window.SKX_API) p = apiCall(fn, args);
+  else p = new Promise(function (resolve, reject) {
     if (!window.google || !google.script || !google.script.run) { reject(new Error('Tidak terhubung ke server.')); return; }
-    var r = google.script.run.withSuccessHandler(resolve).withFailureHandler(function (e) {
-      var m = String(e && e.message ? e.message : e);
-      if (/SESI_HABIS/.test(m)) { logoutLocal('Sesi habis, silakan masuk lagi.'); }
-      reject(new Error(m));
-    });
+    var r = google.script.run.withSuccessHandler(resolve).withFailureHandler(function (e) { reject(new Error(String(e && e.message ? e.message : e))); });
     r[fn].apply(r, args);
+  });
+  return p.then(function (v) { return gen === SKA_GEN ? v : staleCall(); }, function (e) {
+    if (gen !== SKA_GEN) return staleCall();
+    if (/SESI_HABIS/.test(e.message)) logoutLocal('Sesi habis, silakan masuk lagi.');
+    throw e;
   });
 }
 function isNetErr(e) { return /NetworkError|HTTP 0|Failed to fetch|network|koneksi|Tidak terhubung/i.test(String(e && e.message)); }
@@ -844,46 +854,73 @@ function showLogin(msg) {
 }
 function doLogin() {
   var who = $('lgWho').value.trim(), pin = $('lgPin').value.trim();
+  if (SKA_LOGGING) return; // the PIN keyboard's Enter still works under the overlay
   if (!who || !/^\d{6}$/.test(pin)) { showLogin('Isi username dan PIN 6 angka.'); return; }
   // 13 Nov (Muji: login slow): Beranda comes back with the login, one round trip instead of two. An
   // older API (or a Beranda error) leaves r.home out, and the app loads it as before.
+  SKA_LOGGING = true; $('lgPin').blur();
   busy(true, 'Masuk...');
-  var slow = setTimeout(function () { busy(true, 'Menyiapkan Beranda...'); }, 2500);
+  var slow = setTimeout(function () { if (SKA_LOGGING) busy(true, 'Menyiapkan Beranda...'); }, 2500);
   call('skxLogin', who, pin, true).then(function (r) {
-    clearTimeout(slow);
+    clearTimeout(slow); SKA_LOGGING = false; SKA_GEN++;
     SKA.token = r.token; SKA.name = r.name; store('skx_token', r.token); store('skx_name', r.name); store('skx_who', who); $('lgPin').value = '';
-    if (r.home) { homeReady(r.home); return true; }
+    if (r.home) { homeReady(r.home, true); return true; }
     return loadHome(true);
-  }).catch(function (e) { clearTimeout(slow); busy(false); showLogin(e.message); });
+  }).catch(function (e) { clearTimeout(slow); SKA_LOGGING = false; busy(false); showLogin(e.message); });
 }
 function logoutLocal(msg) {
+  SKA_GEN++; SKA_FLUSHING = false; SKA_LOGGING = false;
   SKA.token = ''; SKA.data = null; SKA.salesFilter = ''; SKA.histSales = ''; SKA.recSales = ''; SKA.filter = 'all'; SKA.linkFilter = false; store('skx_token', null); store('skx_home', null); store('skx_name', null);
   SKA.of = null; SKA.ofData = null; SKA.ofErr = ''; SKA.aInv = {}; SKA.sinv = {}; SKA.sinvAll = ''; SKA.aSearch = ''; SKA.aFilter = 'all';
+  // the next account starts on Beranda with nothing of this one (13 Nov audit)
+  SKA.view = 'home'; SKA.key = ''; SKA.from = ''; SKA.search = ''; SKA.form = null; SKA.schoolActs = null; SKA.shown = ''; SKA_ACTS = {}; SKA_SCROLL = {};
+  SKA.cust = null; SKA.custD = null; SKA.files = null; SKA.proses = null; SKA.sjf = null; SKA.ship = null;
+  SKA.ofLoading = false; SKA.custLoading = false; SKA.filesLoading = false; SKA.prosesLoading = false; SKA.aInvLoading = ''; SKA.custDLoading = '';
+  $('sheet').classList.add('hide');
+  var ln = nativePlugin('LocalNotifications');
+  if (ln) ln.cancel({ notifications: [{ id: 71 }, { id: 72 }] }).catch(function () {});
   busy(false); showLogin(msg);
 }
 function doLogout() {
-  if (!confirm('Keluar dari aplikasi di HP ini?')) return;
+  var wait = queue().filter(function (x) { return !x.who || x.who === SKA.name; }).length;
+  if (!confirm(wait ? wait + ' catatan belum terkirim. Catatan itu terkirim lagi saat akun ini masuk di HP ini. Tetap keluar?' : 'Keluar dari aplikasi di HP ini?')) return;
   var t = SKA.token; logoutLocal(''); call('skxLogout', t).catch(function () {});
 }
 
 // ---------- data ----------
-function homeReady(d) {
+// ownsBusy: this load put up the overlay (login, first load). A background reload never hides an
+// overlay a save owns, and never redraws a screen while its search or form field has the keyboard.
+function homeReady(d, ownsBusy) {
+  if (!SKA.token) return;
   SKA.data = d; store('skx_home', JSON.stringify(d));
-  busy(false); $('vLogin').classList.add('hide'); $('vApp').classList.remove('hide');
-  render(); flushQueue(); remindAfterHome(d);
+  if (ownsBusy) busy(false);
+  $('vLogin').classList.add('hide'); $('vApp').classList.remove('hide');
+  var a = document.activeElement, typing = !ownsBusy && a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && $('main').contains(a);
+  if (!typing) render();
+  flushQueue(); remindAfterHome(d);
 }
 function loadHome(spinner) {
   if (spinner) busy(true);
+  var seq = ++SKA_HOMESEQ;
   return call('skxHome', SKA.token).then(function (d) {
-    homeReady(d);
+    if (seq < SKA_HOMEDONE) return true; // an older answer after a newer one
+    SKA_HOMEDONE = seq;
+    homeReady(d, spinner);
     return true;
   }).catch(function (e) {
-    busy(false);
+    if (spinner) busy(false);
     if (/SESI_HABIS/.test(e.message)) return false;
     if (SKA.data) { render(); if (!isUpdateErr(e)) toast((isNetErr(e) ? 'Tidak ada sinyal.' : 'Data terbaru belum bisa dimuat.') + ' Data terakhir ditampilkan.'); }
-    else showLogin(e.message);
+    else homeError(e.message);
     return false;
   });
+}
+// Logged in but the first load failed (no signal): a retry in the app, not the PIN screen again.
+function homeError(msg) {
+  busy(false); $('vLogin').classList.add('hide'); $('vApp').classList.remove('hide');
+  $('main').innerHTML = '<div class="card" style="text-align:center"><p style="margin:4px 0 14px">' + esc(msg) + '</p>' +
+    '<button class="btn teal block" onclick="loadHome(true)">Coba lagi</button><button class="btn block" style="margin-top:10px" onclick="doLogout()">Keluar</button></div>';
+  SKA.shown = 'err';
 }
 // The "latest data" toast only when the reload worked (a failed one keeps its own message).
 function refreshHome() {
@@ -1001,15 +1038,19 @@ setInterval(function () { if (!SKA.update && queue().length) flushQueue(); }, 60
 
 // ---------- rendering ----------
 function setTop(html) { $('topBar').innerHTML = html; }
+var SKA_SCROLL = {}, SKA_ACTS = {};
 function go(view, key) {
+  var fromSchool = SKA.view === 'school' && view !== 'school';
+  SKA_SCROLL[SKA.view] = window.scrollY;
   if (view === 'school' && SKA.view !== 'school') SKA.from = SKA.view;
   if (view === 'log' && SKA.view !== 'log') SKA.logFrom = SKA.view;
   // A filter opened from a Beranda insight (lapsed, no sales) belongs to that visit of the list.
   if (view !== 'schools' && view !== 'school' && SKA.linkFilter) { SKA.filter = 'all'; SKA.salesFilter = ''; SKA.linkFilter = false; }
   SKA.view = view; if (key !== undefined) SKA.key = key;
-  if (view === 'log') SKA.form = newForm(key || '');
+  // An unsaved Catat draft stays (13 Nov audit); another school, or none yet, starts a new one.
+  if (view === 'log' && (!SKA.form || (key && SKA.form.key !== key))) SKA.form = newForm(key || '');
   if (view === 'ainvoice' && key) { SKA.aInv = SKA.aInv || {}; if (SKA.aInv[key] && SKA.aInv[key].err) delete SKA.aInv[key]; }
-  render(); window.scrollTo(0, 0);
+  render(); window.scrollTo(0, fromSchool && (view === 'schools' || SKA_CATS[view]) ? SKA_SCROLL[view] || 0 : 0); // back to the list where it was
 }
 // A school detail goes back to the screen it was opened from (a category, the list, Beranda); a
 // category goes back to Beranda.
@@ -1558,7 +1599,7 @@ function vSchools(d) {
   var cur = fl.filter(function (f) { return f[0] === SKA.filter; })[0], shown = base.filter(function (s) { return passFilter(s, SKA.filter, d.today); }).length;
   setTop('<div><div class="sub">' + (SKA.filter !== 'all' ? shown + ' dari ' + base.length + ' sekolah · ' + esc(cur[1]) : base.length + ' sekolah') + esc(who) + '</div><h1>' + (mgr ? 'Semua Sekolah' : 'Sekolah Saya') + '</h1></div>');
   // Firman 10 Nov: "Baru" sits beside the search field (as on Catat), not in the header
-  var h = '<div class="pickrow" style="margin-top:14px"><input id="sSearch" type="search" placeholder="Cari nama sekolah" value="' + esc(SKA.search) + '" oninput="SKA.search=this.value;drawSchoolList()">' +
+  var h = '<div class="pickrow" style="margin-top:14px"><input id="sSearch" type="search" placeholder="Cari nama sekolah" value="' + esc(SKA.search) + '" oninput="SKA.search=this.value;searchSoon()">' +
     '<button class="btn" onclick="addSchoolSheet()">+ Baru</button></div>';
   // Chip rows scroll sideways and the colour key is folded, so a small phone (or large text) still
   // shows the first schools on the first screen.
@@ -1577,6 +1618,8 @@ function vSchools(d) {
     (d.schools.some(function (s) { return s.tier; }) ? '<div class="legend"><span><i class="tier">BOS besar</i>sepertiga sekolah target dengan Estimasi BOS 2027 terbesar, lalu BOS sedang dan BOS kecil</span></div>' : '') + '</details>';
   return h + '<div id="sList"></div>';
 }
+var SKA_SEARCH_T = 0;
+function searchSoon() { clearTimeout(SKA_SEARCH_T); SKA_SEARCH_T = setTimeout(drawSchoolList, 120); }
 // Order: red, yellow, green, grey; then never contacted, longest without contact, tier, name (numbers in order).
 function drawSchoolList() {
   var d = SKA.data, q = SKA.search.toLowerCase().trim(), mgr = isMgr(d), rank = { red: 0, yellow: 1, green: 2, grey: 3 }, tr = { A: 1, B: 2, C: 3 };
@@ -1785,11 +1828,14 @@ function invSheet(key, no) {
     '<button class="btn block" style="margin-top:12px" onclick="closeSheet()">Tutup</button>');
 }
 function loadSchoolActs(key) {
+  var c = SKA_ACTS[key], el = $('schoolActs');
+  var draw = function (l, box) { SKA.schoolActs = l; box.innerHTML = l.length ? byDay(l, false) : '<p class="muted">Belum ada kegiatan tercatat.</p>'; }; // noteSheet finds them in SKA.schoolActs
+  if (c && el) draw(c.l, el);
+  if (c && Date.now() - c.t < 60000) return;
   call('skxSchool', SKA.token, key).then(function (l) {
-    var el = $('schoolActs'); if (!el || SKA.key !== key) return;
-    SKA.schoolActs = l; // noteSheet finds the school's activities here
-    el.innerHTML = l.length ? byDay(l, false) : '<p class="muted">Belum ada kegiatan tercatat.</p>';
-  }).catch(function (e) { var el = $('schoolActs'); if (el) el.innerHTML = '<p class="err">' + esc(e.message) + '</p>'; });
+    SKA_ACTS[key] = { l: l, t: Date.now() };
+    var box = $('schoolActs'); if (box && SKA.key === key && SKA.view === 'school') draw(l, box);
+  }).catch(function (e) { var box = $('schoolActs'); if (box && SKA.key === key && SKA.view === 'school' && !SKA_ACTS[key]) box.innerHTML = '<p class="err">' + esc(e.message) + '</p>'; });
 }
 
 // Activity list. The Manajer's sales chips use each person's own last 30 ('recentBySales'): the
@@ -1949,6 +1995,7 @@ function saveLog() {
     lat: f.lat, lng: f.lng, acc: f.acc, at: nowLocal(), follow: f.follow ? isoPlus(f.follow) : '' };
   busy(true, 'Menyimpan...');
   call('skxSave', SKA.token, a, f.photo || '').then(function () {
+    delete SKA_ACTS[a.key];
     busy(false); SKA.form = null; SKA.view = 'home'; loadHome(false); render(); window.scrollTo(0, 0);
     // No PIC number yet: ask right away, while the visit is fresh (the sheet says it was saved and
     // has "Nanti saja"). Otherwise the usual toast.
@@ -2051,6 +2098,11 @@ function ofNum(v) {
   return /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : NaN;
 }
 function lineSub(l) { var q = ofNum(l.qty), p = ofNum(l.price); return q > 0 && p > 0 ? q * p : 0; }
+// CV codes with the company name from Pengaturan (13 Nov); the value stays the code the order file holds.
+function cvOpts(fd, cur) {
+  var l = (fd.cvs || []).slice(), nm = fd.cvNames || {}; if (cur && l.indexOf(cur) < 0) l.unshift(cur);
+  return '<option value="">Pilih</option>' + l.map(function (x) { return '<option value="' + esc(x) + '"' + (x === cur ? ' selected' : '') + '>' + esc(x + (nm[x] ? ' · ' + nm[x] : '')) + '</option>'; }).join('');
+}
 function opts(list, cur) {
   var l = (list || []).slice(); if (cur && l.indexOf(cur) < 0) l.unshift(cur);
   return '<option value="">Pilih</option>' + l.map(function (x) { return '<option' + (x === cur ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
@@ -2070,7 +2122,7 @@ function vOrder(d) {
   else h += '<div class="pickrow"><input id="oQ" type="search" placeholder="Cari nama sekolah" value="' + esc(f.q) + '" oninput="SKA.of.q=this.value;drawOrderPick()">' +
     '<button class="btn" onclick="orderSchoolSheet()">+ Baru</button></div><div id="oPick"></div>';
   h += '</div><div class="field"><label for="oDate">2. Tanggal order</label><input id="oDate" type="date" value="' + esc(f.date || fd.today) + '" oninput="SKA.of.date=this.value"></div>';
-  h += '<div class="ogrid"><div class="field"><label for="oCv">3. CV</label><select id="oCv" onchange="SKA.of.cv=this.value">' + opts(fd.cvs, f.cv) + '</select></div>' +
+  h += '<div class="ogrid"><div class="field"><label for="oCv">3. CV</label><select id="oCv" onchange="SKA.of.cv=this.value">' + cvOpts(fd, f.cv) + '</select></div>' +
     '<div class="field"><label for="oJenis">4. Jenis</label><select id="oJenis" onchange="SKA.of.jenis=this.value">' + opts(fd.jenis, f.jenis) + '</select></div></div>';
   h += '<div class="field"><label>5. Kanal</label><div class="chips grid2">' + ['SIPLah', 'Offline'].map(function (k) {
     return '<button class="chip' + (f.kanal === k ? ' on' : '') + '" onclick="SKA.of.kanal=\'' + k + '\';render()">' + k + '</button>';
@@ -2985,7 +3037,9 @@ $('lgPin').addEventListener('keydown', function (e) { if (e.key === 'Enter') doL
   if (app) {
     app.addListener('resume', function () { flushQueue(); }); // back from the background: send what waits
     app.addListener('backButton', function () {
+      if (!$('overlay').classList.contains('hide')) return; // a save is running
       if (!$('sheet').classList.contains('hide')) { closeSheet(); return; }
+      if (!SKA.data || !$('vLogin').classList.contains('hide')) { app.exitApp(); return; }
       if (SKA.view === 'school') { goBack(); return; }
       if (SKA.view === 'ainvoice') { go('ainvoices'); return; }
       if (SKA.view === 'kp' && isMgr(SKA.data)) { go('kpteam'); return; }
