@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.4","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.5","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -47,6 +47,13 @@
   .btn.amber { background: var(--amber); border-color: var(--amber); color: #fff; }
   .btn.wa { background: #1DA851; border-color: #1DA851; color: #fff; }
   .btn.block { width: 100%; }
+  .btn.mini { min-height: 40px; padding: 0 12px; font-size: 14px; border-radius: 12px; }
+  .paybox { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .paybox label { font-size: 14px; color: var(--muted); }
+  .paid .tgrow { align-items: center; }
+  .paid .tgrow > span { flex: 1 1 auto; min-width: 0; }
+  .paid .tgrow > .btn.mini { flex: none; width: auto; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 0 14px; }
+  .paid .tgrow + .tgrow { margin-top: 10px; }
   .btn[disabled], .btn.off { opacity: .45; pointer-events: none; }
   .btnrow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
   .btnrow > * { flex: 1 1 40%; }
@@ -891,7 +898,7 @@ function doLogin() {
 function logoutLocal(msg) {
   SKA_GEN++; SKA_FLUSHING = false; SKA_LOGGING = false;
   SKA.token = ''; SKA.data = null; SKA.salesFilter = ''; SKA.histSales = ''; SKA.recSales = ''; SKA.filter = 'all'; SKA.linkFilter = false; store('skx_token', null); store('skx_home', null); store('skx_name', null);
-  SKA.of = null; SKA.ofData = null; SKA.ofErr = ''; SKA.aInv = {}; SKA.sinv = {}; SKA.sinvAll = ''; SKA.aSearch = ''; SKA.aFilter = 'all';
+  SKA.of = null; SKA.ofData = null; SKA.ofErr = ''; SKA.aInv = {}; SKA.payOpen = ''; SKA.paidDone = {}; SKA.sinv = {}; SKA.sinvAll = ''; SKA.aSearch = ''; SKA.aFilter = 'all';
   // the next account starts on Beranda with nothing of this one (13 Nov audit)
   SKA.view = 'home'; SKA.key = ''; SKA.from = ''; SKA.search = ''; SKA.form = null; SKA.schoolActs = null; SKA.shown = ''; SKA_ACTS = {}; SKA_SCROLL = {};
   SKA.pack = null; SKA.packing = false; SKA.dataAt = 0; store('skx_pack', null); store('skx_home_at', null);
@@ -2309,14 +2316,16 @@ function vAInvoice(d) {
   var u0 = ((d.admin || {}).unpaid || []).filter(function (x) { return x.key === SKA.key; })[0] || { name: '' }, x = (SKA.aInv || {})[SKA.key], days = d.settings.overdueDays || 25;
   setTop('<div><button class="back" onclick="go(\'ainvoices\')">' + SKA_ICON.left + 'Tagihan</button><h1>' + esc((x && x.school && x.school.name) || u0.name) + '</h1></div>');
   if (!x) { loadAInvoice(SKA.key); return '<p class="muted" style="margin-top:16px">Memuat rincian tagihan...</p>'; }
-  if (x.err) return '<div class="note amber">' + esc(x.err) + '</div><button class="btn block" style="margin-top:12px" onclick="delete SKA.aInv[SKA.key];render()">Coba lagi</button>';
+  var done = payDoneHtml(SKA.key);
+  if (x.err) return done + '<div class="note amber">' + esc(x.err) + '</div><button class="btn block" style="margin-top:12px" onclick="delete SKA.aInv[SKA.key];render()">Coba lagi</button>';
+  if (!(x.invoices || []).length) return done + '<p class="muted" style="margin-top:16px">Semua invoice sekolah ini sudah lunas.</p>';
   var s = x.school || {}, ph = phoneOk(s.picPhone), areas = (d.lists && d.lists.areas) || {};
   var h = '<div class="card"><div class="tgrow"><span>Belum lunas, ' + x.count + ' invoice</span><b class="amt">' + esc(nbRp(rp(x.amount))) + '</b></div>' +
     (x.overdue ? '<div class="tgrow"><span>Lewat ' + days + ' hari</span><b class="amt" style="color:var(--red)">' + esc(nbRp(rp(x.overdue))) + '</b></div>' : '') +
     '<dl class="kv" style="margin-top:12px"><dt>Sales</dt><dd>' + esc(x.school ? salesLabel(s.sales) : 'tidak ada di Sales Tracker') + '</dd>' +
     (s.area ? '<dt>Wilayah</dt><dd>' + esc(areas[s.area] || s.area) + '</dd>' : '') + '<dt>PIC</dt><dd>' + esc(s.pic || 'belum diisi') + '</dd><dt>No HP PIC</dt><dd>' + esc(s.picPhone || 'belum diisi') + '</dd></dl>' +
     (ph ? '<div class="btnrow"><a class="btn" href="tel:' + esc(ph) + '" target="_blank">' + SKA_ICON.phone + 'Telepon</a></div>' : '<div class="muted small" style="margin-top:8px">Nomor PIC belum ada. Sales bisa mengisinya di aplikasi.</div>') + '</div>';
-  return h + '<div class="caption">Invoice dan barang yang ditagih</div>' + x.invoices.map(function (i) {
+  return done + h + '<div class="caption">Invoice dan barang yang ditagih</div>' + x.invoices.map(function (i) {
     var late = i.age > days;
     return '<div class="card"><div class="tgrow"><span><b style="color:var(--ink)">' + esc(i.inv) + '</b><br>' + esc(tgl(i.date)) + ' · umur ' + i.age + ' hari' +
       (i.company ? ' · ' + esc(i.company) : i.cv && i.cv !== '-' ? ' · CV ' + esc(i.cv) : '') + (i.mkt && i.mkt !== '-' ? ' · ' + esc(i.mkt) : '') + '</span><b class="amt"' + (late ? ' style="color:var(--red)"' : '') + '>' + esc(nbRp(rp(i.amount))) + '</b></div>' +
@@ -2324,7 +2333,7 @@ function vAInvoice(d) {
         return '<div class="lrow"><span>' + esc(l[0] || 'Barang') + '<em>' + esc(String(l[1]).replace('.', ',')) + ' ' + esc(l[2]) + '</em></span><b>' + esc(nbRp(rpPenuh(l[3]))) + '</b></div>';
       }).join('') + '</div>' +
       '<div class="btnrow"><button class="btn" onclick="docRun(\'print\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">Cetak invoice</button>' +
-      '<button class="btn" onclick="docRun(\'pdf\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">PDF</button></div>' +
+      '<button class="btn" onclick="docRun(\'pdf\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">PDF</button></div>' + payBox(i) +
       (ph && d.settings.waTagih ? '<a class="btn remind block" href="' + esc(waTagihHref({ school: s.name || u0.name, inv: i.inv, date: i.date, amount: i.amount, picName: s.pic, picPhone: s.picPhone })) +
         '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Ingatkan lewat WhatsApp</a>' : '') + '</div>';
   }).join('');
@@ -2340,6 +2349,73 @@ function loadAInvoice(key) {
     SKA.aInvLoading = ''; SKA.aInv[key] = { err: e.message };
     if (SKA.view === 'ainvoice' && SKA.key === key) render();
   });
+}
+
+// 17 Nov (Fadhlulloh: "admin bisa ubah ke pembayaran lunas?"): Tandai lunas per 2026 invoice, as in the web
+// dashboard. The server writes Tgl Bayar in tab Aging_AR of the 2026 file (Admin.js skxInvoicePaid) and shows
+// it at once everywhere in the app and in SNAPP; the dashboard takes it in at its next check of the 2026 file.
+// What was marked here stays on this screen with Batalkan in case of a slip.
+function payBox(i) {
+  if (String(i.date || '').slice(0, 4) !== '2026') return '';
+  if (SKA.payOpen !== i.inv) return '<button class="btn block" style="margin-top:10px" onclick="payOpen(\'' + jsq(i.inv) + '\')">Tandai lunas</button>';
+  var today = (SKA.data && SKA.data.today) || '';
+  return '<div class="paybox"><label for="payDate">Tanggal dibayar</label><input type="date" id="payDate" value="' + esc(today) + '" min="2026-01-01" max="' + esc(today) + '">' +
+    '<div class="btnrow"><button class="btn teal" id="paySave" onclick="paySave(\'' + jsq(i.inv) + '\')">Simpan lunas</button><button class="btn" onclick="payOpen(\'\')">Batal</button></div>' +
+    '<div class="small" id="payMsg" role="status"></div></div>';
+}
+function payOpen(inv) { SKA.payOpen = inv; render(); var d = inv && $('payDate'); if (d) d.focus(); }
+function payDoneHtml(key) {
+  var done = ((SKA.paidDone || {})[key]) || [];
+  if (!done.length) return '';
+  return '<div class="card paid">' + done.map(function (p) {
+    return '<div class="tgrow"><span><b style="color:var(--ink)">' + esc(p.inv) + '</b><br>Ditandai lunas, dibayar ' + esc(tgl(p.date)) + '</span>' +
+      '<button class="btn mini" onclick="payUndo(\'' + jsq(key) + '\',\'' + jsq(p.inv) + '\')">Batalkan</button></div>';
+  }).join('') + '</div>';
+}
+function paySave(inv) {
+  var d = $('payDate'), b = $('paySave'), m = $('payMsg'), date = d ? d.value : '', key = SKA.key;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { m.textContent = 'Pilih tanggal dibayar.'; return; }
+  b.disabled = true; m.style.color = ''; m.textContent = 'Menyimpan...';
+  call('skxInvoicePaid', SKA.token, inv, date).then(function () {
+    SKA.payOpen = '';
+    SKA.paidDone = SKA.paidDone || {};
+    (SKA.paidDone[key] = SKA.paidDone[key] || []).push({ inv: inv, date: date });
+    payLocal(key, inv);
+    toast(inv + ' ditandai lunas.');
+    render(); payReload(key);
+  }).catch(function (e) { b.disabled = false; m.style.color = 'var(--red)'; m.textContent = e.message; });
+}
+// The marked invoice leaves this school's list and the Tagihan totals at once; the server's answer follows.
+function payLocal(key, inv) {
+  var x = (SKA.aInv || {})[key], days = ((SKA.data || {}).settings || {}).overdueDays || 25, gone = null;
+  if (x && x.invoices) {
+    x.invoices = x.invoices.filter(function (i) { if (i.inv === inv) { gone = i; return false; } return true; });
+    x.count = x.invoices.length;
+    x.amount = x.invoices.reduce(function (t, i) { return t + (+i.amount || 0); }, 0);
+    x.overdue = x.invoices.reduce(function (t, i) { return t + (i.age > days ? +i.amount || 0 : 0); }, 0);
+  }
+  var a = (SKA.data || {}).admin;
+  if (a && gone) {
+    a.unpaid = (a.unpaid || []).map(function (u) {
+      if (u.key !== key) return u;
+      return { key: u.key, name: u.name, sales: u.sales, count: x.count, amount: x.amount, overdue: x.overdue, oldest: u.oldest };
+    }).filter(function (u) { return u.count > 0; });
+  }
+}
+function payReload(key) {
+  call('skxAdminInvoice', SKA.token, key).then(function (r) {
+    SKA.aInv[key] = r;
+    if (SKA.view === 'ainvoice' && SKA.key === key && !SKA.payOpen) render();
+  }).catch(function () { return null; }); // none left unpaid: the local (empty) list stays
+  loadHome(false);
+}
+function payUndo(key, inv) {
+  call('skxInvoicePaid', SKA.token, inv, '').then(function () {
+    SKA.paidDone[key] = (SKA.paidDone[key] || []).filter(function (p) { return p.inv !== inv; });
+    toast('Lunas ' + inv + ' dibatalkan.');
+    delete SKA.aInv[key];
+    render(); loadHome(false);
+  }).catch(function (e) { toast(e.message); });
 }
 
 // ---------- KPI and incentive (app 1.4.0, server Kpi.js; own tab since 1.5.0) ----------
