@@ -233,6 +233,27 @@ a{color:inherit}
 .tag.ok{background:var(--up-bg);color:var(--up)}
 .tag.no{background:var(--down-bg);color:var(--down)}
 .tag.warn{background:#fdf1dc;color:#9a5b00}
+.psbar{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 12px}
+.psbar .seg{max-width:100%;overflow-x:auto}
+.psbar .seg button{white-space:nowrap}
+.psorder{border:1px solid var(--line2);border-radius:14px;padding:12px 14px;margin-top:10px;background:#fff}
+.psorder.late{border-color:#f3c3bd}
+.pshead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.pshead b{font-size:14px;color:var(--ink)}
+.pshead .psmeta{font-size:12.5px;color:var(--ink2)}
+.pshead .lbtn{margin-left:auto}
+.psdays{font-size:12.5px;font-weight:700;color:var(--ink2)}
+.psdays.r{color:var(--down)}
+.psitems{margin-top:10px}
+.psitems td{vertical-align:middle}
+.psitems input,.psitems select{font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--line2);border-radius:9px;background:#fff;color:var(--ink);max-width:100%}
+.psitems input.psq{width:72px}
+.psitems input.psn{min-width:160px}
+.psitems td.pslist{white-space:normal;min-width:280px;line-height:1.5}
+.psmsg{font-size:12px;color:var(--ink2)}
+.psmsg.err{color:var(--down)}
+.invpay{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
+.invpay input{font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--line2);border-radius:9px}
 .arnote{font-size:12.5px;color:var(--ink2);background:#fff8ec;border:1px solid #f6e2bd;border-radius:12px;padding:9px 12px;margin-bottom:12px;line-height:1.5}
 .arnote b{color:#9a5b00}
 .share{position:relative;min-width:150px}
@@ -499,6 +520,7 @@ html:has(.loader:not(.off)){overflow:hidden}
         <button class="tgbtn" id="tgMgrBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="tgMgrMenu">Manajemen<span class="tgcur" id="tgMgrCur"></span><span class="count" id="tgMgrCount" hidden></span><svg class="tgchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="tgmenu" id="tgMgrMenu">
           <button class="tab" data-tab="order" data-admin hidden>Input data<small>Order baru, masuk ke persetujuan approver</small></button>
+          <button class="tab" data-tab="persiapan">Persiapan barang<small>Checklist barang per order dan daftar belanja</small></button>
           <button class="tab" data-tab="aplikasi" data-admin data-ax="snapp" hidden>Surat jalan<small>Surat jalan SNAPP dan cek barang dari sekolah</small></button>
           <button class="tab" data-tab="piutang" data-admin data-armode="all" hidden>Invoice<small>Semua invoice, klik nomor untuk detail</small></button>
           <button class="tab" data-tab="insight">Insight bulanan<small>Ringkasan per bulan dan sarannya</small></button>
@@ -727,6 +749,13 @@ html:has(.loader:not(.off)){overflow:hidden}
     </div>
   </section>
 
+  <section class="view" id="v-persiapan">
+    <div class="card" style="--i:0">
+      <div class="chead"><div><h3>Persiapan barang</h3><p id="psSub">Memuat...</p></div><div class="right"><button class="lbtn" id="psReload" type="button">Muat ulang</button></div></div>
+      <div class="psbar"><div class="seg" id="psTabs"></div><div class="seg" id="psFilter"></div></div>
+      <div id="psBody"></div>
+    </div>
+  </section>
   <section class="view" id="v-approval">
     <div class="grid apgrid">
       <div class="card" style="--i:0">
@@ -764,6 +793,7 @@ html:has(.loader:not(.off)){overflow:hidden}
   <div class="mcard">
     <h4 id="invTitle">Invoice</h4>
     <p id="invSub"></p>
+    <div id="invPay"></div>
     <div id="invBody"></div>
     <div class="oacts mact"><button class="lbtn" id="invClose" type="button">Tutup</button></div>
   </div>
@@ -1827,7 +1857,14 @@ function skRenderAr(rows) {
   shown.slice(0, cap).forEach(function (o) {
     var tr = skEl('tr'), no = skDict('inv', o.inv), late = o.unpaid && o.age >= limit;
     tr.appendChild(skEl('td', '', skDict('school', o.school)));
-    tr.appendChild(skEl('td', no ? '' : 'muted', no || '(tanpa nomor)'));
+    var tdn = skEl('td', no ? '' : 'muted', no ? '' : '(tanpa nomor)');
+    if (no) {
+      // 17 Nov: the number opens the invoice window, with Tandai lunas for whoever may mark it
+      var nb = skEl('button', 'invlink', no); nb.type = 'button'; nb.title = 'Lihat pembayaran, surat jalan dan konfirmasi sekolah';
+      (function (n, sc) { nb.addEventListener('click', function () { skInvOpen(n, sc); }); })(no, skDict('school', o.school));
+      tdn.appendChild(nb);
+    }
+    tr.appendChild(tdn);
     tr.appendChild(skEl('td', '', skDict('cv', o.cv)));
     tr.appendChild(skEl('td', 'num', skDate(o.date)));
     var tdr = skEl('td', 'num' + (o.recv ? '' : ' muted'), o.recv ? skDate(o.recv) : '-');
@@ -1933,7 +1970,10 @@ function skAccess(a) {
   SKD.tab = first; // so the first render skips the tabs this email cannot open
   return first;
 }
-function skMay(name) { return !SKD.allow || !!SKD.allow[name]; }
+function skMay(name) {
+  if (name === 'persiapan') return !SKD.allow || !!(SKD.allow.persiapan || SKD.allow.order || SKD.allow.approval);
+  return !SKD.allow || !!SKD.allow[name];
+}
 // Admin mode: the group reads Admin and Data comes before Aging invoice (Firman's order); back to
 // Manajemen otherwise. The word is the button's first text node.
 function skAdminMenu(on) {
@@ -1983,11 +2023,12 @@ function skShowTab(name, el) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   // The greeting lives on Ringkasan; the monthly insight covers the whole business, so no filters there.
   document.getElementById('hero').style.display = name === 'ringkasan' ? '' : 'none';
-  document.getElementById('filters').style.display = ['insight', 'order', 'approval', 'aplikasi', 'insentif'].indexOf(name) >= 0 ? 'none' : '';
+  document.getElementById('filters').style.display = ['insight', 'order', 'approval', 'aplikasi', 'insentif', 'persiapan'].indexOf(name) >= 0 ? 'none' : '';
   if (name === 'insight') { skLoadInsight(SKIN.ym); return; }
   if (name === 'aplikasi') { skAxOpen(false); return; }
   if (name === 'insentif') { skInOpen(false); return; }
   if (name === 'order') { skOrderOpen(); return; }
+  if (name === 'persiapan') { skPsOpen(false); return; }
   if (name === 'approval') { if (SKA.data) skApRender(); skApOpen(); return; }
   if (SKD.P) skRender();
 }
@@ -2966,6 +3007,181 @@ function skInLevelBox(x, si, d) {
   return box;
 }
 
+// ---------- Persiapan barang (17 Nov, Fadhlulloh: "ada menu buat persiapan barangnya?") ----------
+// Every order since SNAPP went live with its items: Belum, Dipesan, Sebagian (with the quantity in hand)
+// or Siap, an inden note and the expected date. Daftar belanja puts the same item of the orders not
+// shipped yet together. The same rows as Proses order in the sales app (Persiapan.js on the server).
+var SKPS = { data: null, tab: 'order', filter: 'all', open: {}, loading: false, err: '' };
+var SKPS_STAGE = { order: ['Order masuk', ''], po: ['PO ke vendor', 'warn'], siap: ['Barang siap', 'warn'], dikirim: ['Dikirim', ''], diterima: ['Diterima', 'ok'] };
+function skPsNum(n) { return String(Math.round((+n || 0) * 100) / 100).replace('.', ','); }
+function skPsDay(iso) { return iso ? skDate(+String(iso).replace(/-/g, '')) : ''; }
+function skPsOpen(force) {
+  if (SKPS.data && !force) { skPsRender(); return; }
+  if (SKPS.loading) return;
+  SKPS.loading = true; SKPS.err = '';
+  document.getElementById('psSub').textContent = 'Memuat...';
+  google.script.run.withSuccessHandler(function (d) { SKPS.loading = false; SKPS.data = d || null; skPsRender(); })
+    .withFailureHandler(function (e) { SKPS.loading = false; SKPS.err = skoMsg(e); skPsRender(); }).getPersiapan();
+}
+function skPsGroup(x) { var g = x.prog || {}; return !g.total || x.sent || x.got ? '' : g.done ? 'ready' : (g.siap || g.part || g.po) ? 'part' : 'new'; }
+function skPsSeg(id, items, cur, onPick) {
+  var seg = document.getElementById(id); seg.textContent = '';
+  items.forEach(function (it) {
+    var b = skEl('button', it[0] === cur ? 'on' : '', it[1]); b.type = 'button';
+    b.addEventListener('click', function () { onPick(it[0]); });
+    seg.appendChild(b);
+  });
+  seg.hidden = !items.length;
+}
+function skPsRender() {
+  var d = SKPS.data, body = document.getElementById('psBody'), sub = document.getElementById('psSub');
+  body.textContent = '';
+  if (SKPS.err) {
+    sub.textContent = 'Belum bisa dimuat.';
+    body.appendChild(skEl('div', 'oempty', SKPS.err + '. Tekan Muat ulang.'));
+    skPsSeg('psTabs', [], '', null); skPsSeg('psFilter', [], '', null);
+    return;
+  }
+  if (!d) return;
+  var open = d.list.filter(function (x) { return !x.got; }), late = open.filter(function (x) { return x.late; }).length;
+  var cnt = function (k) { return open.filter(function (x) { return skPsGroup(x) === k; }).length; };
+  sub.textContent = open.length + ' order berjalan, ' + late + ' lewat ' + d.target + ' hari, ' + cnt('ready') + ' siap kirim. Order sejak ' + skPsDay(d.from) + '.';
+  skPsSeg('psTabs', [['order', 'Order (' + open.length + ')'], ['belanja', 'Daftar belanja (' + d.shop.length + ')']], SKPS.tab, function (t) { SKPS.tab = t; skPsRender(); });
+  if (SKPS.tab === 'belanja') { skPsSeg('psFilter', [], '', null); skPsShop(body, d); return; }
+  skPsSeg('psFilter', [['all', 'Semua'], ['ready', 'Siap kirim (' + cnt('ready') + ')'], ['part', 'Sebagian (' + cnt('part') + ')'], ['new', 'Belum mulai (' + cnt('new') + ')']],
+    SKPS.filter, function (f) { SKPS.filter = f; skPsRender(); });
+  var shown = SKPS.filter === 'all' ? d.list : open.filter(function (x) { return skPsGroup(x) === SKPS.filter; });
+  if (!shown.length) { body.appendChild(skEl('div', 'oempty', d.list.length ? 'Tidak ada order di sini.' : 'Belum ada order sejak ' + skPsDay(d.from) + '.')); return; }
+  shown.forEach(function (x) { body.appendChild(skPsOrder(x, d)); });
+}
+function skPsOrder(x, d) {
+  var card = skEl('div', 'psorder' + (x.late && !x.got ? ' late' : '')), head = skEl('div', 'pshead'), st = SKPS_STAGE[x.stage] || ['', ''], g = x.prog || {};
+  head.appendChild(skEl('b', '', x.school || x.inv));
+  head.appendChild(skEl('span', 'psmeta', x.inv + ' · order ' + skPsDay(x.date)));
+  head.appendChild(skEl('span', 'tag ' + st[1], st[0]));
+  head.appendChild(skEl('span', 'psdays' + (x.late && !x.got ? ' r' : ''), x.got ? x.days + ' hari, selesai' : x.late ? x.days + ' hari, lewat ' + (x.days - d.target) + ' hari' : 'hari ke-' + x.days + ' dari ' + d.target));
+  if (g.total) {
+    head.appendChild(skEl('span', 'tag ' + (g.done ? 'ok' : g.siap || g.part || g.po ? 'warn' : ''),
+      g.siap + '/' + g.total + ' siap' + (g.part ? ', ' + g.part + ' sebagian' : '') + (g.po ? ', ' + g.po + ' dipesan' : '')));
+    var tg = skEl('button', 'lbtn', SKPS.open[x.inv] ? 'Tutup barang' : 'Lihat barang'); tg.type = 'button';
+    tg.setAttribute('aria-expanded', SKPS.open[x.inv] ? 'true' : 'false');
+    tg.addEventListener('click', function () { SKPS.open[x.inv] = !SKPS.open[x.inv]; skPsRender(); });
+    head.appendChild(tg);
+  } else head.appendChild(skEl('span', 'psmeta', 'Barang order ini belum terbaca'));
+  card.appendChild(head);
+  if (x.note) card.appendChild(skEl('div', 'psmsg', x.note));
+  if (g.total && SKPS.open[x.inv]) card.appendChild(skPsItems(x));
+  return card;
+}
+function skPsItems(x) {
+  var wrap = skEl('div', 'twrap psitems'), t = skEl('table'), th = skEl('thead'), hr = skEl('tr');
+  ['Barang', 'Qty', 'Status', 'Jumlah ada', 'Catatan inden', 'Perkiraan datang', ''].forEach(function (h) { hr.appendChild(skEl('th', '', h)); });
+  th.appendChild(hr); t.appendChild(th);
+  var tb = skEl('tbody');
+  x.items.forEach(function (v) {
+    var tr = skEl('tr');
+    tr.appendChild(skEl('td', '', v.item));
+    tr.appendChild(skEl('td', 'num', skPsNum(v.qty) + ' ' + v.unit));
+    var sel = skEl('select'); sel.setAttribute('aria-label', 'Status ' + v.item);
+    ['Belum', 'Dipesan', 'Sebagian', 'Siap'].forEach(function (k) { var o = skEl('option', '', k); o.value = k; if (k === v.status) o.selected = true; sel.appendChild(o); });
+    var std = skEl('td'); std.appendChild(sel); tr.appendChild(std);
+    var q = skEl('input', 'psq'); q.type = 'number'; q.min = '0'; q.step = 'any'; q.max = String(v.qty);
+    q.value = v.status === 'Sebagian' ? String(v.ready) : ''; q.disabled = v.status !== 'Sebagian'; q.setAttribute('aria-label', 'Jumlah yang sudah ada ' + v.item);
+    sel.addEventListener('change', function () { q.disabled = sel.value !== 'Sebagian'; if (!q.disabled) q.focus(); });
+    var qtd = skEl('td'); qtd.appendChild(q); tr.appendChild(qtd);
+    var n = skEl('input', 'psn'); n.type = 'text'; n.maxLength = 200; n.value = v.note || ''; n.placeholder = 'contoh: inden dari vendor'; n.setAttribute('aria-label', 'Catatan inden ' + v.item);
+    var ntd = skEl('td'); ntd.appendChild(n); tr.appendChild(ntd);
+    var e = skEl('input'); e.type = 'date'; e.value = v.eta || ''; e.setAttribute('aria-label', 'Perkiraan datang ' + v.item);
+    var etd = skEl('td'); etd.appendChild(e); tr.appendChild(etd);
+    var btd = skEl('td'), b = skEl('button', 'lbtn', 'Simpan'), msg = skEl('div', 'psmsg', v.by ? 'oleh ' + v.by : ''); b.type = 'button';
+    b.addEventListener('click', function () {
+      var p = { status: sel.value, note: n.value, eta: e.value };
+      if (sel.value === 'Sebagian') {
+        var r = parseFloat(String(q.value).replace(',', '.'));
+        if (!(r > 0)) { msg.className = 'psmsg err'; msg.textContent = 'Isi jumlah yang sudah ada.'; return; }
+        p.ready = r;
+      }
+      b.disabled = true; msg.className = 'psmsg'; msg.textContent = 'Menyimpan...';
+      google.script.run.withSuccessHandler(function (d) { SKPS.data = d || SKPS.data; skPsRender(); })
+        .withFailureHandler(function (er) { b.disabled = false; msg.className = 'psmsg err'; msg.textContent = skoMsg(er); }).setPersiapanItem(x.inv, v.i, p);
+    });
+    btd.appendChild(b); btd.appendChild(msg); tr.appendChild(btd);
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t);
+  return wrap;
+}
+function skPsShop(body, d) {
+  if (!d.shop.length) { body.appendChild(skEl('div', 'oempty', 'Semua barang dari order yang belum dikirim sudah siap, atau belum ada barang di order berjalan.')); return; }
+  body.appendChild(skEl('p', 'psmsg', 'Barang yang belum siap dari semua order yang belum dikirim, digabung per barang supaya bisa dibelanjakan sekaligus.'));
+  var wrap = skEl('div', 'twrap psitems'), t = skEl('table'), th = skEl('thead'), hr = skEl('tr');
+  ['Barang', 'Perlu dibeli', 'Sudah dipesan', 'Untuk order'].forEach(function (h) { hr.appendChild(skEl('th', '', h)); });
+  th.appendChild(hr); t.appendChild(th);
+  var tb = skEl('tbody');
+  d.shop.forEach(function (g) {
+    var tr = skEl('tr'), td = skEl('td', 'pslist');
+    tr.appendChild(skEl('td', '', g.item));
+    tr.appendChild(skEl('td', 'num', skPsNum(g.need) + ' ' + g.unit));
+    tr.appendChild(skEl('td', 'num', g.ordered ? skPsNum(g.ordered) + ' ' + g.unit : '-'));
+    g.invs.forEach(function (v) {
+      td.appendChild(skEl('div', '', (v.school || v.inv) + ' (' + v.inv + '): ' + skPsNum(v.need) + ' ' + g.unit + ', ' + String(v.status).toLowerCase() +
+        (v.eta ? ', datang ' + skPsDay(v.eta) : '') + (v.note ? ', ' + v.note : '')));
+    });
+    tr.appendChild(td);
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t); body.appendChild(wrap);
+}
+document.getElementById('psReload').addEventListener('click', function () { skPsOpen(true); });
+
+// ---------- Tandai lunas (17 Nov, Fadhlulloh: "biar ga ngerubahnya di back end") ----------
+// In the invoice window: the payment status, and for an email with Aging/Invoice open and every sales in
+// view, Tandai lunas with the payment date (today by default) or Batalkan lunas. The server writes Tgl
+// Bayar in tab Aging_AR of the 2026 file and reads the Data tab again (Persiapan.js setInvoicePaid).
+// All rows of the invoice (one per item; the school too, since a number can repeat): paid only when every
+// row is, the latest payment date and year.
+function skInvPayInfo(inv, school) {
+  var P = SKD.P;
+  if (!P || !P.dict || !P.rows) return null;
+  var ix = P.dict.inv.indexOf(inv), sx = school ? P.dict.school.indexOf(school) : -1;
+  if (ix < 0) return null;
+  var rs = P.rows.filter(function (x) { return x[11] === ix && (sx < 0 || x[7] === sx); });
+  if (!rs.length) return null;
+  return { year: Math.max.apply(null, rs.map(function (x) { return x[0]; })), lunas: rs.every(function (x) { return !!x[2]; }),
+    paid: Math.max.apply(null, rs.map(function (x) { return x[3] || 0; })) };
+}
+function skInvCanPay() { return !SKD.inv && skMay('piutang') && !(SKD.P && SKD.P.access && SKD.P.access.sales); }
+function skInvPay(inv, school) {
+  var box = document.getElementById('invPay'), info = skInvPayInfo(inv, school);
+  box.textContent = '';
+  if (!info || SKD.inv) return;
+  var sec = skInvSec('Pembayaran', info.lunas ? 'Lunas' : 'Belum lunas', info.lunas ? 'ok' : 'no');
+  sec.appendChild(skInvRow('Tanggal bayar', info.lunas ? (info.paid ? skDate(info.paid) : 'Lunas') : '-'));
+  if (skInvCanPay() && info.year >= 2026) {
+    var row = skEl('div', 'invpay'), msg = skEl('span', 'psmsg', ''), btn;
+    if (!info.lunas) {
+      var dt = skEl('input'); dt.type = 'date'; dt.value = String((SKD.P && SKD.P.today) || '').slice(0, 10); dt.max = dt.value; dt.setAttribute('aria-label', 'Tanggal bayar');
+      btn = skEl('button', 'lbtn', 'Tandai lunas'); btn.type = 'button';
+      btn.addEventListener('click', function () { skInvPaySave(inv, dt.value, btn, msg); });
+      row.appendChild(dt);
+    } else {
+      btn = skEl('button', 'lbtn', 'Batalkan lunas'); btn.type = 'button';
+      btn.addEventListener('click', function () { if (confirm('Batalkan status lunas invoice ' + inv + '? Tgl Bayar di file 2026 dikosongkan.')) skInvPaySave(inv, '', btn, msg); });
+    }
+    row.appendChild(btn); row.appendChild(msg); sec.appendChild(row);
+  } else if (info.year < 2026 && !info.lunas) sec.appendChild(skEl('div', 'none', 'Invoice sebelum 2026 diubah di file tahunnya.'));
+  box.appendChild(sec);
+}
+function skInvPaySave(inv, date, btn, msg) {
+  if (date === undefined || (date === '' && btn.textContent === 'Tandai lunas')) { msg.textContent = 'Isi tanggal bayar.'; return; }
+  btn.disabled = true; msg.className = 'psmsg'; msg.textContent = 'Menyimpan...';
+  google.script.run.withSuccessHandler(function () {
+    msg.textContent = 'Tersimpan. Memuat ulang data...';
+    google.script.run.withSuccessHandler(function (p) { skOnData(p); if (SKINV.cur === inv) skInvPay(inv, SKINV.school); })
+      .withFailureHandler(function (e) { msg.textContent = 'Tersimpan, tapi data belum dimuat ulang: ' + skoMsg(e); }).getDashboardData({ cached: true });
+  }).withFailureHandler(function (e) { btn.disabled = false; msg.className = 'psmsg err'; msg.textContent = skoMsg(e); }).setInvoicePaid(inv, date);
+}
+
 // ---------- one invoice's SNAPP side (9 Nov, Firman: "bisa kita klik") ----------
 // A tap on an invoice number in tab Data: its surat jalan with the school's goods check and the
 // admin's answer, the school's invoice confirmation, files from that school and its SNAPP account.
@@ -2982,6 +3198,8 @@ function skInvOpen(inv, school) {
   SKINV.cur = inv;
   document.getElementById('invTitle').textContent = 'Invoice ' + inv;
   document.getElementById('invSub').textContent = school || '';
+  SKINV.school = school || '';
+  skInvPay(inv, school);
   var body = document.getElementById('invBody');
   body.textContent = '';
   skInvShow(true);
