@@ -233,23 +233,111 @@ a{color:inherit}
 .tag.ok{background:var(--up-bg);color:var(--up)}
 .tag.no{background:var(--down-bg);color:var(--down)}
 .tag.warn{background:#fdf1dc;color:#9a5b00}
-.psbar{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 12px}
+.pstop{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;margin:4px 0 16px}
+.pstop h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.4px;color:var(--ink)}
+.pstop p{margin:5px 0 0;font-size:13px;color:var(--ink2);line-height:1.5}
+.pstop .right{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pssort{display:inline-flex;align-items:center;gap:8px}
+.pssort label{font-size:12.5px;font-weight:600;color:var(--ink2)}
+.pssort select{font:inherit;font-size:13px;font-weight:600;height:38px;padding:0 10px;border:1px solid var(--line2);border-radius:11px;background:#fff;color:var(--ink)}
+.psfresh{font-size:12px;color:var(--muted);white-space:nowrap}
+.psfresh.on{color:var(--brand-ink)}
+.pskpis{margin-bottom:16px}
+.psring{position:absolute;top:14px;right:14px;width:54px;height:54px}
+.psring .arc{transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
+.kpi.psdot .lab::after{content:"";width:9px;height:9px;border-radius:50%;background:#e8590c;margin-left:auto;animation:pspulse 1.8s ease-out infinite}
+@keyframes pspulse{0%{box-shadow:0 0 0 0 rgba(232,89,12,.5)}70%{box-shadow:0 0 0 8px rgba(232,89,12,0)}100%{box-shadow:0 0 0 0 rgba(232,89,12,0)}}
+@keyframes psslide{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.psbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:2px 0 14px}
 .psbar .seg{max-width:100%;overflow-x:auto}
-.psbar .seg button{white-space:nowrap}
-.psorder{border:1px solid var(--line2);border-radius:14px;padding:12px 14px;margin-top:10px;background:#fff}
-.psorder.late{border-color:#f3c3bd}
-.pshead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
-.pshead b{font-size:14px;color:var(--ink)}
-.pshead .psmeta{font-size:12.5px;color:var(--ink2)}
-.pshead .lbtn{margin-left:auto}
-.psdays{font-size:12.5px;font-weight:700;color:var(--ink2)}
-.psdays.r{color:var(--down)}
-.psitems{margin-top:10px}
-.psitems td{vertical-align:middle}
-.psitems input,.psitems select{font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--line2);border-radius:9px;background:#fff;color:var(--ink);max-width:100%}
-.psitems input.psq{width:72px}
-.psitems input.psn{min-width:160px}
-.psitems td.pslist{white-space:normal;min-width:280px;line-height:1.5}
+.psbar .seg button{white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.pscount{font-size:11.5px;padding:1px 7px;border-radius:999px;background:#dfe5ee;color:var(--ink2)}
+.seg button.on .pscount{background:var(--brand-soft);color:var(--brand-ink)}
+.pschips{display:flex;flex-wrap:wrap;gap:6px}
+.pschip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line2);background:#fff;color:var(--ink2);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .18s,color .18s,border-color .18s}
+.pschip i{width:8px;height:8px;border-radius:50%}
+.pschip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.pscard{border:1px solid var(--line2);border-radius:16px;background:#fff;margin-top:10px;overflow:hidden;animation:rise .45s cubic-bezier(.2,.8,.2,1) both;transition:box-shadow .2s,border-color .2s}
+#psBody.calm .pscard,#psBody.calm .psshop .g{animation:none}
+.pscard:hover{box-shadow:0 12px 28px -16px rgba(15,23,42,.28)}
+.pscard.urgent{border-color:#f5b08e}
+.pscard.late{border-color:#eeaaa3}
+.pshd{width:100%;border:0;background:transparent;text-align:left;font:inherit;color:inherit;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1.15fr) minmax(0,1.3fr) 22px;gap:12px 22px;align-items:center;border-radius:16px}
+.pshd:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
+.psname{display:flex;flex-direction:column;gap:3px;min-width:0}
+.psname b{font-size:15px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:8px;overflow-wrap:anywhere}
+.psname>span{font-size:12px;color:var(--muted)}
+.psurg{width:9px;height:9px;border-radius:50%;background:#e8590c;flex:none;animation:pspulse 1.8s ease-out infinite}
+.pssteps{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.psst{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+.psst i{width:22px;height:22px;border-radius:50%;border:2px solid #cbd5e1;background:#fff;color:var(--muted);font-style:normal;font-size:11px;font-weight:800;display:grid;place-items:center;box-sizing:border-box}
+.psst.cur{color:var(--ink)}
+.psst.cur i{background:var(--brand);border-color:var(--brand);color:#fff}
+.psst.done{color:var(--ink)}
+.psst.done i{background:#1f8a3a;border-color:#1f8a3a;color:#fff}
+.psst u{display:inline-block;width:16px;height:2px;border-radius:2px;background:#e2e8f0}
+.psst.done u{background:#1f8a3a}
+.psprog{display:flex;flex-direction:column;gap:6px;min-width:0}
+.psprog .l1{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--ink)}
+.psprog small{font-size:11.5px;color:var(--muted)}
+.psdl{font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.psdl.n{background:#eef1f5;color:var(--ink2)}
+.psdl.w{background:#fdeee7;color:#a83f12}
+.psdl.r{background:var(--down);color:#fff}
+.psdl.ok{background:var(--up-bg);color:var(--up)}
+.psdl.sh{background:#e8f0fc;color:#1c5cab}
+.psbarx{height:8px;border-radius:999px;background:#eef1f5;overflow:hidden}
+.pstime{height:4px;border-radius:999px;background:#f1f4f8;overflow:hidden}
+.psbarx i,.pstime i{display:block;height:100%;border-radius:999px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.pschev{color:var(--ink2);display:grid;place-items:center;transition:transform .25s}
+.pscard.open .pschev{transform:rotate(180deg)}
+.psnote{padding:0 16px 12px;font-size:12px;color:var(--ink2)}
+.psbody{border-top:1px solid var(--grid);padding:4px 16px 14px;animation:psslide .3s cubic-bezier(.2,.8,.2,1) both}
+.psacts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;padding:10px 0 4px}
+.psacts p{margin:0 auto 0 0;font-size:12.5px;color:var(--ink2)}
+.psit{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:12px;background:#f8fafc;margin-top:6px;transition:background .3s}
+.psit.done{background:#f0f8f1}
+.psit .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.psit .nm{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 240px}
+.psit .nm b{display:block;font-size:13.5px;color:var(--ink);overflow-wrap:anywhere}
+.psit .nm span.psqty{font-size:12px;color:var(--muted)}
+.psok{width:22px;height:22px;border-radius:50%;background:#1f8a3a;color:#fff;display:grid;place-items:center;flex:none;animation:lpop .35s cubic-bezier(.2,.8,.2,1) both}
+.psseg{display:flex;flex-wrap:wrap;gap:6px}
+.psseg button{height:38px;min-width:80px;padding:0 12px;border-radius:10px;border:1px solid var(--line2);background:#fff;color:var(--ink2);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .18s,color .18s,border-color .18s,transform .1s}
+.psseg button:active{transform:scale(.96)}
+.psseg button.s-b[aria-pressed=true],.pstag.s-b{background:#eef1f5;color:#334155;border-color:#c5cdd8}
+.psseg button.s-d[aria-pressed=true],.pstag.s-d{background:#e8f0fc;color:#1c5cab;border-color:#a9c4ee}
+.psseg button.s-p[aria-pressed=true],.pstag.s-p{background:#fdf1dc;color:#8a5200;border-color:#efc77e}
+.psseg button.s-s[aria-pressed=true],.pstag.s-s{background:var(--up-bg);color:var(--up);border-color:#9fd3a0}
+.psx{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end;animation:psslide .3s cubic-bezier(.2,.8,.2,1) both}
+.psx label,.pslab{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:var(--ink2)}
+.psx input{font:inherit;font-size:13px;height:38px;border:1px solid var(--line2);border-radius:10px;padding:0 10px;background:#fff;color:var(--ink);box-sizing:border-box}
+.psx input.n{width:260px;max-width:100%}
+.psstep{display:inline-flex;align-items:center;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:#fff}
+.psstep button{width:38px;height:36px;border:0;background:#f4f6f9;font-size:18px;font-weight:700;color:var(--ink);cursor:pointer}
+.psstep input{width:60px;height:36px;border:0;border-radius:0;text-align:right;padding:0 4px;font-weight:800}
+.psstep span{padding:0 10px 0 4px;font-size:12.5px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.psline{font-size:11.5px;color:var(--muted);min-height:0}
+.psline:empty{display:none}
+.psline.err{color:var(--down);font-weight:600}
+.psintro{margin:0 0 4px;font-size:12.5px;color:var(--ink2)}
+.psallok{padding:34px 16px;text-align:center;color:var(--up);font-weight:700;font-size:14px;background:var(--up-bg);border-radius:14px}
+.psshop .g{border:1px solid var(--line2);border-radius:14px;padding:12px 14px;margin-top:10px;background:#fff;animation:rise .4s cubic-bezier(.2,.8,.2,1) both}
+.psshop .gh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px}
+.psshop .gh b{display:block;font-size:14px;color:var(--ink)}
+.psshop .gh span{font-size:12px;color:var(--ink2)}
+.psshop .ln{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:10px 0 0;margin-top:10px;border-top:1px solid var(--grid)}
+.psshop .ln .t{font-size:13px;color:var(--ink);min-width:0;overflow-wrap:anywhere}
+.psshop .ln .t small{display:block;margin-top:2px;color:var(--muted);font-size:11.5px}
+.psshop .ln .r{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.pstag{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;border:1px solid transparent}
+.psdone{height:34px;padding:0 12px;border-radius:10px;border:0;background:#1f8a3a;color:#fff;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+.pstoast{position:fixed;right:24px;bottom:24px;z-index:80;max-width:min(440px,calc(100vw - 32px));background:var(--ink);color:#fff;padding:11px 14px;border-radius:12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 14px 30px -10px rgba(15,23,42,.5);animation:psslide .25s cubic-bezier(.2,.8,.2,1) both}
+.pstoast .ic{color:#4ade80;display:grid;place-items:center}
+.pstoast button{border:0;background:#fff;color:var(--ink);font:inherit;font-size:12px;font-weight:800;padding:5px 10px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.pstoast.err{background:var(--down)}
+@media (max-width:980px){.pshd{grid-template-columns:minmax(0,1fr) 22px}.pshd .psname{grid-column:1;grid-row:1}.pshd .pschev{grid-column:2;grid-row:1}.pshd .pssteps,.pshd .psprog{grid-column:1/3}}
+@media (max-width:560px){.pstoast{right:16px;left:16px;bottom:16px}.psseg button{min-width:0;flex:1 1 40%}.psx input.n{width:100%}.psx label{flex:1 1 100%}}
 .psmsg{font-size:12px;color:var(--ink2)}
 .psmsg.err{color:var(--down)}
 .invpay{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
@@ -750,11 +838,16 @@ html:has(.loader:not(.off)){overflow:hidden}
   </section>
 
   <section class="view" id="v-persiapan">
-    <div class="card" style="--i:0">
-      <div class="chead"><div><h3>Persiapan barang</h3><p id="psSub">Memuat...</p></div><div class="right"><button class="lbtn" id="psReload" type="button">Muat ulang</button></div></div>
-      <div class="psbar"><div class="seg" id="psTabs"></div><div class="seg" id="psFilter"></div></div>
+    <div class="pstop">
+      <div><h2>Persiapan barang</h2><p><span id="psSub">Memuat...</span> <span class="psfresh" id="psFresh"></span></p></div>
+      <div class="right"><span class="pssort" id="psSortBox" hidden><label for="psSort">Urutkan</label><select id="psSort"><option value="urgent">Paling mendesak</option><option value="newest">Order terbaru</option></select></span><button class="lbtn" id="psReload" type="button">Muat ulang</button></div>
+    </div>
+    <div class="grid kpis k4 pskpis" id="psKpis" hidden></div>
+    <div class="card" style="--i:4">
+      <div class="psbar"><div class="seg" id="psTabs"></div><div class="pschips" id="psFilter" hidden></div></div>
       <div id="psBody"></div>
     </div>
+    <div class="pstoast" id="psToast" role="status" aria-live="polite" hidden></div>
   </section>
   <section class="view" id="v-approval">
     <div class="grid apgrid">
@@ -1084,6 +1177,8 @@ function skOnData(p) {
   if (!SKD.linked) {
     SKD.linked = true;
     if (skMay('approval')) skApOpen(true); // badge on the Approval tab
+    // 17 Nov (Muji: Persiapan barang took 5 s to open): loaded in the background, so the tab opens at once
+    if (skMay('persiapan')) setTimeout(function () { if (SKD.tab !== 'persiapan') skPsPrefetch(); }, 1200);
     // ?tab=piutang (the button in the reminder email) opens the aging view directly
     try {
       google.script.url.getLocation(function (loc) {
@@ -3007,132 +3102,563 @@ function skInLevelBox(x, si, d) {
   return box;
 }
 
-// ---------- Persiapan barang (17 Nov, Fadhlulloh: "ada menu buat persiapan barangnya?") ----------
-// Every order since SNAPP went live with its items: Belum, Dipesan, Sebagian (with the quantity in hand)
-// or Siap, an inden note and the expected date. Daftar belanja puts the same item of the orders not
-// shipped yet together. The same rows as Proses order in the sales app (Persiapan.js on the server).
-var SKPS = { data: null, tab: 'order', filter: 'all', open: {}, loading: false, err: '' };
-var SKPS_STAGE = { order: ['Order masuk', ''], po: ['PO ke vendor', 'warn'], siap: ['Barang siap', 'warn'], dikirim: ['Dikirim', ''], diterima: ['Diterima', 'ok'] };
+// ---------- Persiapan barang (17 Nov, Fadhlulloh; rebuilt 17 Nov evening to Muji's "Persiapan barang redesign") ----------
+// Every order since SNAPP went live with its items: a count strip, order cards with a 3-step stage (Order
+// masuk, Disiapkan, Siap kirim, from the items), a deadline by days left against the target in Pengaturan
+// (urgent at d.urgent days or less), one-tap status per item and auto-save in place of Simpan. Opens at once
+// from the last copy kept in this browser for this email and refreshes behind it; the dashboard also loads
+// it in the background right after it starts. The same rows as Proses order in eSKalasi (Persiapan.js).
+var SKPS = { data: null, tab: 'order', filter: 'all', sort: 'urgent', open: {}, loading: false, err: '', at: 0, local: false, q: {}, toastT: 0, calm: false };
+var SKPS_ST = [['Belum', 's-b'], ['Dipesan', 's-d'], ['Sebagian', 's-p'], ['Siap', 's-s']];
+var SKPS_DELAY = 700; // ms after the last keystroke before a quantity, note or date is saved
+var SKPS_OK = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
 function skPsNum(n) { return String(Math.round((+n || 0) * 100) / 100).replace('.', ','); }
 function skPsDay(iso) { return iso ? skDate(+String(iso).replace(/-/g, '')) : ''; }
+function skPsNorm(s) { return String(s == null ? '' : s).replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase(); }
+
+// The last copy, per email, so the page opens without waiting (2 days at most).
+function skPsKey() { var e = SKD.P && SKD.P.viewer && SKD.P.viewer.email; return e ? 'skps1_' + String(e).toLowerCase() : ''; }
+function skPsKeep() { var k = skPsKey(); if (!k || !SKPS.data) return; try { localStorage.setItem(k, JSON.stringify({ at: SKPS.at, d: SKPS.data })); } catch (e) { /* full or blocked: memory only */ } }
+function skPsCopy() {
+  var k = skPsKey(); if (!k) return null;
+  try { var o = JSON.parse(localStorage.getItem(k) || 'null'); return o && o.d && o.d.list && Date.now() - o.at < 2 * 86400000 ? o : null; } catch (e) { return null; }
+}
+
 function skPsOpen(force) {
-  if (SKPS.data && !force) { skPsRender(); return; }
+  if (!SKPS.data) { var c = skPsCopy(); if (c) { SKPS.data = c.d; SKPS.at = c.at; SKPS.local = true; } }
+  skPsRender();
+  if (!force && SKPS.data && !SKPS.local && Date.now() - SKPS.at < 60000) return; // loaded less than a minute ago
+  skPsFetch(false);
+}
+// Right after the dashboard starts (skOnData), so the tab is ready before anyone opens it.
+function skPsPrefetch() { if (!SKPS.data || SKPS.local) skPsFetch(true); }
+function skPsFetch(quiet) {
   if (SKPS.loading) return;
   SKPS.loading = true; SKPS.err = '';
-  document.getElementById('psSub').textContent = 'Memuat...';
-  google.script.run.withSuccessHandler(function (d) { SKPS.loading = false; SKPS.data = d || null; skPsRender(); })
-    .withFailureHandler(function (e) { SKPS.loading = false; SKPS.err = skoMsg(e); skPsRender(); }).getPersiapan();
+  skPsTop();
+  google.script.run.withSuccessHandler(function (d) {
+    SKPS.loading = false;
+    if (!d || !d.list) { skPsTop(); return; }
+    if (SKPS.data && (skPsBusy() || skPsTyping())) { skPsMerge(d); return; } // never pull the page from under a change
+    SKPS.calm = !!SKPS.data; // the copy was on screen: no second entrance animation
+    SKPS.data = d; SKPS.at = Date.now(); SKPS.local = false; skPsKeep();
+    if (SKD.tab === 'persiapan' || !quiet) skPsRender(); else skPsTop();
+  }).withFailureHandler(function (e) {
+    SKPS.loading = false; SKPS.err = skoMsg(e);
+    if (SKPS.data) { skPsTop(); if (!quiet) skPsToast('Data terbaru belum bisa dimuat: ' + SKPS.err, true, function () { skPsFetch(false); }); }
+    else skPsRender();
+  }).getPersiapan();
 }
-function skPsGroup(x) { var g = x.prog || {}; return !g.total || x.sent || x.got ? '' : g.done ? 'ready' : (g.siap || g.part || g.po) ? 'part' : 'new'; }
+function skPsTyping() { var a = document.activeElement, b = document.getElementById('psBody'); return !!(a && b && b.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
+function skPsBusy() { return Object.keys(SKPS.q).some(function (k) { var q = SKPS.q[k]; return q.busy || q.t || q.wait; }); }
+
+// ---------- derived numbers ----------
+function skPsProg(items) {
+  var c = { total: 0, siap: 0, part: 0, po: 0 };
+  (items || []).forEach(function (v) { c.total++; if (v.status === 'Siap') c.siap++; else if (v.status === 'Sebagian') c.part++; else if (v.status === 'Dipesan') c.po++; });
+  c.done = c.total > 0 && c.siap === c.total;
+  return c;
+}
+function skPsCfg() { var d = SKPS.data || {}; return { target: +d.target > 0 ? +d.target : 12, urgent: +d.urgent > 0 ? +d.urgent : 5 }; }
+function skPsX(x) {
+  var g = x.prog || skPsProg(x.items), cfg = skPsCfg(), total = g.total || 0, ready = g.siap || 0, started = !!(g.siap || g.part || g.po);
+  var shipped = !!(x.sent || x.got), stage = total && ready === total ? 2 : started ? 1 : 0;
+  var left = typeof x.left === 'number' ? x.left : cfg.target - (+x.days || 0);
+  return { x: x, total: total, ready: ready, started: started, shipped: shipped, stage: stage, left: left,
+    urgent: !shipped && stage < 2 && left <= cfg.urgent, partial: started && ready < total };
+}
+function skPsAll() { return ((SKPS.data || {}).list || []).map(skPsX); }
+function skPsIn(v, f) {
+  if (f === 'shipped') return v.shipped;
+  if (v.shipped) return false;
+  return f === 'urgent' ? v.urgent : f === 'ready' ? v.stage === 2 : f === 'partial' ? v.partial : f === 'todo' ? !v.started : true;
+}
+function skPsCounts(all) {
+  var c = {};
+  ['all', 'urgent', 'ready', 'partial', 'todo', 'shipped'].forEach(function (f) { c[f] = all.filter(function (v) { return skPsIn(v, f); }).length; });
+  return c;
+}
+function skPsFind(inv) { return ((SKPS.data || {}).list || []).filter(function (o) { return o.inv === inv; })[0] || null; }
+function skPsDeadline(v) {
+  var x = v.x;
+  if (x.got) return ['ok', 'Diterima ' + skPsDay(x.got)];
+  if (x.sent) return ['sh', 'Dikirim ' + skPsDay(x.sent)];
+  if (v.stage === 2) return ['ok', 'Siap dikirim'];
+  if (v.left < 0) return ['r', 'Lewat ' + (-v.left) + ' hari'];
+  return [v.left <= skPsCfg().urgent ? 'w' : 'n', 'Sisa ' + v.left + ' hari'];
+}
+// Daftar belanja from the list on screen (so a tick shows there at once): what is still to buy of the orders
+// not shipped, the same item and unit together (Firman, 14 Nov), like SKP.shopList on the server.
+function skPsShopList() {
+  var by = {}, out = [];
+  skPsAll().filter(function (v) { return !v.shipped; }).forEach(function (v) {
+    (v.x.items || []).forEach(function (it) {
+      if (it.status === 'Siap') return;
+      var need = Math.round(((+it.qty || 0) - (+it.ready || 0)) * 100) / 100;
+      if (need <= 0) return;
+      var k = skPsNorm(it.item) + '|' + skPsNorm(it.unit), g = by[k];
+      if (!g) { g = by[k] = { item: it.item, unit: it.unit, need: 0, ordered: 0, lines: [] }; out.push(g); }
+      g.need = Math.round((g.need + need) * 100) / 100;
+      if (it.status === 'Dipesan') g.ordered = Math.round((g.ordered + need) * 100) / 100;
+      g.lines.push({ v: v, it: it, need: need });
+    });
+  });
+  return out.sort(function (a, b) { return b.lines.length - a.lines.length || b.need - a.need || (skPsNorm(a.item) < skPsNorm(b.item) ? -1 : 1); });
+}
+
+// ---------- drawing ----------
+function skPsTop() {
+  var sub = document.getElementById('psSub'), fr = document.getElementById('psFresh'), d = SKPS.data;
+  if (!d) sub.textContent = SKPS.err ? 'Belum bisa dimuat.' : 'Memuat...';
+  else {
+    var all = skPsAll(), c = skPsCounts(all), cfg = skPsCfg();
+    var late = all.filter(function (v) { return !v.shipped && v.stage < 2 && v.left < 0; }).length;
+    sub.textContent = c.all + ' order berjalan · ' + c.urgent + ' mendesak · ' + late + ' lewat ' + cfg.target + ' hari · ' + c.ready + ' siap kirim. Order sejak ' + skPsDay(d.from) + '.';
+  }
+  var t = SKPS.at ? new Date(SKPS.at) : null, hm = t ? ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2) : '';
+  fr.textContent = SKPS.loading ? (SKPS.data ? 'Memperbarui...' : '') : SKPS.err && SKPS.data ? 'Belum terbaru (data ' + hm + ')' : hm ? 'Diperbarui ' + hm : '';
+  fr.className = 'psfresh' + (SKPS.loading ? ' on' : '');
+}
+function skPsKpis(all) {
+  var box = document.getElementById('psKpis'), c = skPsCounts(all), cfg = skPsCfg(), n = function (v) { return skNum(Math.round(v)); };
+  var open = all.filter(function (v) { return !v.shipped; }), tot = 0, rd = 0;
+  open.forEach(function (v) { tot += v.total; rd += v.ready; });
+  var late = open.filter(function (v) { return v.stage < 2 && v.left < 0; }).length, pct = tot ? rd / tot : 0;
+  box.hidden = false;
+  skKpi(box, 'ps1', { label: 'Order berjalan', icon: 'invoice', bg: '#e8f0fc', fg: '#1c5cab', value: c.all, fmt: n,
+    sub: [{ text: 'sejak ', bold: skPsDay((SKPS.data || {}).from) }] }, 0);
+  skKpi(box, 'ps2', { label: 'Mendesak', icon: 'ar', bg: '#fdeee7', fg: '#b4471c', value: c.urgent, fmt: n,
+    sub: [{ text: 'sisa ' + cfg.urgent + ' hari atau kurang' }].concat(late ? [{ bold: skNum(late), after: ' lewat ' + cfg.target + ' hari' }] : []) }, 1);
+  skKpi(box, 'ps3', { label: 'Siap kirim', icon: 'school', bg: '#e6f4e6', fg: '#006300', value: c.ready, fmt: n, sub: [{ text: 'tinggal dibuat surat jalan' }] }, 2);
+  skKpi(box, 'ps4', { label: 'Barang siap', icon: 'count', bg: '#efeafb', fg: '#4a3aa7', value: rd, fmt: function (v) { return n(v) + '/' + skNum(tot); },
+    sub: [{ bold: Math.round(pct * 100) + '%', after: ' dari barang order berjalan' }] }, 3);
+  var k2 = document.getElementById('kpi-ps2'); if (k2) k2.classList.toggle('psdot', c.urgent > 0);
+  var k4 = document.getElementById('kpi-ps4');
+  if (k4) {
+    var ring = k4.querySelector('.psring');
+    if (!ring) {
+      ring = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      ring.setAttribute('class', 'psring'); ring.setAttribute('viewBox', '0 0 64 64'); ring.setAttribute('role', 'img');
+      ring.innerHTML = '<circle cx="32" cy="32" r="26" fill="none" stroke="#eef1f5" stroke-width="7"/><circle class="arc" cx="32" cy="32" r="26" fill="none" stroke="#1f8a3a" stroke-width="7" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4" transform="rotate(-90 32 32)"/>';
+      k4.appendChild(ring);
+    }
+    ring.setAttribute('aria-label', Math.round(pct * 100) + ' persen barang siap');
+    var arc = ring.querySelector('.arc');
+    requestAnimationFrame(function () { arc.setAttribute('stroke-dashoffset', (163.4 * (1 - pct)).toFixed(1)); });
+  }
+}
+function skPsBar(all) {
+  var c = skPsCounts(all), shop = skPsShopList();
+  skPsSeg('psTabs', [['order', 'Order ', c.all], ['belanja', 'Daftar belanja ', shop.length]], SKPS.tab, function (t) { SKPS.tab = t; SKPS.calm = false; skPsRender(); });
+  var chips = document.getElementById('psFilter');
+  chips.textContent = '';
+  chips.hidden = SKPS.tab !== 'order';
+  document.getElementById('psSortBox').hidden = SKPS.tab !== 'order';
+  [['all', 'Semua', '#64748b'], ['urgent', 'Mendesak', '#e8590c'], ['ready', 'Siap kirim', '#1f8a3a'], ['partial', 'Sebagian', '#c98a12'], ['todo', 'Belum mulai', '#94a3b8'], ['shipped', 'Dikirim', '#1c5cab']].forEach(function (f) {
+    if (f[0] === 'shipped' && !c.shipped) return;
+    var b = skEl('button', 'pschip' + (SKPS.filter === f[0] ? ' on' : '')), dot = skEl('i');
+    b.type = 'button'; b.setAttribute('aria-pressed', SKPS.filter === f[0] ? 'true' : 'false');
+    dot.style.background = f[2]; dot.setAttribute('aria-hidden', 'true');
+    b.appendChild(dot); b.appendChild(document.createTextNode(f[1] + ' (' + c[f[0]] + ')'));
+    b.addEventListener('click', function () { SKPS.filter = f[0]; SKPS.calm = false; skPsRender(); });
+    chips.appendChild(b);
+  });
+}
 function skPsSeg(id, items, cur, onPick) {
   var seg = document.getElementById(id); seg.textContent = '';
   items.forEach(function (it) {
     var b = skEl('button', it[0] === cur ? 'on' : '', it[1]); b.type = 'button';
+    b.setAttribute('aria-pressed', it[0] === cur ? 'true' : 'false');
+    if (it.length > 2) b.appendChild(skEl('span', 'pscount', String(it[2])));
     b.addEventListener('click', function () { onPick(it[0]); });
     seg.appendChild(b);
   });
   seg.hidden = !items.length;
 }
 function skPsRender() {
-  var d = SKPS.data, body = document.getElementById('psBody'), sub = document.getElementById('psSub');
+  var d = SKPS.data, body = document.getElementById('psBody');
+  skPsTop();
   body.textContent = '';
-  if (SKPS.err) {
-    sub.textContent = 'Belum bisa dimuat.';
-    body.appendChild(skEl('div', 'oempty', SKPS.err + '. Tekan Muat ulang.'));
-    skPsSeg('psTabs', [], '', null); skPsSeg('psFilter', [], '', null);
+  body.classList.toggle('calm', SKPS.calm);
+  if (!d) {
+    document.getElementById('psKpis').hidden = true; skPsSeg('psTabs', [], '', null);
+    document.getElementById('psFilter').hidden = true; document.getElementById('psSortBox').hidden = true;
+    body.appendChild(skEl('div', 'oempty', SKPS.err ? SKPS.err + '. Tekan Muat ulang.' : 'Memuat order...'));
     return;
   }
-  if (!d) return;
-  var open = d.list.filter(function (x) { return !x.got; }), late = open.filter(function (x) { return x.late; }).length;
-  var cnt = function (k) { return open.filter(function (x) { return skPsGroup(x) === k; }).length; };
-  sub.textContent = open.length + ' order berjalan, ' + late + ' lewat ' + d.target + ' hari, ' + cnt('ready') + ' siap kirim. Order sejak ' + skPsDay(d.from) + '.';
-  skPsSeg('psTabs', [['order', 'Order (' + open.length + ')'], ['belanja', 'Daftar belanja (' + d.shop.length + ')']], SKPS.tab, function (t) { SKPS.tab = t; skPsRender(); });
-  if (SKPS.tab === 'belanja') { skPsSeg('psFilter', [], '', null); skPsShop(body, d); return; }
-  skPsSeg('psFilter', [['all', 'Semua'], ['ready', 'Siap kirim (' + cnt('ready') + ')'], ['part', 'Sebagian (' + cnt('part') + ')'], ['new', 'Belum mulai (' + cnt('new') + ')']],
-    SKPS.filter, function (f) { SKPS.filter = f; skPsRender(); });
-  var shown = SKPS.filter === 'all' ? d.list : open.filter(function (x) { return skPsGroup(x) === SKPS.filter; });
-  if (!shown.length) { body.appendChild(skEl('div', 'oempty', d.list.length ? 'Tidak ada order di sini.' : 'Belum ada order sejak ' + skPsDay(d.from) + '.')); return; }
-  shown.forEach(function (x) { body.appendChild(skPsOrder(x, d)); });
+  var all = skPsAll();
+  skPsKpis(all); skPsBar(all);
+  if (SKPS.tab === 'belanja') { skPsShop(body); return; }
+  var list = all.filter(function (v) { return skPsIn(v, SKPS.filter); });
+  list.sort(function (a, b) {
+    if (SKPS.filter === 'shipped') return String(b.x.sent || b.x.got) < String(a.x.sent || a.x.got) ? -1 : 1;
+    if (SKPS.sort === 'newest') return a.x.date === b.x.date ? (a.x.inv < b.x.inv ? 1 : -1) : a.x.date < b.x.date ? 1 : -1;
+    var ra = a.stage === 2 ? 1 : 0, rb = b.stage === 2 ? 1 : 0;
+    return ra - rb || a.left - b.left || (a.x.date < b.x.date ? -1 : 1);
+  });
+  if (!list.length) { body.appendChild(skEl('div', 'oempty', d.list.length ? 'Tidak ada order di filter ini.' : 'Belum ada order sejak ' + skPsDay(d.from) + '.')); return; }
+  list.forEach(function (v, n) { body.appendChild(skPsCard(v, n)); });
 }
-function skPsOrder(x, d) {
-  var card = skEl('div', 'psorder' + (x.late && !x.got ? ' late' : '')), head = skEl('div', 'pshead'), st = SKPS_STAGE[x.stage] || ['', ''], g = x.prog || {};
-  head.appendChild(skEl('b', '', x.school || x.inv));
-  head.appendChild(skEl('span', 'psmeta', x.inv + ' · order ' + skPsDay(x.date)));
-  head.appendChild(skEl('span', 'tag ' + st[1], st[0]));
-  head.appendChild(skEl('span', 'psdays' + (x.late && !x.got ? ' r' : ''), x.got ? x.days + ' hari, selesai' : x.late ? x.days + ' hari, lewat ' + (x.days - d.target) + ' hari' : 'hari ke-' + x.days + ' dari ' + d.target));
-  if (g.total) {
-    head.appendChild(skEl('span', 'tag ' + (g.done ? 'ok' : g.siap || g.part || g.po ? 'warn' : ''),
-      g.siap + '/' + g.total + ' siap' + (g.part ? ', ' + g.part + ' sebagian' : '') + (g.po ? ', ' + g.po + ' dipesan' : '')));
-    var tg = skEl('button', 'lbtn', SKPS.open[x.inv] ? 'Tutup barang' : 'Lihat barang'); tg.type = 'button';
-    tg.setAttribute('aria-expanded', SKPS.open[x.inv] ? 'true' : 'false');
-    tg.addEventListener('click', function () { SKPS.open[x.inv] = !SKPS.open[x.inv]; skPsRender(); });
-    head.appendChild(tg);
-  } else head.appendChild(skEl('span', 'psmeta', 'Barang order ini belum terbaca'));
-  card.appendChild(head);
-  if (x.note) card.appendChild(skEl('div', 'psmsg', x.note));
-  if (g.total && SKPS.open[x.inv]) card.appendChild(skPsItems(x));
+
+function skPsCard(v, n) {
+  var x = v.x, open = !!SKPS.open[x.inv];
+  var card = skEl('div', 'pscard' + (v.urgent ? ' urgent' : '') + (!v.shipped && v.stage < 2 && v.left < 0 ? ' late' : '') + (open ? ' open' : ''));
+  card.setAttribute('data-inv', x.inv);
+  card.style.animationDelay = (Math.min(n, 10) * 0.05) + 's';
+  var hd = skEl('button', 'pshd'); hd.type = 'button';
+  hd.setAttribute('aria-expanded', open ? 'true' : 'false');
+  skPsHead(hd, v);
+  hd.addEventListener('click', function () {
+    SKPS.open[x.inv] = !SKPS.open[x.inv];
+    var o = skPsFind(x.inv); if (!o) return;
+    var nc = skPsCard(skPsX(o), 0); nc.style.animation = 'none';
+    card.parentNode.replaceChild(nc, card); nc.querySelector('.pshd').focus();
+  });
+  card.appendChild(hd);
+  if (x.note) card.appendChild(skEl('div', 'psnote', 'Catatan: ' + x.note));
+  if (open) card.appendChild(skPsBody(v));
   return card;
 }
-function skPsItems(x) {
-  var wrap = skEl('div', 'twrap psitems'), t = skEl('table'), th = skEl('thead'), hr = skEl('tr');
-  ['Barang', 'Qty', 'Status', 'Jumlah ada', 'Catatan inden', 'Perkiraan datang', ''].forEach(function (h) { hr.appendChild(skEl('th', '', h)); });
-  th.appendChild(hr); t.appendChild(th);
-  var tb = skEl('tbody');
-  x.items.forEach(function (v) {
-    var tr = skEl('tr');
-    tr.appendChild(skEl('td', '', v.item));
-    tr.appendChild(skEl('td', 'num', skPsNum(v.qty) + ' ' + v.unit));
-    var sel = skEl('select'); sel.setAttribute('aria-label', 'Status ' + v.item);
-    ['Belum', 'Dipesan', 'Sebagian', 'Siap'].forEach(function (k) { var o = skEl('option', '', k); o.value = k; if (k === v.status) o.selected = true; sel.appendChild(o); });
-    var std = skEl('td'); std.appendChild(sel); tr.appendChild(std);
-    var q = skEl('input', 'psq'); q.type = 'number'; q.min = '0'; q.step = 'any'; q.max = String(v.qty);
-    q.value = v.status === 'Sebagian' ? String(v.ready) : ''; q.disabled = v.status !== 'Sebagian'; q.setAttribute('aria-label', 'Jumlah yang sudah ada ' + v.item);
-    sel.addEventListener('change', function () { q.disabled = sel.value !== 'Sebagian'; if (!q.disabled) q.focus(); });
-    var qtd = skEl('td'); qtd.appendChild(q); tr.appendChild(qtd);
-    var n = skEl('input', 'psn'); n.type = 'text'; n.maxLength = 200; n.value = v.note || ''; n.placeholder = 'contoh: inden dari vendor'; n.setAttribute('aria-label', 'Catatan inden ' + v.item);
-    var ntd = skEl('td'); ntd.appendChild(n); tr.appendChild(ntd);
-    var e = skEl('input'); e.type = 'date'; e.value = v.eta || ''; e.setAttribute('aria-label', 'Perkiraan datang ' + v.item);
-    var etd = skEl('td'); etd.appendChild(e); tr.appendChild(etd);
-    var btd = skEl('td'), b = skEl('button', 'lbtn', 'Simpan'), msg = skEl('div', 'psmsg', v.by ? 'oleh ' + v.by : ''); b.type = 'button';
-    b.addEventListener('click', function () {
-      var p = { status: sel.value, note: n.value, eta: e.value };
-      if (sel.value === 'Sebagian') {
-        var r = parseFloat(String(q.value).replace(',', '.'));
-        if (!(r > 0)) { msg.className = 'psmsg err'; msg.textContent = 'Isi jumlah yang sudah ada.'; return; }
-        p.ready = r;
-      }
-      b.disabled = true; msg.className = 'psmsg'; msg.textContent = 'Menyimpan...';
-      google.script.run.withSuccessHandler(function (d) { SKPS.data = d || SKPS.data; skPsRender(); })
-        .withFailureHandler(function (er) { b.disabled = false; msg.className = 'psmsg err'; msg.textContent = skoMsg(er); }).setPersiapanItem(x.inv, v.i, p);
-    });
-    btd.appendChild(b); btd.appendChild(msg); tr.appendChild(btd);
-    tb.appendChild(tr);
+function skPsHead(hd, v) {
+  var x = v.x, cfg = skPsCfg();
+  hd.textContent = '';
+  var nm = skEl('div', 'psname'), b = skEl('b');
+  if (v.urgent) { var u = skEl('span', 'psurg'); u.setAttribute('aria-hidden', 'true'); b.appendChild(u); }
+  b.appendChild(document.createTextNode(x.school || x.inv));
+  nm.appendChild(b); nm.appendChild(skEl('span', '', x.inv + ' · order ' + skPsDay(x.date)));
+  hd.appendChild(nm);
+  var st = skEl('div', 'pssteps');
+  ['Order masuk', 'Disiapkan', 'Siap kirim'].forEach(function (lb, i) {
+    var done = v.shipped || i < v.stage || (v.stage === 2 && i === 2), cur = !done && i === v.stage;
+    var s = skEl('span', 'psst' + (done ? ' done' : cur ? ' cur' : '')), dot = skEl('i');
+    if (done) dot.innerHTML = SKPS_OK; else dot.textContent = String(i + 1);
+    s.appendChild(dot); s.appendChild(document.createTextNode(lb));
+    if (i < 2) { var ln = skEl('u'); ln.setAttribute('aria-hidden', 'true'); s.appendChild(ln); }
+    st.appendChild(s);
   });
-  t.appendChild(tb); wrap.appendChild(t);
-  return wrap;
+  hd.appendChild(st);
+  var pr = skEl('div', 'psprog'), l1 = skEl('div', 'l1'), dl = skPsDeadline(v);
+  l1.appendChild(skEl('span', '', v.total ? v.ready + '/' + v.total + ' siap' : 'Barang belum terbaca'));
+  l1.appendChild(skEl('span', 'psdl ' + dl[0], dl[1]));
+  pr.appendChild(l1);
+  var bar = skEl('div', 'psbarx'), fill = skEl('i');
+  bar.setAttribute('aria-label', v.ready + ' dari ' + v.total + ' barang siap');
+  fill.style.width = (v.total ? Math.round(v.ready / v.total * 100) : 0) + '%';
+  fill.style.background = v.shipped || v.stage === 2 ? '#1f8a3a' : v.urgent ? '#e8590c' : 'var(--brand)';
+  bar.appendChild(fill); pr.appendChild(bar);
+  var tm = skEl('div', 'pstime'), tf = skEl('i');
+  tm.setAttribute('aria-hidden', 'true');
+  tf.style.width = Math.max(0, Math.min(100, Math.round((+x.days || 0) / cfg.target * 100))) + '%';
+  tf.style.background = v.shipped ? '#c5cdd8' : v.left < 0 ? 'var(--down)' : v.left <= cfg.urgent ? '#e8890c' : '#c5cdd8';
+  tm.appendChild(tf); pr.appendChild(tm);
+  pr.appendChild(skEl('small', '', x.got ? 'Sampai di sekolah dalam ' + x.days + ' hari' : 'Hari ke-' + x.days + ' dari ' + cfg.target));
+  hd.appendChild(pr);
+  var ch = skEl('span', 'pschev');
+  ch.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  hd.appendChild(ch);
 }
-function skPsShop(body, d) {
-  if (!d.shop.length) { body.appendChild(skEl('div', 'oempty', 'Semua barang dari order yang belum dikirim sudah siap, atau belum ada barang di order berjalan.')); return; }
-  body.appendChild(skEl('p', 'psmsg', 'Barang yang belum siap dari semua order yang belum dikirim, digabung per barang supaya bisa dibelanjakan sekaligus.'));
-  var wrap = skEl('div', 'twrap psitems'), t = skEl('table'), th = skEl('thead'), hr = skEl('tr');
-  ['Barang', 'Perlu dibeli', 'Sudah dipesan', 'Untuk order'].forEach(function (h) { hr.appendChild(skEl('th', '', h)); });
-  th.appendChild(hr); t.appendChild(th);
-  var tb = skEl('tbody');
-  d.shop.forEach(function (g) {
-    var tr = skEl('tr'), td = skEl('td', 'pslist');
-    tr.appendChild(skEl('td', '', g.item));
-    tr.appendChild(skEl('td', 'num', skPsNum(g.need) + ' ' + g.unit));
-    tr.appendChild(skEl('td', 'num', g.ordered ? skPsNum(g.ordered) + ' ' + g.unit : '-'));
-    g.invs.forEach(function (v) {
-      td.appendChild(skEl('div', '', (v.school || v.inv) + ' (' + v.inv + '): ' + skPsNum(v.need) + ' ' + g.unit + ', ' + String(v.status).toLowerCase() +
-        (v.eta ? ', datang ' + skPsDay(v.eta) : '') + (v.note ? ', ' + v.note : '')));
-    });
-    tr.appendChild(td);
-    tb.appendChild(tr);
+function skPsBody(v) {
+  var x = v.x, body = skEl('div', 'psbody'), acts = skEl('div', 'psacts');
+  if (v.shipped) acts.appendChild(skEl('p', '', x.got ? 'Sudah diterima sekolah.' : 'Sudah dikirim, menunggu diterima sekolah.'));
+  else if (v.stage === 2) {
+    acts.appendChild(skEl('p', '', 'Semua barang siap. Surat jalan dibuat di eSKalasi, menu Surat jalan.'));
+    var sj = document.querySelector('.tab[data-tab=aplikasi][data-ax=snapp]');
+    if (sj && !sj.hidden) {
+      var go = skEl('button', 'lbtn2 primary', 'Lihat surat jalan'); go.type = 'button';
+      go.addEventListener('click', function () { skShowTab('aplikasi', sj); });
+      acts.appendChild(go);
+    }
+  } else if (v.total) {
+    var all = skEl('button', 'lbtn', 'Tandai semua siap'); all.type = 'button';
+    all.addEventListener('click', function () { skPsAllReady(x.inv); });
+    acts.appendChild(all);
+  }
+  if (acts.childNodes.length) body.appendChild(acts);
+  if (!v.total) body.appendChild(skEl('div', 'oempty', 'Barang order ini belum terbaca dari tab Data. Muat ulang setelah data 2026 dicek.'));
+  (x.items || []).forEach(function (it) { body.appendChild(skPsItem(x.inv, it)); });
+  return body;
+}
+
+// One item: four status buttons; Sebagian opens the quantity in hand, Dipesan and Sebagian the inden note
+// and the expected date. Every handler finds the item again by invoice and line, since a save replaces the data.
+function skPsItem(inv, it) {
+  var row = skEl('div', 'psit');
+  row.setAttribute('data-k', inv + '|' + it.i);
+  skPsFill(row, inv, it);
+  return row;
+}
+function skPsGet(inv, i) { var x = skPsFind(inv); return x ? { x: x, it: (x.items || [])[i] } : null; }
+function skPsFill(row, inv, it) {
+  var k = inv + '|' + it.i;
+  row.textContent = '';
+  row.className = 'psit' + (it.status === 'Siap' ? ' done' : '');
+  var top = skEl('div', 'top'), nm = skEl('div', 'nm');
+  if (it.status === 'Siap') { var ok = skEl('span', 'psok'); ok.innerHTML = SKPS_OK; nm.appendChild(ok); }
+  var t = skEl('div');
+  t.appendChild(skEl('b', '', it.item));
+  t.appendChild(skEl('span', 'psqty', skPsNum(it.qty) + ' ' + it.unit + (it.status === 'Sebagian' && it.ready > 0 ? ' · ' + skPsNum(it.ready) + ' sudah ada' : '')));
+  nm.appendChild(t); top.appendChild(nm);
+  var seg = skEl('div', 'psseg');
+  seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Status ' + it.item);
+  SKPS_ST.forEach(function (s) {
+    var b = skEl('button', s[1], s[0]); b.type = 'button';
+    b.setAttribute('aria-pressed', it.status === s[0] ? 'true' : 'false');
+    b.addEventListener('click', function () { skPsPick(inv, it.i, s[0]); });
+    seg.appendChild(b);
   });
-  t.appendChild(tb); wrap.appendChild(t); body.appendChild(wrap);
+  top.appendChild(seg); row.appendChild(top);
+  if (it.status === 'Sebagian' || it.status === 'Dipesan') row.appendChild(skPsExtra(inv, it));
+  else if (it.note || it.eta) row.appendChild(skEl('div', 'psline', [it.note, it.eta ? 'datang ' + skPsDay(it.eta) : ''].filter(String).join(' · ')));
+  var msg = skEl('div', 'psline psmsg2');
+  msg.setAttribute('aria-live', 'polite');
+  row.appendChild(msg);
+  skPsRowMsg(k);
 }
-document.getElementById('psReload').addEventListener('click', function () { skPsOpen(true); });
+function skPsExtra(inv, it) {
+  var box = skEl('div', 'psx');
+  if (it.status === 'Sebagian') {
+    var grp = skEl('div', 'pslab'), lab = skEl('span', '', 'Jumlah ada'), st = skEl('div', 'psstep');
+    var mi = skEl('button', '', '\u2212'), inp = skEl('input'), un = skEl('span', '', '/ ' + skPsNum(it.qty) + ' ' + it.unit), pl = skEl('button', '', '+');
+    grp.setAttribute('role', 'group'); grp.setAttribute('aria-label', 'Jumlah ' + it.item + ' yang sudah ada');
+    mi.type = 'button'; pl.type = 'button'; mi.setAttribute('aria-label', 'Kurangi'); pl.setAttribute('aria-label', 'Tambah');
+    inp.type = 'text'; inp.inputMode = 'decimal'; inp.value = it.ready > 0 ? skPsNum(it.ready) : ''; inp.placeholder = '0';
+    inp.setAttribute('aria-label', 'Jumlah ' + it.item + ' yang sudah ada');
+    mi.addEventListener('click', function () { var g = skPsGet(inv, it.i); if (g) skPsQty(inv, it.i, Math.max(0, Math.ceil((+g.it.ready || 0) - 1)), false); });
+    pl.addEventListener('click', function () { var g = skPsGet(inv, it.i); if (g) skPsQty(inv, it.i, Math.min(+g.it.qty || 0, Math.floor((+g.it.ready || 0) + 1)), false); });
+    inp.addEventListener('input', function () {
+      var r = parseFloat(String(inp.value).replace(',', '.'));
+      skPsQty(inv, it.i, isFinite(r) ? r : 0, true);
+    });
+    st.appendChild(mi); st.appendChild(inp); st.appendChild(un); st.appendChild(pl);
+    grp.appendChild(lab); grp.appendChild(st); box.appendChild(grp);
+  }
+  var nl = skEl('label'), note = skEl('input', 'n');
+  nl.appendChild(document.createTextNode('Catatan inden'));
+  note.type = 'text'; note.maxLength = 200; note.value = it.note || ''; note.placeholder = 'contoh: inden dari vendor';
+  note.addEventListener('input', function () { var g = skPsGet(inv, it.i); if (!g) return; g.it.note = note.value; skPsQueue(inv, it.i, true); });
+  nl.appendChild(note); box.appendChild(nl);
+  var el = skEl('label'), eta = skEl('input');
+  el.appendChild(document.createTextNode('Perkiraan datang'));
+  eta.type = 'date'; eta.value = it.eta || '';
+  eta.addEventListener('change', function () { var g = skPsGet(inv, it.i); if (!g) return; g.it.eta = eta.value; skPsQueue(inv, it.i, true); });
+  el.appendChild(eta); box.appendChild(el);
+  return box;
+}
+
+// ---------- changes (shown at once, saved behind) ----------
+function skPsPick(inv, i, status) {
+  var g = skPsGet(inv, i); if (!g || g.it.status === status) return;
+  var it = g.it;
+  it.status = status;
+  if (status === 'Siap') it.ready = it.qty;
+  else if (status === 'Sebagian') it.ready = it.ready > 0 && it.ready < it.qty ? it.ready : 0;
+  else it.ready = 0;
+  var row = skPsRow(inv, i);
+  skPsLocal(inv);
+  if (row) {
+    skPsFill(row, inv, it);
+    var cls = SKPS_ST.filter(function (s) { return s[0] === status; })[0][1];
+    if (status === 'Sebagian' && !(it.ready > 0)) { var q = row.querySelector('.psstep input'); if (q) q.focus(); }
+    else { var b = row.querySelector('.psseg .' + cls); if (b) b.focus(); }
+  }
+  skPsQueue(inv, i, false);
+}
+function skPsQty(inv, i, r, typed) {
+  var g = skPsGet(inv, i); if (!g) return;
+  var it = g.it, qty = +it.qty || 0;
+  r = Math.round((+r || 0) * 100) / 100;
+  if (r > qty) r = qty;
+  it.ready = r;
+  var row = skPsRow(inv, i);
+  if (qty > 0 && r >= qty) { // everything is here: Siap
+    it.status = 'Siap'; it.ready = qty;
+    skPsLocal(inv);
+    if (row) { skPsFill(row, inv, it); var b = row.querySelector('.psseg .s-s'); if (b) b.focus(); }
+    skPsQueue(inv, i, false, 'Barang lengkap, ditandai siap');
+    return;
+  }
+  if (row) {
+    var inp = row.querySelector('.psstep input'); if (inp && !typed) inp.value = r > 0 ? skPsNum(r) : '';
+    var qt = row.querySelector('.psqty'); if (qt) qt.textContent = skPsNum(qty) + ' ' + it.unit + (r > 0 ? ' · ' + skPsNum(r) + ' sudah ada' : '');
+  }
+  skPsQueue(inv, i, true);
+}
+function skPsRow(inv, i) {
+  var rows = document.querySelectorAll('#psBody .psit');
+  for (var n = 0; n < rows.length; n++) if (rows[n].getAttribute('data-k') === inv + '|' + i) return rows[n];
+  return null;
+}
+// After a change on screen: the order's progress, its card head, the counts and the tab numbers.
+function skPsLocal(inv) {
+  var x = skPsFind(inv); if (!x) return;
+  x.prog = skPsProg(x.items);
+  var all = skPsAll(), v = skPsX(x), card = document.querySelector('#psBody .pscard[data-inv="' + String(inv).replace(/["\\]/g, '\\$&') + '"]');
+  if (card) {
+    skPsHead(card.querySelector('.pshd'), v);
+    card.classList.toggle('urgent', v.urgent);
+    card.classList.toggle('late', !v.shipped && v.stage < 2 && v.left < 0);
+  }
+  skPsKpis(all); skPsBar(all); skPsTop();
+}
+// One save at a time per item; a change during a save goes right after it (the newest values win).
+function skPsQueue(inv, i, debounced, okMsg) {
+  var k = inv + '|' + i, q = SKPS.q[k] || (SKPS.q[k] = { inv: inv, i: i, t: 0, busy: false, again: false, err: '', wait: false });
+  q.err = ''; q.ok = okMsg || q.ok || '';
+  clearTimeout(q.t); q.t = 0;
+  var g = skPsGet(inv, i);
+  q.wait = !!(g && g.it.status === 'Sebagian' && !(g.it.ready > 0));
+  if (q.wait) { skPsRowMsg(k); return; } // Sebagian needs a quantity before it can be saved
+  if (debounced) { q.t = setTimeout(function () { q.t = 0; skPsSend(k); }, SKPS_DELAY); skPsRowMsg(k); }
+  else skPsSend(k);
+}
+function skPsSend(k) {
+  var q = SKPS.q[k]; if (!q) return;
+  if (q.busy) { q.again = true; return; }
+  var g = skPsGet(q.inv, q.i); if (!g) { delete SKPS.q[k]; return; }
+  var it = g.it, p = { status: it.status, note: it.note || '', eta: it.eta || '' };
+  if (it.status === 'Sebagian') { if (!(it.ready > 0)) { q.wait = true; skPsRowMsg(k); return; } p.ready = it.ready; }
+  q.busy = true; q.again = false; skPsRowMsg(k);
+  google.script.run.withSuccessHandler(function (d) {
+    q.busy = false;
+    if (q.again) { skPsSend(k); return; }
+    var msg = q.ok; q.ok = '';
+    if (!q.t && !q.wait) delete SKPS.q[k];
+    skPsMerge(d);
+    skPsRowMsg(k);
+    skPsToast(msg || 'Tersimpan otomatis');
+  }).withFailureHandler(function (e) {
+    q.busy = false; q.err = skoMsg(e);
+    if (q.again) { skPsSend(k); return; }
+    skPsRowMsg(k);
+    skPsToast('Belum tersimpan: ' + q.err, true, function () { q.err = ''; skPsSend(k); });
+  }).setPersiapanItem(q.inv, q.i, p);
+}
+function skPsRowMsg(k) {
+  var row = null, rows = document.querySelectorAll('#psBody .psit');
+  for (var n = 0; n < rows.length; n++) if (rows[n].getAttribute('data-k') === k) row = rows[n];
+  if (!row) return;
+  var m = row.querySelector('.psmsg2'), q = SKPS.q[k], p = k.split('|'), g = skPsGet(p.slice(0, -1).join('|'), +p[p.length - 1]);
+  if (!m) return;
+  m.className = 'psline psmsg2' + (q && q.err ? ' err' : '');
+  m.textContent = !q ? (g && g.it.by ? 'Terakhir diubah ' + g.it.by + (g.it.at ? ', ' + g.it.at : '') : '') :
+    q.err ? 'Belum tersimpan: ' + q.err : q.wait ? 'Isi jumlah yang sudah ada, nanti tersimpan otomatis.' : q.busy || q.t ? 'Menyimpan...' : '';
+}
+// The server's answer after a save: the newest list, with what is still being typed or saved kept as on screen.
+function skPsMerge(d) {
+  if (!d || !d.list) return;
+  Object.keys(SKPS.q).forEach(function (k) {
+    var q = SKPS.q[k], mine = skPsGet(q.inv, q.i); if (!mine) return;
+    var x = d.list.filter(function (o) { return o.inv === q.inv; })[0], it = x && (x.items || [])[q.i];
+    if (!it) return;
+    ['status', 'ready', 'note', 'eta'].forEach(function (f) { it[f] = mine.it[f]; });
+    x.prog = skPsProg(x.items);
+  });
+  SKPS.data = d; SKPS.at = Date.now(); SKPS.local = false; SKPS.err = ''; skPsKeep();
+  skPsRefresh();
+}
+// Updates what is on screen in place: card heads, item rows nobody is editing, counts. Orders stay where they
+// are until the next filter, sort or Muat ulang, so nothing jumps under the cursor.
+function skPsRefresh() {
+  var all = skPsAll();
+  skPsKpis(all); skPsBar(all); skPsTop();
+  if (SKPS.tab === 'belanja') { var b = document.getElementById('psBody'); b.textContent = ''; b.classList.add('calm'); skPsShop(b); return; }
+  Array.prototype.forEach.call(document.querySelectorAll('#psBody .pscard'), function (card) {
+    var x = skPsFind(card.getAttribute('data-inv')); if (!x) return;
+    var v = skPsX(x);
+    skPsHead(card.querySelector('.pshd'), v);
+    card.classList.toggle('urgent', v.urgent);
+    Array.prototype.forEach.call(card.querySelectorAll('.psit'), function (row) {
+      var k = row.getAttribute('data-k'), p = k.split('|'), i = +p[p.length - 1], it = (x.items || [])[i];
+      if (!it || SKPS.q[k] || row.contains(document.activeElement)) { skPsRowMsg(k); return; }
+      skPsFill(row, x.inv, it);
+    });
+  });
+}
+// Tandai semua siap (one order) and Semua ada (one item of the shopping list): one save for all of them.
+function skPsMany(changes, okMsg) {
+  if (!changes.length) return;
+  changes.forEach(function (c) {
+    var g = skPsGet(c.inv, c.i); if (!g) return;
+    g.it.status = 'Siap'; g.it.ready = g.it.qty;
+    var k = c.inv + '|' + c.i, q = SKPS.q[k]; if (q) { clearTimeout(q.t); delete SKPS.q[k]; }
+  });
+  var invs = {};
+  changes.forEach(function (c) { invs[c.inv] = 1; });
+  Object.keys(invs).forEach(function (inv) { var x = skPsFind(inv); if (x) x.prog = skPsProg(x.items); });
+  SKPS.q['*'] = { inv: '', i: -1, busy: true, t: 0 };
+  skPsRefresh();
+  var send = function () {
+    SKPS.q['*'] = { inv: '', i: -1, busy: true, t: 0 };
+    google.script.run.withSuccessHandler(function (d) { delete SKPS.q['*']; skPsMerge(d); skPsToast(okMsg); })
+      .withFailureHandler(function (e) { delete SKPS.q['*']; skPsToast('Belum tersimpan: ' + skoMsg(e), true, send); })
+      .setPersiapanItems(changes.map(function (c) { return { inv: c.inv, i: c.i, p: { status: 'Siap' } }; }));
+  };
+  send();
+}
+function skPsAllReady(inv) {
+  var x = skPsFind(inv); if (!x) return;
+  skPsMany((x.items || []).filter(function (it) { return it.status !== 'Siap'; }).map(function (it) { return { inv: inv, i: it.i }; }), 'Semua barang ' + (x.school || inv) + ' siap');
+}
+
+// Daftar belanja: still to buy, the same item together; Sudah ada per order, Semua ada per item.
+function skPsShop(body) {
+  var shop = skPsShopList();
+  if (!shop.length) { body.appendChild(skEl('div', 'psallok', 'Semua barang dari order yang belum dikirim sudah ada.')); return; }
+  body.appendChild(skEl('p', 'psintro', 'Barang yang belum ada dari semua order yang belum dikirim, digabung per barang supaya bisa dibelanjakan sekaligus.'));
+  var wrap = skEl('div', 'psshop');
+  shop.forEach(function (g, n) {
+    var box = skEl('div', 'g'), gh = skEl('div', 'gh'), t = skEl('div');
+    box.style.animationDelay = (Math.min(n, 12) * 0.03) + 's';
+    t.appendChild(skEl('b', '', g.item));
+    t.appendChild(skEl('span', '', 'Perlu ' + skPsNum(g.need) + ' ' + g.unit + (g.ordered ? ', ' + skPsNum(g.ordered) + ' sudah dipesan' : '') + ' · ' + g.lines.length + ' order'));
+    gh.appendChild(t);
+    if (g.lines.length > 1) {
+      var allb = skEl('button', 'lbtn', 'Semua ada'); allb.type = 'button';
+      allb.addEventListener('click', function () { skPsMany(g.lines.map(function (l) { return { inv: l.v.x.inv, i: l.it.i }; }), g.item + ' ditandai ada di ' + g.lines.length + ' order'); });
+      gh.appendChild(allb);
+    }
+    box.appendChild(gh);
+    g.lines.forEach(function (l) {
+      var ln = skEl('div', 'ln'), tx = skEl('div', 't'), r = skEl('div', 'r'), dl = skPsDeadline(l.v);
+      tx.appendChild(document.createTextNode((l.v.x.school || l.v.x.inv) + ': ' + skPsNum(l.need) + ' ' + g.unit));
+      tx.appendChild(skEl('small', '', l.v.x.inv + (l.it.eta ? ' · datang ' + skPsDay(l.it.eta) : '') + (l.it.note ? ' · ' + l.it.note : '')));
+      var stt = SKPS_ST.filter(function (s) { return s[0] === l.it.status; })[0] || SKPS_ST[0];
+      r.appendChild(skEl('span', 'pstag ' + stt[1], l.it.status));
+      r.appendChild(skEl('span', 'psdl ' + dl[0], dl[1]));
+      var ok = skEl('button', 'psdone', 'Sudah ada'); ok.type = 'button';
+      ok.addEventListener('click', function () {
+        var gg = skPsGet(l.v.x.inv, l.it.i); if (!gg) return;
+        gg.it.status = 'Siap'; gg.it.ready = gg.it.qty;
+        var x = skPsFind(l.v.x.inv); if (x) x.prog = skPsProg(x.items);
+        skPsQueue(l.v.x.inv, l.it.i, false, g.item + ' untuk ' + (l.v.x.school || l.v.x.inv) + ' ditandai ada');
+        skPsRefresh();
+      });
+      r.appendChild(ok);
+      ln.appendChild(tx); ln.appendChild(r); box.appendChild(ln);
+    });
+    wrap.appendChild(box);
+  });
+  body.appendChild(wrap);
+}
+
+function skPsToast(msg, err, retry) {
+  var t = document.getElementById('psToast');
+  t.textContent = ''; t.className = 'pstoast' + (err ? ' err' : '');
+  if (!err) { var ic = skEl('span', 'ic'); ic.innerHTML = SKPS_OK; t.appendChild(ic); }
+  t.appendChild(skEl('span', '', msg));
+  if (retry) {
+    var b = skEl('button', '', 'Coba lagi'); b.type = 'button';
+    b.addEventListener('click', function () { t.hidden = true; retry(); });
+    t.appendChild(b);
+  }
+  t.hidden = false; t.style.animation = 'none'; void t.offsetWidth; t.style.animation = '';
+  clearTimeout(SKPS.toastT);
+  SKPS.toastT = setTimeout(function () { t.hidden = true; }, err ? 7000 : 2200);
+}
+document.getElementById('psReload').addEventListener('click', function () { SKPS.calm = true; skPsFetch(false); });
+document.getElementById('psSort').addEventListener('change', function (e) { SKPS.sort = e.target.value; SKPS.calm = false; skPsRender(); });
+// A change still waiting to be saved: the browser asks before the page closes.
+window.addEventListener('beforeunload', function (e) { if (skPsBusy()) { e.preventDefault(); e.returnValue = ''; } });
 
 // ---------- Tandai lunas (17 Nov, Fadhlulloh: "biar ga ngerubahnya di back end") ----------
 // In the invoice window: the payment status, and for an email with Aging/Invoice open and every sales in
