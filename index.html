@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.3","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.4","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -1045,9 +1045,12 @@ function remindNotify(d, list, ann, newAnn) {
       if (hour > 0 && list.length) {
         var at = new Date(); at.setHours(hour, 0, 0, 0);
         if (at <= new Date()) at.setDate(at.getDate() + 1);
-        jobs.push({ id: 71, title: 'Sadya Kersa: pengingat', body: list.map(function (x) { return x[0]; }).join('. ') + '.', schedule: { at: at } });
+        jobs.push({ id: 71, title: 'Sadya Kersa: pengingat', body: list.map(function (x) { return x[0]; }).join('. ') + '.', schedule: { at: at }, isExactNotification: false });
       }
-      if (ann && newAnn) jobs.push({ id: 72, title: 'Pengumuman Sadya Kersa', body: ann.slice(0, 240), schedule: { at: new Date(Date.now() + 1500) } });
+      if (ann && newAnn) jobs.push({ id: 72, title: 'Pengumuman Sadya Kersa', body: ann.slice(0, 240), schedule: { at: new Date(Date.now() + 1500) }, isExactNotification: false });
+      // isExactNotification false (17 Nov, Firman's screenshot): the plugin (8.3) otherwise sends the user to
+      // Android's "Alarms and reminders" screen each time, a switch they cannot turn on since the app does not
+      // ask for exact alarms (removed 10 Nov for Play). Reminders arrive as normal, a few minutes either way.
       if (jobs.length) return ln.schedule({ notifications: jobs });
     });
   }).catch(function () {}); // no notifications on this phone: the pop-up still shows
