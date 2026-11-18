@@ -366,6 +366,8 @@ a{color:inherit}
 .psmsg.err{color:var(--down)}
 .invpay{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
 .invpay input{font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--line2);border-radius:9px}
+.lbtn.wa{background:#1DA851;border-color:#1DA851;color:#fff}.lbtn.wa:hover{background:#178a43;border-color:#178a43;color:#fff}
+.notamsg{margin-top:8px;font-size:12.5px;line-height:1.6;white-space:pre-wrap;background:#f6f7fc;border:1px solid #e2e6f4;border-radius:10px;padding:12px 14px;color:var(--ink)}
 .arnote{font-size:12.5px;color:var(--ink2);background:#fff8ec;border:1px solid #f6e2bd;border-radius:12px;padding:9px 12px;margin-bottom:12px;line-height:1.5}
 .arnote b{color:#9a5b00}
 .share{position:relative;min-width:150px}
@@ -3784,6 +3786,7 @@ function skInvPay(inv, school) {
     row.appendChild(btn); row.appendChild(msg); sec.appendChild(row);
   } else if (info.year < 2026 && !info.lunas) sec.appendChild(skEl('div', 'none', 'Invoice sebelum 2026 diubah di file tahunnya.'));
   box.appendChild(sec);
+  skInvNota(inv, school, box);
 }
 function skInvPaySave(inv, date, btn, msg) {
   if (date === undefined || (date === '' && btn.textContent === 'Tandai lunas')) { msg.textContent = 'Isi tanggal bayar.'; return; }
@@ -3793,6 +3796,45 @@ function skInvPaySave(inv, date, btn, msg) {
     google.script.run.withSuccessHandler(function (p) { skOnData(p); if (SKINV.cur === inv) skInvPay(inv, SKINV.school); })
       .withFailureHandler(function (e) { msg.textContent = 'Tersimpan, tapi data belum dimuat ulang: ' + skoMsg(e); }).getDashboardData({ cached: true });
   }).withFailureHandler(function (e) { btn.disabled = false; msg.className = 'psmsg err'; msg.textContent = skoMsg(e); }).setInvoicePaid(inv, date);
+}
+
+// ---------- e-nota for the Kepala Sekolah (18 Nov, Firman and team) ----------
+// In the invoice window: the link to the invoice's nota page (pelanggan.sadyakersa.com/nota/, one per invoice, the
+// same link eSKalasi gives) with the WhatsApp message to the Kepala Sekolah, else the PIC (Sales.js getNotaLink).
+function skInvCanNota() { return !SKD.inv && !(SKD.P && SKD.P.access && SKD.P.access.sales) && (skMay('piutang') || skMay('data') || skMay('persiapan')); }
+function skInvNota(inv, school, box) {
+  if (!inv || !skInvCanNota()) return;
+  var sec = skInvSec('Nota Kepala Sekolah'), out = skEl('div'), row = skEl('div', 'invpay'), msg = skEl('span', 'psmsg', ''), btn = skEl('button', 'lbtn', 'Buat link nota');
+  btn.type = 'button';
+  sec.appendChild(skEl('div', 'none', 'Halaman nota untuk Kepala Sekolah: rincian invoice, status pengiriman dan pembayaran terbaru, lalu ulasan. Satu link per invoice.'));
+  btn.addEventListener('click', function () {
+    btn.disabled = true; msg.className = 'psmsg'; msg.textContent = 'Menyiapkan link...';
+    google.script.run.withSuccessHandler(function (r) { row.remove(); skInvNotaDraw(out, r); })
+      .withFailureHandler(function (e) { btn.disabled = false; msg.className = 'psmsg err'; msg.textContent = skoMsg(e); }).getNotaLink(inv, school || '');
+  });
+  row.appendChild(btn); row.appendChild(msg);
+  sec.appendChild(row); sec.appendChild(out); box.appendChild(sec);
+}
+function skInvNotaDraw(out, r) {
+  var d = String(r.phone || '').replace(/\D+/g, '');
+  if (/^62/.test(d)) d = '0' + d.slice(2); else if (/^8/.test(d)) d = '0' + d;
+  var ph = /^0\d{8,13}$/.test(d) ? '62' + d.slice(1) : '', acts = skEl('div', 'invpay');
+  out.appendChild(skEl('div', 'notamsg', r.message));
+  if (ph) {
+    var a = skEl('a', 'lbtn wa', r.to === 'kepsek' ? 'Kirim ke Kepala Sekolah (WhatsApp)' : 'Kirim ke PIC (WhatsApp)');
+    a.href = 'https://wa.me/' + ph + '?text=' + encodeURIComponent(r.message); a.target = '_blank'; a.rel = 'noopener';
+    acts.appendChild(a);
+  }
+  var v = skEl('a', 'lbtn', 'Lihat nota'); v.href = r.url + '&lihat=1'; v.target = '_blank'; v.rel = 'noopener';
+  var c = skEl('button', 'lbtn', 'Salin pesan'); c.type = 'button';
+  c.addEventListener('click', function () {
+    var done = function (ok) { c.textContent = ok ? 'Pesan tersalin' : 'Tidak bisa menyalin'; setTimeout(function () { c.textContent = 'Salin pesan'; }, 2000); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(r.message).then(function () { done(true); }, function () { done(false); });
+    else done(false);
+  });
+  acts.appendChild(v); acts.appendChild(c); out.appendChild(acts);
+  if (!ph) out.appendChild(skEl('div', 'none', 'No HP Kepala Sekolah dan PIC belum ada di SNAPP. Salin pesan lalu kirim sendiri.'));
+  else if (r.to === 'pic') out.appendChild(skEl('div', 'none', 'No HP Kepala Sekolah belum diisi di profil SNAPP, jadi pesan ke PIC.'));
 }
 
 // ---------- one invoice's SNAPP side (9 Nov, Firman: "bisa kita klik") ----------
