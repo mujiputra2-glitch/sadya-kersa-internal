@@ -397,7 +397,7 @@ tr.total td{font-weight:800;font-size:15px;border-top:2px solid var(--ink);borde
 <div class="scrim" id="finScrim"></div>
 <aside class="cop" id="cop" aria-label="Copilot keuangan" aria-hidden="true">
   <div class="cop-h">
-    <span class="cop-av"><svg viewBox="-26 -28 156 156" aria-hidden="true"><rect x="-26" y="-28" width="156" height="156" rx="34" fill="#2728c0"/><path d="M104,12 H31 A19,19 0 0 0 31,50 H54" fill="none" stroke="#fff" stroke-width="24" stroke-linejoin="round"/><path d="M52,50 H73 A19,19 0 0 1 73,88 H0" fill="none" stroke="#fb4305" stroke-width="24" stroke-linejoin="round"/></svg></span>
+    <span class="cop-av"><img src="/dashboard/assets/copilot.png" alt=""></span>
     <div class="t"><b>Copilot keuangan</b><span>Tanya data, minta Google Sheet atau slide</span></div>
     <button class="ib" type="button" id="copNew" title="Percakapan baru" aria-label="Percakapan baru"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg></button>
     <button class="ib" type="button" id="copClose" title="Tutup" aria-label="Tutup Copilot"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
@@ -942,6 +942,7 @@ function bindSumber() {
 }
 
 // ---------- Copilot (19 Nov): the same assistant as the Telegram bot, through finChat ----------
+var COP_AV = '<img src="/dashboard/assets/copilot.png" alt="">';
 var COP = { items: [], busy: false, input: false, viewer: '', t0: 0, timer: null };
 var FILE_IC = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5H5.5A1.5 1.5 0 0 0 4 4v12a1.5 1.5 0 0 0 1.5 1.5h9A1.5 1.5 0 0 0 16 16V7l-4.5-4.5z"/><path d="M11.5 2.5V7H16M10 10v5M7.5 12.5 10 15l2.5-2.5"/></svg>';
 var SHEET_IC = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14" rx="2"/><path d="M3 8h14M3 12.5h14M8 8v9"/></svg>';
@@ -974,8 +975,8 @@ function copRender() {
     var files = (m.files || []).map(function (fi) { return '<a class="fchip" href="' + fi.url + '" download="' + esc(fi.name) + '">' + FILE_IC + esc(fi.name) + '</a>'; }).join('');
     var links = (m.links || []).map(function (l) { return '<a class="fchip" href="' + esc(l.url) + '" target="_blank" rel="noopener">' + SHEET_IC + esc(l.title) + '</a>'; }).join('');
     var conf = m.pending && i === COP.items.length - 1 && !COP.busy ? '<div class="confirm"><button class="btn sm pri" type="button" data-q="ya">Ya, simpan</button><button class="btn sm" type="button" data-q="batal">Batal</button></div>' : '';
-    return '<div class="m a"><span class="cop-av">' + MARK_SVG + '</span><div class="bub">' + (m.err ? '<p class="err">' + esc(m.t) + '</p>' : copMd(m.t)) + files + links + conf + '</div></div>';
-  }).join('') + (COP.busy ? '<div class="m a"><span class="cop-av">' + MARK_SVG + '</span><div class="bub"><span class="typing"><i></i><i></i><i></i></span><span class="wait" id="copWait">Sedang menyiapkan jawaban...</span></div></div>' : '');
+    return '<div class="m a"><span class="cop-av">' + COP_AV + '</span><div class="bub">' + (m.err ? '<p class="err">' + esc(m.t) + '</p>' : copMd(m.t)) + files + links + conf + '</div></div>';
+  }).join('') + (COP.busy ? '<div class="m a"><span class="cop-av">' + COP_AV + '</span><div class="bub"><span class="typing"><i></i><i></i><i></i></span><span class="wait" id="copWait">Sedang menyiapkan jawaban...</span></div></div>' : '');
   body.scrollTop = body.scrollHeight;
 }
 function copOpen(q) {
