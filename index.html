@@ -2333,10 +2333,46 @@ function vAInvoice(d) {
         return '<div class="lrow"><span>' + esc(l[0] || 'Barang') + '<em>' + esc(String(l[1]).replace('.', ',')) + ' ' + esc(l[2]) + '</em></span><b>' + esc(nbRp(rpPenuh(l[3]))) + '</b></div>';
       }).join('') + '</div>' +
       '<div class="btnrow"><button class="btn" onclick="docRun(\'print\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">Cetak invoice</button>' +
-      '<button class="btn" onclick="docRun(\'pdf\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">PDF</button></div>' + payBox(i) +
+      '<button class="btn" onclick="docRun(\'pdf\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">PDF</button></div>' + notaBtn(SKA.key, i.inv) + payBox(i) +
       (ph && d.settings.waTagih ? '<a class="btn remind block" href="' + esc(waTagihHref({ school: s.name || u0.name, inv: i.inv, date: i.date, amount: i.amount, picName: s.pic, picPhone: s.picPhone })) +
         '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Ingatkan lewat WhatsApp</a>' : '') + '</div>';
   }).join('');
+}
+// 18 Nov (Firman and team, like a shop's e-receipt): the e-nota for the Kepala Sekolah. The server keeps one
+// link per invoice on pelanggan.sadyakersa.com/nota/ (Pelanggan.js skxNotaLink); it always shows the current
+// status, so the same link works when the invoice is issued, received and paid.
+function notaBtn(key, inv) {
+  return '<button class="btn block" style="margin-top:10px" onclick="notaSheet(\'' + jsq(key) + '\',\'' + jsq(inv) + '\')">' + SKA_ICON.wa + 'Kirim nota ke Kepala Sekolah</button>';
+}
+function notaSheet(key, inv) {
+  busy(true, 'Menyiapkan link nota...');
+  call('skxNotaLink', SKA.token, key, inv).then(function (r) {
+    busy(false);
+    SKA.notaUrl = r.url;
+    var ph = phoneOk(r.phone), wa = ph ? 'https://wa.me/62' + ph.slice(1) + '?text=' + encodeURIComponent(r.message) : '';
+    openSheet('<h2>Nota untuk Kepala Sekolah</h2><p class="muted small" style="margin-top:-4px">' + esc(r.school) + ' · ' + esc(r.inv) +
+      '. Kepala Sekolah membuka link ini tanpa login: rincian invoice, status pengiriman dan pembayaran terbaru, lalu bisa memberi ulasan.</p>' +
+      '<div class="note" style="white-space:pre-wrap;line-height:1.6;padding:14px 16px">' + esc(r.message) + '</div>' +
+      (wa ? '<a class="btn wa block" style="margin-top:14px" href="' + esc(wa) + '" target="_blank" rel="noopener">' + SKA_ICON.wa +
+          (r.to === 'kepsek' ? 'Kirim ke Kepala Sekolah' : 'Kirim ke PIC') + '</a>' +
+          (r.to === 'pic' ? '<p class="muted small">No HP Kepala Sekolah belum diisi di profil sekolah, jadi pesan ke PIC. Isi lewat Pelanggan, Ubah profil.</p>' : '')
+        : '<p class="muted small">No HP Kepala Sekolah dan PIC belum diisi. Salin link lalu kirim sendiri, atau isi nomornya lewat Pelanggan, Ubah profil.</p>') +
+      '<div class="btnrow"><a class="btn" href="' + esc(r.url + '&lihat=1') + '" target="_blank" rel="noopener">Lihat nota</a><button class="btn" onclick="notaCopy()">Salin link</button></div>' +
+      '<button class="btn block" style="margin-top:10px" onclick="closeSheet()">Tutup</button>');
+  }).catch(function (e) { busy(false); toast(e.message); });
+}
+function notaCopy() {
+  var u = SKA.notaUrl || '';
+  if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(u).then(function () { toast('Link nota tersalin.'); }, function () { notaCopyOld(u); }); return; }
+  notaCopyOld(u);
+}
+function notaCopyOld(u) {
+  var t = document.createElement('textarea'), ok = false;
+  t.value = u; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+  document.body.appendChild(t); t.select();
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  document.body.removeChild(t);
+  toast(ok ? 'Link nota tersalin.' : 'Tidak bisa menyalin. Tekan lama link di pesan untuk menyalin.');
 }
 function loadAInvoice(key) {
   SKA.aInv = SKA.aInv || {};
@@ -2686,7 +2722,7 @@ function vACustD(d) {
         '<button class="btn" onclick="docRun(\'print\',\'skxInvPdf\',\'' + jsq(SKA.custKey) + '\',\'' + jsq(i.inv) + '\')">Cetak invoice</button>' +
         '<button class="btn" onclick="docRun(\'pdf\',\'skxInvPdf\',\'' + jsq(SKA.custKey) + '\',\'' + jsq(i.inv) + '\')">PDF</button>' +
       (young && i.step.code !== 'lunas' ? '<button class="btn" onclick="openSjForm(\'' + jsq(key) + '\',\'' + jsq(i.inv) + '\')">' + SKA_ICON.box + (i.step.code === 'retur' ? 'Buat surat jalan pengganti' : 'Buat surat jalan') + '</button>' : '') + '</div>' +
-      (i.status === 'Lunas' ? '' : picWa(x, invWaText(i, x), 'Kabari PIC soal invoice ini')) + '</div>';
+      notaBtn(key, i.inv) + (i.status === 'Lunas' ? '' : picWa(x, invWaText(i, x), 'Kabari PIC soal invoice ini')) + '</div>';
   }).join('') : '<p class="muted">Belum ada invoice.</p>');
   if (x.sjs.length) h += '<div class="caption">Surat jalan</div>' + x.sjs.map(function (s) {
     return '<button class="item" onclick="go(\'asj\',\'' + jsq(s.no) + '\')"><span class="t"><b>' + esc(s.no) + '</b><span>' + esc(tgl(s.date)) + ' · ' + esc(s.inv) + ' · ' + s.lines.length + ' barang</span></span>' +
