@@ -78,6 +78,9 @@ a{color:inherit}
 [hidden]{display:none!important}
 .tab{border:0;background:transparent;color:var(--ink2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:background .25s,color .25s,box-shadow .25s}
 .tab:hover{color:var(--ink)}
+/* Keuangan (18 Nov): a plain link to internal.sadyakersa.com/finance/, styled like a tab; not a .tab, so the tab code leaves it alone */
+.tlink{color:var(--ink2);font-size:13px;font-weight:700;padding:8px 15px;border-radius:999px;text-decoration:none;white-space:nowrap;transition:color .25s,background .25s}
+.tlink:hover{color:var(--brand-ink);background:rgba(39,40,192,.06)}
 .tab.on,.tab.on:hover{background:#fff;color:var(--brand-ink);box-shadow:0 2px 8px rgba(15,23,42,.12)}
 .tab .count{font-size:10.5px;font-weight:800;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--down-bg);color:var(--down)}
 .tbr{margin-left:auto;display:flex;align-items:center;gap:8px;flex:0 1 auto;min-width:0}
@@ -647,6 +650,7 @@ html:has(.loader:not(.off)){overflow:hidden}
       </div>
       <button class="tab" data-tab="order">Input order</button>
       <button class="tab" data-tab="aplikasi" data-ax="sales">Aplikasi</button>
+      <a class="tlink" id="finLink" href="/finance/" hidden>Keuangan</a>
     </nav>
     <div class="tbr">
       <span class="pill" id="updated">Memuat...</span>
@@ -2061,6 +2065,8 @@ function skRenderData(rows) {
 // Returns the tab to open instead of the current one, '' when no tab is open to it, null otherwise.
 function skAccess(a) {
   SKD.allow = null;
+  // Keuangan link: only for emails whose Tab cell says Keuangan (the page itself checks again).
+  var fl = document.getElementById('finLink'); if (fl) fl.hidden = !(a && a.fin);
   // Investor (column Tab = Investor): sales value only; the server already zeroed cost, margin and payment.
   SKD.inv = !!(a && a.investor);
   // Admin emails (11 Nov): no margin anywhere; the server already sends HPP and margin as 0.
