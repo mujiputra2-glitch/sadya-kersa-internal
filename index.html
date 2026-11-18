@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.5","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.6","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -2614,7 +2614,7 @@ function kpReason(k) {
 // delivery notes. The Admin makes a delivery note from an invoice, marks it sent with a photo, and
 // the school confirms the goods and the invoice in its own app (SNAPP, the customer app).
 var SKA_SJ = { Disiapkan: '', Dikirim: 'amber', Diterima: 'green', Batal: 'grey' };
-var SKA_STEP = { invoice: 'amber', disiapkan: '', dikirim: 'amber', diterima: 'green', masalah: 'red', lunas: 'green' };
+var SKA_STEP = { invoice: 'amber', disiapkan: '', dikirim: 'amber', retur: 'red', diterima: 'green', masalah: 'red', lunas: 'green' };
 function loadCust() {
   if (SKA.custLoading) return;
   SKA.custLoading = true;
@@ -2685,7 +2685,7 @@ function vACustD(d) {
       '<div class="btnrow">' + (dispute ? '<button class="btn amber" onclick="answerSheet(\'' + jsq(i.inv) + '\')">Tanggapi</button>' : '') +
         '<button class="btn" onclick="docRun(\'print\',\'skxInvPdf\',\'' + jsq(SKA.custKey) + '\',\'' + jsq(i.inv) + '\')">Cetak invoice</button>' +
         '<button class="btn" onclick="docRun(\'pdf\',\'skxInvPdf\',\'' + jsq(SKA.custKey) + '\',\'' + jsq(i.inv) + '\')">PDF</button>' +
-      (young && i.step.code !== 'lunas' ? '<button class="btn" onclick="openSjForm(\'' + jsq(key) + '\',\'' + jsq(i.inv) + '\')">' + SKA_ICON.box + 'Buat surat jalan</button>' : '') + '</div>' +
+      (young && i.step.code !== 'lunas' ? '<button class="btn" onclick="openSjForm(\'' + jsq(key) + '\',\'' + jsq(i.inv) + '\')">' + SKA_ICON.box + (i.step.code === 'retur' ? 'Buat surat jalan pengganti' : 'Buat surat jalan') + '</button>' : '') + '</div>' +
       (i.status === 'Lunas' ? '' : picWa(x, invWaText(i, x), 'Kabari PIC soal invoice ini')) + '</div>';
   }).join('') : '<p class="muted">Belum ada invoice.</p>');
   if (x.sjs.length) h += '<div class="caption">Surat jalan</div>' + x.sjs.map(function (s) {
@@ -2720,13 +2720,14 @@ function custProfileSheet() {
   var x = (SKA.custD || {})[SKA.custKey] || {}, p = x.profile || {};
   var f = function (id, label, v, type, ph) { return '<div class="field"><label for="' + id + '">' + label + '</label><input id="' + id + '" type="' + (type || 'text') + '" value="' + esc(v) + '"' + (ph ? ' placeholder="' + esc(ph) + '"' : '') + '></div>'; };
   openSheet('<h2>Profil ' + esc(x.name || '') + '</h2>' + f('cpPic', 'PIC', p.pic) + f('cpRole', 'Jabatan PIC', p.role, '', 'Contoh: Bendahara BOS') + f('cpPhone', 'No HP PIC', p.phone, 'tel', '0812 3456 7890') +
+    f('cpKs', 'Kepala Sekolah', p.kepsek) + f('cpKsPhone', 'No HP Kepala Sekolah', p.kepsekPhone, 'tel', '0812 3456 7890') +
     f('cpEmail', 'Email', p.email, 'email') + '<div class="field"><label for="cpAddr">Alamat kirim</label><textarea id="cpAddr">' + esc(p.address) + '</textarea></div>' +
     '<div class="sub3">Rekening sekolah (untuk cash back)</div>' + f('cpBank', 'Bank', p.bank, '', 'Contoh: BJB') + f('cpAcc', 'No rekening', p.account, 'text') + f('cpHolder', 'Atas nama', p.holder) +
     '<div id="cpErr" class="err hide"></div><div class="btnrow"><button class="btn" onclick="closeSheet()">Batal</button><button class="btn teal" onclick="saveCustProfile()">Simpan</button></div>');
 }
 function saveCustProfile() {
   var key = SKA.custKey, v = function (id) { return $(id).value; };
-  var p = { pic: v('cpPic'), role: v('cpRole'), phone: v('cpPhone'), email: v('cpEmail'), address: v('cpAddr'), bank: v('cpBank'), account: v('cpAcc'), holder: v('cpHolder') };
+  var p = { pic: v('cpPic'), role: v('cpRole'), phone: v('cpPhone'), kepsek: v('cpKs'), kepsekPhone: v('cpKsPhone'), email: v('cpEmail'), address: v('cpAddr'), bank: v('cpBank'), account: v('cpAcc'), holder: v('cpHolder') };
   busy(true, 'Menyimpan...');
   call('skxCustomerSave', SKA.token, key, p).then(function () { busy(false); closeSheet(); toast('Profil disimpan.'); custRefresh(key); })
     .catch(function (e) { busy(false); var el = $('cpErr'); el.textContent = e.message; el.classList.remove('hide'); });
@@ -2840,7 +2841,7 @@ function sjDoc(s, school, x) {
 // Proses order (10 Nov, Muji and Firman): every order since SNAPP went live, from the order date to
 // goods received, against the target (Pengaturan, 12 days). The admin taps the two vendor steps;
 // sent and received come from the surat jalan.
-var SKA_STAGE = { order: ['Order masuk', ''], po: ['PO ke vendor', 'amber'], siap: ['Barang siap', 'amber'], dikirim: ['Dikirim', 'blue'], diterima: ['Diterima', 'green'] };
+var SKA_STAGE = { order: ['Order masuk', ''], po: ['PO ke vendor', 'amber'], siap: ['Barang siap', 'amber'], dikirim: ['Dikirim', 'blue'], retur: ['Retur, kirim pengganti', 'red'], diterima: ['Diterima lengkap', 'green'] };
 function vAProses(d) {
   var p = SKA.proses;
   setTop('<div><div class="sub">Order sampai barang diterima sekolah</div><h1>Proses order</h1></div>');
