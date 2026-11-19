@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.6","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.7","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -50,6 +50,12 @@
   .btn.mini { min-height: 40px; padding: 0 12px; font-size: 14px; border-radius: 12px; }
   .paybox { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
   .paybox label { font-size: 14px; color: var(--muted); }
+  .pobox { margin-top: 10px; display: flex; align-items: center; gap: 10px; padding: 8px 0 0; border-top: 1px dashed var(--line); font-size: 14px; }
+  .pobox span { color: var(--muted); flex: none; }
+  .pobox b { flex: 1; min-width: 0; overflow-wrap: anywhere; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .pobox b i { font-style: normal; font-weight: 400; color: var(--muted); }
+  .pobox .btn.mini { flex: none; width: auto; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 0 14px; }
+  #poIn { text-transform: uppercase; }
   .paid .tgrow { align-items: center; }
   .paid .tgrow > span { flex: 1 1 auto; min-width: 0; }
   .paid .tgrow > .btn.mini { flex: none; width: auto; display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 0 14px; }
@@ -2333,7 +2339,7 @@ function vAInvoice(d) {
         return '<div class="lrow"><span>' + esc(l[0] || 'Barang') + '<em>' + esc(String(l[1]).replace('.', ',')) + ' ' + esc(l[2]) + '</em></span><b>' + esc(nbRp(rpPenuh(l[3]))) + '</b></div>';
       }).join('') + '</div>' +
       '<div class="btnrow"><button class="btn" onclick="docRun(\'print\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">Cetak invoice</button>' +
-      '<button class="btn" onclick="docRun(\'pdf\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">PDF</button></div>' + notaBtn(SKA.key, i.inv) + payBox(i) +
+      '<button class="btn" onclick="docRun(\'pdf\',\'skxInvPdf\',\'' + jsq(SKA.key) + '\',\'' + jsq(i.inv) + '\')">PDF</button></div>' + poBox(i) + notaBtn(SKA.key, i.inv) + payBox(i) +
       (ph && d.settings.waTagih ? '<a class="btn remind block" href="' + esc(waTagihHref({ school: s.name || u0.name, inv: i.inv, date: i.date, amount: i.amount, picName: s.pic, picPhone: s.picPhone })) +
         '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Ingatkan lewat WhatsApp</a>' : '') + '</div>';
   }).join('');
@@ -2400,6 +2406,38 @@ function payBox(i) {
     '<div class="small" id="payMsg" role="status"></div></div>';
 }
 function payOpen(inv) { SKA.payOpen = inv; render(); var d = inv && $('payDate'); if (d) d.focus(); }
+// 19 Nov (Muji: "option to input no PO also admin on apps"): No. PO SIPLah per 2026 invoice, the same cell the web
+// dashboard edits (column K of tab DB_Order in the 2026 file, on every row of the invoice number; Admin.js
+// skxInvoicePo). Shown on the invoice cards of Tagihan and Pelanggan; Isi or Ubah opens the field.
+function poBox(i) {
+  var cur = i.po || '', edit = String(i.date || '').slice(0, 4) === '2026';
+  if (!edit) return cur ? '<div class="pobox"><span>No. PO</span><b>' + esc(cur) + '</b></div>' : '';
+  if (SKA.poOpen !== i.inv) return '<div class="pobox"><span>No. PO</span><b>' + (cur ? esc(cur) : '<i>belum diisi</i>') + '</b>' +
+    '<button class="btn mini" onclick="poOpen(\'' + jsq(i.inv) + '\')">' + (cur ? 'Ubah' : 'Isi') + '</button></div>';
+  return '<div class="paybox"><label for="poIn">No. PO SIPLah ' + esc(i.inv) + '</label><input id="poIn" value="' + esc(cur) + '" maxlength="60" placeholder="Contoh: PO699D123098CE6" autocomplete="off" autocapitalize="characters" spellcheck="false"' +
+    ' onkeydown="if(event.key===\'Enter\'){event.preventDefault();poSave(\'' + jsq(i.inv) + '\')}">' +
+    '<div class="btnrow"><button class="btn teal" id="poSave" onclick="poSave(\'' + jsq(i.inv) + '\')">Simpan</button><button class="btn" onclick="poOpen(\'\')">Batal</button></div>' +
+    '<div class="small muted">Tersimpan di file order 2026 untuk semua baris invoice ini, juga terlihat di dashboard. Kosongkan lalu Simpan untuk menghapus.</div>' +
+    '<div class="small" id="poMsg" role="status"></div></div>';
+}
+function poOpen(inv) { SKA.poOpen = inv; render(); var el = inv && $('poIn'); if (el) { el.focus(); el.select(); } }
+function poSave(inv) {
+  var el = $('poIn'), b = $('poSave'), m = $('poMsg'), v = String(el ? el.value : '').trim().replace(/\s+/g, ' ').toUpperCase();
+  if (v && !/^[A-Za-z0-9][A-Za-z0-9 ._\/-]{2,59}$/.test(v)) { m.style.color = 'var(--red)'; m.textContent = 'No. PO hanya huruf, angka, titik, garis miring atau tanda hubung. Contoh: PO699D123098CE6.'; return; }
+  b.disabled = true; m.style.color = ''; m.textContent = 'Menyimpan...';
+  call('skxInvoicePo', SKA.token, inv, v).then(function (r) {
+    SKA.poOpen = '';
+    poLocal(inv, r.po);
+    toast(r.po ? 'No. PO ' + inv + ' tersimpan.' : 'No. PO ' + inv + ' dihapus.');
+    render();
+  }).catch(function (e) { b.disabled = false; m.style.color = 'var(--red)'; m.textContent = e.message; });
+}
+// Every invoice card already loaded (Tagihan and Pelanggan) takes the new number at once.
+function poLocal(inv, po) {
+  [SKA.aInv || {}, SKA.custD || {}].forEach(function (store) {
+    Object.keys(store).forEach(function (k) { ((store[k] || {}).invoices || []).forEach(function (i) { if (i.inv === inv) i.po = po || ''; }); });
+  });
+}
 function payDoneHtml(key) {
   var done = ((SKA.paidDone || {})[key]) || [];
   if (!done.length) return '';
@@ -2716,7 +2754,7 @@ function vACustD(d) {
     return '<div class="card"><div class="tgrow"><span><b style="color:var(--ink)">' + esc(i.inv) + '</b><br>' + esc(tgl(i.date)) + ' · ' + i.lines.length + ' barang' + (i.fresh ? ' · baru disetujui' : '') + '</span>' +
       '<b class="amt">' + esc(nbRp(rp(i.total))) + '</b></div><div class="tags"><i class="tag ' + (SKA_STEP[i.step.code] || '') + '">' + esc(i.step.text) + '</i>' + (i.status === 'Lunas' ? '' : '<i class="tag grey">Belum lunas</i>') +
       (v && v.status === 'Sesuai' ? '<i class="tag green">Diverifikasi sekolah</i>' : '') + '</div>' +
-      (i.sj.length ? '<div class="sjlinks">' + i.sj.map(function (no) { return '<button class="chip" onclick="go(\'asj\',\'' + jsq(no) + '\')">' + esc(no) + '</button>'; }).join('') + '</div>' : '') +
+      poBox(i) + (i.sj.length ? '<div class="sjlinks">' + i.sj.map(function (no) { return '<button class="chip" onclick="go(\'asj\',\'' + jsq(no) + '\')">' + esc(no) + '</button>'; }).join('') + '</div>' : '') +
       (v && v.status === 'Tidak sesuai' ? '<div class="note' + (dispute ? ' amber' : '') + '"><b>Sekolah: tidak sesuai.</b> ' + esc(v.note) + (v.answered ? '<br><b>Tanggapan:</b> ' + esc(v.answer) : '') + '</div>' : '') +
       '<div class="btnrow">' + (dispute ? '<button class="btn amber" onclick="answerSheet(\'' + jsq(i.inv) + '\')">Tanggapi</button>' : '') +
         '<button class="btn" onclick="docRun(\'print\',\'skxInvPdf\',\'' + jsq(SKA.custKey) + '\',\'' + jsq(i.inv) + '\')">Cetak invoice</button>' +
