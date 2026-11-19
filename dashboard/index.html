@@ -944,10 +944,16 @@ html:has(.loader:not(.off)){overflow:hidden}
   function token() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem(KEY, t); else localStorage.removeItem(KEY); } catch (e) {} }
   function $(id) { return document.getElementById(id); }
+  // 19 Nov: a call that hangs ends with a clear message instead of a loader that spins forever. The Copilot may work
+  // up to about 5 minutes (Apps Script stops at 6); a statement upload up to 2.5; everything else 90 s.
+  var LIMIT = { finChat: 330000, finUploadBank: 150000, skdLogin: 30000 };
   function post(fn, args, tok) {
-    return fetch(CFG.api, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args, token: tok === undefined ? token() : tok }) })
+    var ms = LIMIT[fn] || 90000, ctl = typeof AbortController === 'function' ? new AbortController() : null, timer = ctl ? setTimeout(function () { ctl.abort(); }, ms) : null;
+    var slow = function () { return new Error('Server sedang lambat (lebih dari ' + Math.round(ms / 1000) + ' detik tanpa jawaban). Coba lagi sebentar lagi.'); };
+    return fetch(CFG.api, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args, token: tok === undefined ? token() : tok }), signal: ctl ? ctl.signal : undefined })
       .then(function (r) { if (!r.ok) throw new Error('Koneksi bermasalah (HTTP ' + r.status + '). Coba lagi.'); return r.text(); },
-        function () { throw new Error('Tidak ada koneksi internet. Coba lagi.'); })
+        function (e) { if (e && e.name === 'AbortError') throw slow(); throw new Error('Tidak ada koneksi internet. Coba lagi.'); })
+      .then(function (txt) { clearTimeout(timer); return txt; }, function (e) { clearTimeout(timer); throw e && e.name === 'AbortError' ? slow() : e; })
       .then(function (txt) {
         var j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Jawaban server tidak terbaca. Coba lagi.'); }
         if (j && j.ok) return j.data;
@@ -1127,6 +1133,8 @@ function skLoaderActions(buttons, note) {
 function skFail(err) {
   skLoader(true, 'Gagal memuat dashboard', '');
   document.getElementById('lerr').textContent = String(err && err.message ? err.message : err);
+  // 19 Nov: a way out of a failed or timed-out load
+  skLoaderActions([{ text: 'Coba lagi', href: location.href, primary: true }]);
 }
 // Stored data paints first; the 2026 file is then re-read in the background and the view
 // updates in place only when something changed.
