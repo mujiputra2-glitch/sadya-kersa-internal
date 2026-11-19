@@ -588,6 +588,12 @@ html:has(.loader:not(.off)){overflow:hidden}
 .mcard h4{margin:0;font-size:16px}
 .mcard p{margin:0;font-size:12.5px;color:var(--ink2);line-height:1.5}
 .invlink{border:0;background:none;padding:0;font:inherit;color:var(--brand,#2728c0);font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+/* 19 Nov: the SIPLah PO under the invoice number, and its editor in the invoice window */
+.invpo{display:block;margin-top:2px;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.invpoed{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.invpoed input{font:inherit;font-size:13px;height:36px;border:1px solid var(--line2);border-radius:10px;padding:0 10px;background:#fff;color:var(--ink);width:220px;max-width:100%;box-sizing:border-box;text-transform:uppercase}
+.invpoed input:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+.invposel{user-select:all;font-variant-numeric:tabular-nums}
 #invModal .mcard{width:min(620px,100%);max-height:88vh;overflow:auto}
 .invsec{border:1px solid #e2e6f4;border-radius:14px;padding:12px 14px}
 .invsec h5{margin:0 0 8px;font-size:13px;display:flex;justify-content:space-between;gap:8px;align-items:center}
@@ -814,7 +820,7 @@ html:has(.loader:not(.off)){overflow:hidden}
   <section class="view" id="v-data">
     <div class="card" style="--i:0">
       <div class="tools">
-        <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qData" placeholder="Cari sekolah, item, atau no. invoice..."></label>
+        <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="qData" placeholder="Cari sekolah, item, no. invoice atau no. PO..."></label>
         <span class="info" id="infoData"></span>
         <span style="margin-left:auto"></span>
         <a class="lbtn" id="btnCheck" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span id="btnCheckText">Cek Data</span></a>
@@ -2127,7 +2133,7 @@ function skRenderData(rows) {
   var st = SKD.data, q = st.q.trim().toLowerCase();
   var list = !q ? rows : rows.filter(function (r) {
     return skDict('school', r[SKI.SCHOOL]).toLowerCase().indexOf(q) >= 0 || skDict('item', r[SKI.ITEM]).toLowerCase().indexOf(q) >= 0 ||
-      skDict('inv', r[SKI.INV]).toLowerCase().indexOf(q) >= 0;
+      skDict('inv', r[SKI.INV]).toLowerCase().indexOf(q) >= 0 || skInvPoOf(skDict('inv', r[SKI.INV])).toLowerCase().indexOf(q) >= 0;
   });
   list = list.slice().sort(function (a, b) { return b[SKI.DATE] - a[SKI.DATE] || b[SKI.YEAR] - a[SKI.YEAR]; });
   var per = 60, pages = Math.max(1, Math.ceil(list.length / per));
@@ -2149,6 +2155,8 @@ function skRenderData(rows) {
       var ib = skEl('button', 'invlink', invNo); ib.type = 'button'; ib.title = 'Lihat surat jalan, konfirmasi, file dan akun sekolah';
       (function (n, sc) { ib.addEventListener('click', function () { skInvOpen(n, sc); }); })(invNo, skDict('school', r[SKI.SCHOOL]));
       tdInv.appendChild(ib);
+      var po = skInvPoOf(invNo); // 19 Nov: every row of the invoice shows its SIPLah PO
+      if (po) tdInv.appendChild(skEl('small', 'invpo', /^off/i.test(po) ? 'Offline' : po));
     }
     tr.appendChild(tdInv);
     tr.appendChild(skEl('td', 'num', skNum(r[SKI.QTY], r[SKI.QTY] % 1 ? 2 : 0) + ' ' + skDict('unit', r[SKI.UNIT])));
@@ -4051,10 +4059,11 @@ function skInvPayInfo(inv, school) {
     paid: Math.max.apply(null, rs.map(function (x) { return x[3] || 0; })) };
 }
 function skInvCanPay() { return !SKD.inv && skMay('piutang') && !(SKD.P && SKD.P.access && SKD.P.access.sales); }
-function skInvPay(inv, school) {
+function skInvPay(inv, school, said) {
   var box = document.getElementById('invPay'), info = skInvPayInfo(inv, school);
   box.textContent = '';
   if (!info || SKD.inv) return;
+  skInvPo(inv, info, box, said);
   var sec = skInvSec('Pembayaran', info.lunas ? 'Lunas' : 'Belum lunas', info.lunas ? 'ok' : 'no');
   sec.appendChild(skInvRow('Tanggal bayar', info.lunas ? (info.paid ? skDate(info.paid) : 'Lunas') : '-'));
   if (skInvCanPay() && info.year >= 2026) {
@@ -4081,6 +4090,56 @@ function skInvPaySave(inv, date, btn, msg) {
     google.script.run.withSuccessHandler(function (p) { skOnData(p); if (SKINV.cur === inv) skInvPay(inv, SKINV.school); })
       .withFailureHandler(function (e) { msg.textContent = 'Tersimpan, tapi data belum dimuat ulang: ' + skoMsg(e); }).getDashboardData({ cached: true });
   }).withFailureHandler(function (e) { btn.disabled = false; msg.className = 'psmsg err'; msg.textContent = skoMsg(e); }).setInvoicePaid(inv, date);
+}
+
+// ---------- No. PO SIPLah (19 Nov, Muji: "add no PO from SIPLAH in the invoice ... reflected to other invoice with same
+// number, it can be edited later") ----------
+// Column K (No. Invoice SIPLah) of tab DB_Order in the 2026 file, the cell the admin types today; the server writes it
+// on every row of the invoice number (Persiapan.js setInvoicePo). P.po holds the POs of the invoices in view.
+function skInvPoOf(inv) { return (SKD.P && SKD.P.po && SKD.P.po[inv]) || ''; }
+function skInvCanPo() { return !SKD.inv && !(SKD.P && SKD.P.access && SKD.P.access.sales) && (skMay('data') || skMay('piutang') || skMay('order')); }
+function skInvPo(inv, info, box, said) {
+  var cur = skInvPoOf(inv), off = /^off/i.test(cur), edit = skInvCanPo() && info.year >= 2026;
+  if (!cur && !edit) return;
+  var sec = skInvSec('No. PO SIPLah', cur ? (off ? 'Offline' : '') : 'Belum diisi', cur ? '' : 'warn');
+  var row = skEl('div', 'row'), val = skEl('span', cur ? 'invposel' : '', cur ? (off ? cur + ' (order di luar SIPLah)' : cur) : '-');
+  row.appendChild(skEl('span', '', 'No. PO')); row.appendChild(val); sec.appendChild(row);
+  var msg = skEl('span', 'psmsg', said || '');
+  if (edit) {
+    var open = skEl('button', 'lbtn', cur ? 'Ubah No. PO' : 'Isi No. PO'); open.type = 'button';
+    var bar = skEl('div', 'invpay'); bar.appendChild(open); bar.appendChild(msg); sec.appendChild(bar);
+    open.addEventListener('click', function () {
+      bar.remove();
+      var ed = skEl('div', 'invpoed'), inp = skEl('input'), save = skEl('button', 'lbtn', 'Simpan'), back = skEl('button', 'lbtn', 'Batal'), m2 = skEl('span', 'psmsg', '');
+      inp.id = 'invPoIn'; inp.value = cur; inp.maxLength = 60; inp.placeholder = 'Contoh: PO699D123098CE6'; inp.setAttribute('aria-label', 'No. PO SIPLah invoice ' + inv);
+      inp.autocomplete = 'off'; inp.spellcheck = false;
+      save.type = 'button'; back.type = 'button';
+      ed.appendChild(inp); ed.appendChild(save); ed.appendChild(back); ed.appendChild(m2);
+      sec.appendChild(ed);
+      sec.appendChild(skEl('div', 'none', 'Tersimpan di file order 2026 (tab DB_Order, kolom No. Invoice SIPLah) untuk semua baris invoice ' + inv + '. Kosongkan lalu Simpan untuk menghapus.'));
+      var go = function () {
+        var v = String(inp.value).trim().replace(/\s+/g, ' ').toUpperCase();
+        if (v === cur) { m2.className = 'psmsg'; m2.textContent = 'Tidak ada yang berubah.'; return; }
+        if (v && !/^[A-Za-z0-9][A-Za-z0-9 ._\/-]{2,59}$/.test(v)) { m2.className = 'psmsg err'; m2.textContent = 'No. PO hanya huruf, angka, titik, garis miring atau tanda hubung. Contoh: PO699D123098CE6.'; inp.focus(); return; }
+        inp.disabled = save.disabled = back.disabled = true; m2.className = 'psmsg'; m2.textContent = 'Menyimpan...';
+        google.script.run.withSuccessHandler(function (r) {
+          var P = SKD.P; if (!P) return;
+          P.po = P.po || {};
+          if (r && r.po) P.po[inv] = r.po; else delete P.po[inv];
+          if (SKD.tab === 'data') skRender();
+          if (SKINV.cur === inv) skInvPay(inv, SKINV.school, (r && r.po ? 'Tersimpan untuk ' + r.rows + ' baris invoice ini.' : 'No. PO dihapus.') + (r && r.dataUpdated ? ' Data dimuat ulang.' : ''));
+          if (r && r.dataUpdated) google.script.run.withSuccessHandler(function (p) { skOnData(p); }).getDashboardData({ cached: true });
+        }).withFailureHandler(function (e) {
+          inp.disabled = save.disabled = back.disabled = false; m2.className = 'psmsg err'; m2.textContent = skoMsg(e);
+        }).setInvoicePo(inv, v);
+      };
+      save.addEventListener('click', go);
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); go(); } else if (e.key === 'Escape') { e.stopPropagation(); skInvPay(inv, SKINV.school); } });
+      back.addEventListener('click', function () { skInvPay(inv, SKINV.school); });
+      inp.focus(); inp.select();
+    });
+  } else if (said) sec.appendChild(msg);
+  box.appendChild(sec);
 }
 
 // ---------- e-nota for the Kepala Sekolah (18 Nov, Firman and team) ----------
