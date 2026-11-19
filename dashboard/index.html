@@ -359,6 +359,37 @@ a{color:inherit}
 .psjl li.ok i{background:var(--up-bg);color:var(--up)}
 .psjl li.no i{background:var(--down-bg);color:var(--down)}
 .psmore{margin-top:10px}
+/* 19 Nov: Kirim barang, Tandai dikirim and Batalkan (surat jalan made here, the same rows as eSKalasi) */
+.lbtn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.lbtn.pri:hover{background:var(--brand-ink);border-color:var(--brand-ink);color:#fff}
+.lbtn.bad{color:var(--down);border-color:#efbcbc}
+.lbtn.bad:hover{background:var(--down-bg);border-color:var(--down)}
+.lbtn:disabled{opacity:.55;cursor:default;transform:none}
+.lbtn.sm{padding:6px 10px;font-size:12px;border-radius:9px}
+.psform{border:1px solid #c9cdf5;border-radius:14px;padding:14px;margin:10px 0 4px;background:#f8f8ff;display:flex;flex-direction:column;gap:12px;animation:psslide .3s cubic-bezier(.2,.8,.2,1) both}
+.psform.sm{padding:12px;margin:10px 0 2px}
+.psfh b{display:block;font-size:14px;color:var(--ink)}
+.psfh span{display:block;margin-top:2px;font-size:12.5px;color:var(--ink2)}
+.psfgrid{display:grid;grid-template-columns:minmax(150px,190px) minmax(0,1fr);gap:10px 14px}
+.psform label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:var(--ink2);min-width:0}
+.psform input,.psform textarea{font:inherit;font-size:13px;border:1px solid var(--line2);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink);box-sizing:border-box;width:100%}
+.psform input{height:38px}
+.psform textarea{resize:vertical;min-height:58px;line-height:1.4}
+.psform input:focus,.psform textarea:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+.psflines{display:flex;flex-direction:column}
+.psfl{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px dashed var(--line2);font-size:13px;color:var(--ink)}
+.psfl .t{min-width:0;overflow-wrap:anywhere}
+.psfl .t small{display:block;margin-top:1px;font-size:11.5px;color:var(--muted)}
+.psfl .q{display:inline-flex;align-items:center;gap:6px;flex:none}
+.psfl .q input{width:86px;text-align:right;font-weight:700}
+.psfl .q em{font-style:normal;font-size:12.5px;color:var(--ink2);min-width:34px}
+.psfnote{margin:0;font-size:12px;color:var(--ink2)}
+.psfact{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.psfmsg{margin:0;font-size:12.5px;color:var(--ink2);flex-basis:100%}
+.psfmsg:empty{display:none}
+.psfmsg.err{color:var(--down);font-weight:600}
+.psjact{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+@media (max-width:640px){.psfgrid{grid-template-columns:1fr}.psfact .lbtn{flex:1 1 auto;justify-content:center}}
 .pstoast{position:fixed;right:24px;bottom:24px;z-index:80;max-width:min(440px,calc(100vw - 32px));background:var(--ink);color:#fff;padding:11px 14px;border-radius:12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 14px 30px -10px rgba(15,23,42,.5);animation:psslide .25s cubic-bezier(.2,.8,.2,1) both}
 .pstoast .ic{color:#4ade80;display:grid;place-items:center}
 .pstoast button{border:0;background:#fff;color:var(--ink);font:inherit;font-size:12px;font-weight:800;padding:5px 10px;border-radius:8px;cursor:pointer;white-space:nowrap}
@@ -3424,6 +3455,7 @@ function skPsCard(v, n) {
   var x = v.x, open = !!SKPS.open[x.inv];
   var card = skEl('div', 'pscard' + (v.urgent ? ' urgent' : '') + ((v.phase === 'gudang' || v.phase === 'retur') && v.left < 0 ? ' late' : '') + (open ? ' open' : ''));
   card.setAttribute('data-inv', x.inv);
+  card.setAttribute('data-sig', skPsSig(v));
   card.style.animationDelay = (Math.min(n, 10) * 0.05) + 's';
   var hd = skEl('button', 'pshd'); hd.type = 'button';
   hd.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -3482,8 +3514,18 @@ function skPsBody(v) {
   var x = v.x, body = skEl('div', 'psbody'), acts = skEl('div', 'psacts'), sla = v.sla;
   if (v.phase === 'selesai') acts.appendChild(skEl('p', '', 'Semua barang sudah diterima sekolah dengan benar.'));
   else if (v.phase === 'jalan') acts.appendChild(skEl('p', '', 'Semua barang sudah dikirim, menunggu sekolah menerima dan mengecek.'));
-  else if (v.phase === 'retur') acts.appendChild(skEl('p', '', 'Sekolah melaporkan barang kurang atau bermasalah. Buat surat jalan pengganti di eSKalasi (Pelanggan, pilih sekolah, Buat surat jalan pengganti).'));
-  else if (v.stage === 2) acts.appendChild(skEl('p', '', 'Semua barang siap. Surat jalan dibuat di eSKalasi, menu Pelanggan.'));
+  else if (v.phase === 'retur') acts.appendChild(skEl('p', '', 'Sekolah melaporkan barang kurang atau bermasalah. Kirim penggantinya dari sini atau dari eSKalasi.'));
+  else if (!skPsLeft(x).length && (x.sjs || []).some(function (j) { return j.status === 'Disiapkan'; })) acts.appendChild(skEl('p', '', 'Surat jalan sudah dibuat. Tandai dikirim setelah barangnya berangkat.'));
+  else if (v.stage === 2 && sla && sla.sentAt) acts.appendChild(skEl('p', '', 'Sebagian barang sudah dikirim. Sisanya siap dikirim.'));
+  else if (v.stage === 2) acts.appendChild(skEl('p', '', 'Semua barang siap dikirim.'));
+  else if (sla && sla.sentAt) acts.appendChild(skEl('p', '', 'Sebagian barang sudah dikirim.'));
+  // 19 Nov: Kirim barang makes the surat jalan here, the one eSKalasi and SNAPP read (Persiapan.js kirimPersiapan)
+  if ((v.phase === 'gudang' || v.phase === 'retur') && skPsLeft(x).length) {
+    var kb = skEl('button', 'lbtn' + (v.stage === 2 || v.phase === 'retur' ? ' pri' : ''), v.phase === 'retur' ? 'Kirim pengganti' : 'Kirim barang'); kb.type = 'button';
+    kb.setAttribute('aria-expanded', skPsFormIs(x.inv, 'kirim') ? 'true' : 'false');
+    kb.addEventListener('click', function () { skPsFormOpen(x.inv, 'kirim', ''); });
+    acts.appendChild(kb);
+  }
   var sj = document.querySelector('.tab[data-tab=aplikasi][data-ax=snapp]');
   if (v.phase !== 'gudang' && sj && !sj.hidden) {
     var go = skEl('button', 'lbtn', 'Lihat surat jalan'); go.type = 'button';
@@ -3496,6 +3538,7 @@ function skPsBody(v) {
     acts.appendChild(all);
   }
   if (acts.childNodes.length) body.appendChild(acts);
+  if (skPsFormIs(x.inv, 'kirim')) body.appendChild(skPsKirimForm(v));
   if (sla) body.appendChild(skPsClocks(v));
   if (sla && sla.sjCount) body.appendChild(skPsSjs(v));
   if (!v.total) body.appendChild(skEl('div', 'oempty', 'Barang order ini belum terbaca dari tab Data. Muat ulang setelah data 2026 dicek.'));
@@ -3536,6 +3579,21 @@ function skPsSjs(v) {
     hd.appendChild(skEl('b', '', sj.no));
     hd.appendChild(skEl('span', 'pstag ' + (sj.status === 'Diterima' ? (bad ? 's-p' : 's-s') : sj.status === 'Dikirim' ? 's-d' : 's-b'), sj.status === 'Diterima' && bad ? 'Diterima, ada masalah' : sj.status));
     hd.appendChild(skEl('small', '', [sj.sent ? 'dikirim ' + skPsDay(String(sj.sent).slice(0, 10)) : '', sj.got ? 'diterima ' + skPsDay(String(sj.got).slice(0, 10)) + (sj.gotBy ? ' oleh ' + sj.gotBy : '') : ''].filter(String).join(' · ')));
+    // 19 Nov: the same two steps as the Admin in eSKalasi, on the same row
+    if (sj.status === 'Disiapkan' || sj.status === 'Dikirim') {
+      var ja = skEl('div', 'psjact');
+      if (sj.status === 'Disiapkan') {
+        var sb = skEl('button', 'lbtn sm pri', 'Tandai dikirim'); sb.type = 'button';
+        sb.setAttribute('aria-expanded', skPsFormIs(v.x.inv, 'ship', sj.no) ? 'true' : 'false');
+        sb.addEventListener('click', function () { skPsFormOpen(v.x.inv, 'ship', sj.no); });
+        ja.appendChild(sb);
+      }
+      var cb = skEl('button', 'lbtn sm bad', 'Batalkan'); cb.type = 'button';
+      cb.setAttribute('aria-expanded', skPsFormIs(v.x.inv, 'cancel', sj.no) ? 'true' : 'false');
+      cb.addEventListener('click', function () { skPsFormOpen(v.x.inv, 'cancel', sj.no); });
+      ja.appendChild(cb);
+      hd.appendChild(ja);
+    }
     box.appendChild(hd);
     var ul = skEl('ul', 'psjl');
     sj.lines.forEach(function (l) {
@@ -3548,10 +3606,145 @@ function skPsSjs(v) {
     box.appendChild(ul);
     if (sj.schoolNote) box.appendChild(skEl('div', 'psline', 'Catatan sekolah: ' + sj.schoolNote));
     (sj.answers || []).forEach(function (a) { box.appendChild(skEl('div', 'psline', 'Tanggapan admin ' + a)); });
+    if (skPsFormIs(v.x.inv, 'ship', sj.no) || skPsFormIs(v.x.inv, 'cancel', sj.no)) box.appendChild(skPsSjForm(v, sj, SKPS.form.kind));
     wrap.appendChild(box);
   });
   return wrap;
 }
+// ---------- Kirim barang (19 Nov, Muji: "dashboard holder can also change status from siap to dikirim and it should
+// reflect status on both apps also ... they can edit and handle it everywhere") ----------
+// One form open at a time, SKPS.form = {inv, kind: 'kirim' (new surat jalan) | 'ship' (Tandai dikirim) | 'cancel', no};
+// it stays open through a redraw of its card. The server answers with the whole list, so the card is drawn again.
+function skPsLeft(x) { return (x.toSend || []).filter(function (l) { return l.left > 0; }); }
+// What decides an open card's buttons: when it changes, skPsRefresh draws the card again.
+function skPsSig(v) { return [v.stage, v.phase, skPsLeft(v.x).length, (v.x.sjs || []).map(function (j) { return j.no + ':' + j.status; }).join(',')].join('|'); }
+function skPsEditing(card) { var a = document.activeElement; return !!(a && card.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
+function skPsFormIs(inv, kind, no) { var fm = SKPS.form; return !!(fm && fm.inv === inv && fm.kind === kind && (no === undefined || fm.no === no)); }
+function skPsFormOpen(inv, kind, no) {
+  SKPS.form = skPsFormIs(inv, kind, no) ? null : { inv: inv, kind: kind, no: no || '' };
+  var nc = skPsRedraw(inv), first = nc && SKPS.form ? nc.querySelector('.psform input:not([type=date]):not([type=number]), .psform textarea') : null;
+  if (first) setTimeout(function () { first.focus(); }, 40);
+  else if (nc) { var b = nc.querySelector(kind === 'kirim' ? '.psacts .lbtn' : '.psjact .lbtn'); if (b) b.focus(); }
+}
+function skPsRedraw(inv) {
+  var o = skPsFind(inv), card = null;
+  Array.prototype.forEach.call(document.querySelectorAll('#psBody .pscard'), function (c) { if (c.getAttribute('data-inv') === inv) card = c; });
+  if (!o || !card) return null;
+  SKPS.open[inv] = true;
+  var nc = skPsCard(skPsX(o), 0); nc.style.animation = 'none';
+  card.parentNode.replaceChild(nc, card);
+  return nc;
+}
+function skPsField(label, el) { var l = skEl('label', 'f'); l.appendChild(skEl('span', '', label)); l.appendChild(el); return l; }
+function skPsInput(type, name, value, ph) {
+  var i = document.createElement(type === 'textarea' ? 'textarea' : 'input');
+  if (type !== 'textarea') i.type = type;
+  i.name = name; i.value = value || ''; if (ph) i.placeholder = ph;
+  return i;
+}
+function skPsToday() { return (SKPS.data && SKPS.data.today) || ''; }
+// One save; while it runs, a background reload of the list waits (skPsBusy).
+function skPsSave(box, call) {
+  var msg = box.querySelector('.psfmsg'), els = box.querySelectorAll('button, input, textarea');
+  Array.prototype.forEach.call(els, function (e) { e.disabled = true; });
+  msg.className = 'psfmsg'; msg.textContent = 'Menyimpan...';
+  SKPS.q['*'] = { inv: '', i: -1, busy: true, t: 0 };
+  call(google.script.run.withSuccessHandler(function (d) {
+    delete SKPS.q['*'];
+    var done = d && d.done;
+    SKPS.form = null;
+    if (d && d.list) { SKPS.data = d; SKPS.at = Date.now(); SKPS.local = false; SKPS.err = ''; skPsKeep(); }
+    skPsRefresh();
+    var nc = done ? skPsRedraw(done.inv) : null, fb = nc && (nc.querySelector('.psacts .lbtn') || nc.querySelector('.pshd'));
+    if (fb) fb.focus();
+    skPsToast(done ? done.no + (done.status === 'Dikirim' ? ' dikirim' : done.status === 'Batal' ? ' dibatalkan' : ' dibuat, belum dikirim') + '. eSKalasi dan SNAPP ikut berubah.' : 'Tersimpan');
+  }).withFailureHandler(function (e) {
+    delete SKPS.q['*'];
+    Array.prototype.forEach.call(els, function (el) { el.disabled = false; });
+    msg.className = 'psfmsg err'; msg.textContent = skoMsg(e);
+  }));
+}
+// A new surat jalan: the day, the address (from SNAPP), how much of each line goes (what is ready and not sent yet
+// is filled in), and whether the goods already left (then the proof is needed).
+function skPsKirimForm(v) {
+  var x = v.x, retur = v.phase === 'retur', today = skPsToday(), fm = skEl('div', 'psform'), hd = skEl('div', 'psfh');
+  fm.setAttribute('role', 'group'); fm.setAttribute('aria-label', (retur ? 'Kirim pengganti ' : 'Kirim barang ') + (x.school || x.inv));
+  hd.appendChild(skEl('b', '', retur ? 'Kirim pengganti' : 'Kirim barang'));
+  hd.appendChild(skEl('span', '', 'Surat jalan baru untuk ' + x.inv + '. Statusnya ikut berubah di eSKalasi dan SNAPP.'));
+  fm.appendChild(hd);
+  var grid = skEl('div', 'psfgrid'), date = skPsInput('date', 'date', today), addr = skPsInput('textarea', 'address', x.address, 'Alamat lengkap sekolah');
+  if (x.date) date.min = x.date;
+  addr.rows = 2; addr.maxLength = 300;
+  grid.appendChild(skPsField('Tanggal kirim', date));
+  grid.appendChild(skPsField('Alamat kirim', addr));
+  fm.appendChild(grid);
+  var ls = skEl('div', 'psflines');
+  ls.appendChild(skEl('div', 'pscap', 'Barang yang dikirim'));
+  skPsLeft(x).forEach(function (l) {
+    var it = (x.items || [])[l.i] || {}, pre = retur || it.status === 'Siap' ? l.left : it.status === 'Sebagian' ? Math.min(l.left, +it.ready || 0) : 0;
+    var row = skEl('div', 'psfl'), t = skEl('div', 't'), q = skEl('span', 'q'), inp = skPsInput('number', 'q' + l.i, String(pre));
+    t.appendChild(document.createTextNode(l.item));
+    t.appendChild(skEl('small', '', 'belum dikirim ' + skPsNum(l.left) + ' ' + l.unit + (!retur && it.status && it.status !== 'Siap' ? ' · ' + it.status.toLowerCase() : '')));
+    inp.min = '0'; inp.max = String(l.left); inp.step = 'any'; inp.inputMode = 'decimal'; inp.setAttribute('data-i', String(l.i));
+    inp.setAttribute('aria-label', 'Jumlah ' + l.item + ' yang dikirim, dalam ' + l.unit);
+    q.appendChild(inp); q.appendChild(skEl('em', '', l.unit));
+    row.appendChild(t); row.appendChild(q); ls.appendChild(row);
+  });
+  fm.appendChild(ls);
+  var proof = skPsInput('text', 'proof', '', 'No. resi, nama kurir atau sopir'), note = skPsInput('text', 'note', '', 'Boleh kosong');
+  proof.maxLength = 200; note.maxLength = 300;
+  fm.appendChild(skPsField('Bukti kirim', proof));
+  fm.appendChild(skPsField('Catatan', note));
+  fm.appendChild(skEl('p', 'psfnote', 'Bukti kirim wajib kalau barang sudah berangkat. Foto bukti bisa ditambahkan dari eSKalasi Admin.'));
+  var act = skEl('div', 'psfact'), go = skEl('button', 'lbtn pri', 'Simpan, sudah dikirim'), later = skEl('button', 'lbtn', 'Simpan, belum dikirim'), back = skEl('button', 'lbtn', 'Batal'), msg = skEl('p', 'psfmsg');
+  [go, later, back].forEach(function (b) { b.type = 'button'; act.appendChild(b); });
+  msg.setAttribute('role', 'status'); act.appendChild(msg);
+  fm.appendChild(act);
+  var send = function (sent) {
+    var lines = [];
+    Array.prototype.forEach.call(ls.querySelectorAll('input[data-i]'), function (i) { var n = +String(i.value).replace(',', '.'); if (n > 0) lines.push({ i: +i.getAttribute('data-i'), qty: n }); });
+    var bad = !String(addr.value).trim() ? ['Isi alamat kirim.', addr] : !lines.length ? ['Isi jumlah barang yang dikirim.', ls.querySelector('input')] :
+      sent && !String(proof.value).trim() ? ['Isi bukti kirim: no. resi, nama kurir atau sopir.', proof] :
+      sent && today && date.value > today ? ['Tanggal kirim setelah hari ini. Pilih Simpan, belum dikirim.', date] : null;
+    if (bad) { msg.className = 'psfmsg err'; msg.textContent = bad[0]; if (bad[1]) bad[1].focus(); return; }
+    var o = { date: date.value || today, address: addr.value, lines: lines, sent: sent, proof: proof.value, note: note.value };
+    skPsSave(fm, function (r) { r.kirimPersiapan(x.inv, o); });
+  };
+  go.addEventListener('click', function () { send(true); });
+  later.addEventListener('click', function () { send(false); });
+  back.addEventListener('click', function () { skPsFormOpen(x.inv, 'kirim', ''); });
+  fm.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); skPsFormOpen(x.inv, 'kirim', ''); } });
+  return fm;
+}
+// Tandai dikirim (with the proof) or Batalkan (with the reason) on a surat jalan not received yet.
+function skPsSjForm(v, sj, kind) {
+  var ship = kind === 'ship', fm = skEl('div', 'psform sm'), hd = skEl('div', 'psfh');
+  fm.setAttribute('role', 'group'); fm.setAttribute('aria-label', (ship ? 'Tandai dikirim ' : 'Batalkan ') + sj.no);
+  hd.appendChild(skEl('b', '', ship ? 'Tandai ' + sj.no + ' dikirim' : 'Batalkan ' + sj.no));
+  hd.appendChild(skEl('span', '', ship ? 'Sekolah melihat status Dikirim di SNAPP dan bisa mengonfirmasi barang diterima.' :
+    'Surat jalan ditandai Batal di eSKalasi dan SNAPP. Barangnya terhitung belum dikirim lagi.'));
+  fm.appendChild(hd);
+  var inp = skPsInput('text', ship ? 'proof' : 'reason', '', ship ? 'No. resi, nama kurir atau sopir' : 'Contoh: salah alamat, dikirim ulang besok');
+  inp.maxLength = 200;
+  fm.appendChild(skPsField(ship ? 'Bukti kirim' : 'Alasan pembatalan', inp));
+  if (ship) fm.appendChild(skEl('p', 'psfnote', 'Foto bukti bisa ditambahkan dari eSKalasi Admin.'));
+  var act = skEl('div', 'psfact'), go = skEl('button', 'lbtn ' + (ship ? 'pri' : 'bad'), ship ? 'Tandai dikirim' : 'Batalkan surat jalan'), back = skEl('button', 'lbtn', 'Kembali'), msg = skEl('p', 'psfmsg');
+  go.type = 'button'; back.type = 'button'; msg.setAttribute('role', 'status');
+  act.appendChild(go); act.appendChild(back); act.appendChild(msg);
+  fm.appendChild(act);
+  var fn = ship ? 'kirimSuratJalan' : 'batalSuratJalan';
+  var send = function () {
+    if (!String(inp.value).trim()) { msg.className = 'psfmsg err'; msg.textContent = ship ? 'Isi bukti kirim: no. resi, nama kurir atau sopir.' : 'Tulis alasan pembatalan.'; inp.focus(); return; }
+    var val = inp.value;
+    skPsSave(fm, function (r) { r[fn](sj.no, val); });
+  };
+  go.addEventListener('click', send);
+  inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); send(); } });
+  back.addEventListener('click', function () { skPsFormOpen(v.x.inv, kind, sj.no); });
+  fm.addEventListener('keydown', function (e) { if (e.key === 'Escape') { e.stopPropagation(); skPsFormOpen(v.x.inv, kind, sj.no); } });
+  return fm;
+}
+
 // One item: four status buttons; Sebagian opens the quantity in hand, Dipesan and Sebagian the inden note
 // and the expected date. Every handler finds the item again by invoice and line, since a save replaces the data.
 function skPsItem(inv, it) {
@@ -3738,6 +3931,14 @@ function skPsRefresh() {
   Array.prototype.forEach.call(document.querySelectorAll('#psBody .pscard'), function (card) {
     var x = skPsFind(card.getAttribute('data-inv')); if (!x) return;
     var v = skPsX(x);
+    // 19 Nov: an open card whose stage moved (all ready, sent, a surat jalan added) is drawn again, so its buttons
+    // follow (Kirim barang after Tandai semua siap); never while someone types in it or an item save is on its way.
+    if (card.classList.contains('open') && card.getAttribute('data-sig') !== skPsSig(v) && !skPsEditing(card) &&
+      !Object.keys(SKPS.q).some(function (k) { return k === '*' || k.indexOf(x.inv + '|') === 0; })) {
+      var had = card.contains(document.activeElement), nc = skPsRedraw(x.inv);
+      if (had && nc) { var fb = nc.querySelector('.psacts .lbtn') || nc.querySelector('.pshd'); if (fb) fb.focus(); }
+      return;
+    }
     skPsHead(card.querySelector('.pshd'), v);
     card.classList.toggle('urgent', v.urgent);
     Array.prototype.forEach.call(card.querySelectorAll('.psit'), function (row) {
