@@ -942,7 +942,42 @@ html:has(.loader:not(.off)){overflow:hidden}
   // asking: a Google prompt is open, so calls that end together on SESI_HABIS ask only once.
   var KEY = 'skd_token', started = false, ready = false, asking = false;
   function token() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
-  function setToken(t) { try { if (t) localStorage.setItem(KEY, t); else localStorage.removeItem(KEY); } catch (e) {} }
+  function setToken(t) { keepClear(); try { if (t) localStorage.setItem(KEY, t); else localStorage.removeItem(KEY); } catch (e) {} }
+  // 19 Nov (Muji: "make everything so its really fast"): the last answer of the two big reads (dashboard data, finance
+  // report) is kept in this browser and shown at once on the next open; the server's answer follows a moment later
+  // (marked _same when nothing changed, so the page can skip the redraw). Kept 7 days, 6 answers at most, and cleared
+  // whenever the session changes (sign-in, Keluar, session over), so one account never sees another's copy. A read
+  // with {fresh: true} (Perbarui) never shows the kept copy.
+  var KEEP = { getDashboardData: 1, getFinance: 1 }, KP = 'skd_keep:', KEEP_MAX = 6, KEEP_MS = 7 * 864e5, shown = {};
+  function ymd(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function keepKey(fn, args) {
+    var a = JSON.parse(JSON.stringify(args || []));
+    if (a[0] && typeof a[0] === 'object') {
+      delete a[0].fresh;
+      // "up to today" is one entry from day to day, so the first open of a new day still paints at once
+      if (a[0].to === ymd(new Date())) a[0].to = 'today';
+    }
+    return KP + fn + ':' + JSON.stringify(a);
+  }
+  function keepGet(k) {
+    try {
+      var v = localStorage.getItem(k), i = v ? v.indexOf('|') : -1, at = i > 0 ? +v.slice(0, i) : 0;
+      return at && Date.now() - at < KEEP_MS ? { at: at, txt: v.slice(i + 1) } : null;
+    } catch (e) { return null; }
+  }
+  function keepPut(k, txt, at) {
+    try {
+      var list = JSON.parse(localStorage.getItem(KP + 'list') || '[]').filter(function (x) { return x !== k; });
+      list.push(k);
+      while (list.length > KEEP_MAX) localStorage.removeItem(list.shift());
+      localStorage.setItem(KP + 'list', JSON.stringify(list));
+      localStorage.setItem(k, at + '|' + txt);
+    } catch (e) { keepClear(); /* full or blocked: the page waits for the server, as before */ }
+  }
+  function keepClear() {
+    try { for (var i = localStorage.length - 1; i >= 0; i--) { var k = localStorage.key(i); if (k && k.indexOf(KP) === 0) localStorage.removeItem(k); } } catch (e) {}
+    shown = {};
+  }
   function $(id) { return document.getElementById(id); }
   // 19 Nov: a call that hangs ends with a clear message instead of a loader that spins forever. The Copilot may work
   // up to about 5 minutes (Apps Script stops at 6); a statement upload up to 2.5; everything else 90 s.
@@ -974,8 +1009,27 @@ html:has(.loader:not(.off)){overflow:hidden}
       if (name === 'withFailureHandler') return function (f) { return runner(ok, f, user); };
       if (name === 'withUserObject') return function (u) { return runner(ok, fail, u); };
       return function () {
-        post(String(name), Array.prototype.slice.call(arguments)).then(function (d) { if (ok) ok(d, user); },
-          function (e) { if (!e.auth && fail) fail(e, user); });
+        var fn = String(name), args = Array.prototype.slice.call(arguments);
+        var k = KEEP[fn] ? keepKey(fn, args) : '', fresh = !!(args[0] && args[0].fresh === true);
+        // the kept copy, unless this page already shows it (or something newer)
+        var had = k && ok && !fresh ? keepGet(k) : null, early = false;
+        if (had && !(shown[k] >= had.at)) {
+          early = true; shown[k] = had.at;
+          setTimeout(function () { var d; try { d = JSON.parse(had.txt); } catch (e) { return; } if (d && typeof d === 'object') { d._kept = had.at; ok(d, user); } }, 0);
+        }
+        post(fn, args).then(function (d) {
+          if (k && d && typeof d === 'object' && (d.rows || d.reports)) {
+            var txt = JSON.stringify(d), at = Date.now();
+            keepPut(k, txt, at); shown[k] = at;
+            if (early && txt === had.txt) d._same = true;
+          }
+          if (ok) ok(d, user);
+        }, function (e) {
+          if (e.auth) return;
+          // the kept copy stays on screen; the page says it could not be refreshed
+          if (early) { try { document.dispatchEvent(new CustomEvent('skd-stale', { detail: { fn: fn, at: had.at, message: e.message } })); } catch (x) {} return; }
+          if (fail) fail(e, user);
+        });
       };
     } });
   }
@@ -1139,14 +1193,28 @@ function skFail(err) {
 // Stored data paints first; the 2026 file is then re-read in the background and the view
 // updates in place only when something changed.
 function skStart() {
-  google.script.run.withSuccessHandler(function (p) { skOnData(p); if (p && p.rows) skCheckLatest(); })
-    .withFailureHandler(skFail).getDashboardData({ cached: true });
+  // 19 Nov: on the web the copy kept in this browser arrives first and the server's a moment later (_same: nothing
+  // changed, no redraw); the 2026 check runs once per open, not once per answer.
+  google.script.run.withSuccessHandler(function (p) {
+    if (p && p._same) return;
+    skOnData(p);
+    if (p && p.rows && !SKD.checkedOnce) { SKD.checkedOnce = true; skCheckLatest(); }
+  }).withFailureHandler(skFail).getDashboardData({ cached: true });
 }
-function skCheckLatest() {
+// The kept copy is on screen and the server did not answer (web shim): keep the copy and say so.
+var SK_BLN_PENDEK = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+document.addEventListener('skd-stale', function (e) {
+  var d = e.detail || {}, t = new Date(d.at || Date.now()), b = document.getElementById('banner');
+  if (d.fn !== 'getDashboardData' || !b) return;
+  b.textContent = 'Data terbaru belum bisa dimuat (' + (d.message || 'server tidak menjawab') + '). Yang tampil data tersimpan di browser ini, ' +
+    t.getDate() + ' ' + SK_BLN_PENDEK[t.getMonth()] + ' ' + ('0' + t.getHours()).slice(-2) + ':' + ('0' + t.getMinutes()).slice(-2) + '.';
+  b.classList.add('on');
+});
+function skCheckLatest(now) {
   var pill = document.getElementById('updated');
   pill.textContent = 'Memeriksa data 2026...';
   document.getElementById('btnRefresh').classList.add('spin');
-  google.script.run.withSuccessHandler(function (res) {
+  var r = google.script.run.withSuccessHandler(function (res) {
     var banner = document.getElementById('banner');
     if (res.err) { banner.textContent = 'Data 2026 tidak bisa dibaca ulang (' + res.err + '). Yang tampil adalah data 2026 terakhir yang tersimpan.'; banner.classList.add('on'); }
     if (res.changed) {
@@ -1160,7 +1228,9 @@ function skCheckLatest() {
     pill.textContent = 'Data 2026 belum bisa dicek';
     document.getElementById('btnRefresh').classList.remove('spin');
     document.getElementById('page').classList.remove('dim');
-  }).refreshLatest();
+  });
+  // the refresh button always re-reads; an open within 3 minutes of the last check is answered from it (WebApp.js)
+  if (now === true) r.refreshLatest({ now: true }); else r.refreshLatest();
 }
 function skOnData(p) {
   if (p && p.viewer) skViewer(p.viewer);
@@ -2225,7 +2295,7 @@ document.getElementById('pgPrev').addEventListener('click', function () { SKD.da
 document.getElementById('pgNext').addEventListener('click', function () { SKD.data.page++; skRenderData(SKD.cur); });
 document.getElementById('btnRefresh').addEventListener('click', function () {
   document.getElementById('page').classList.add('dim');
-  skCheckLatest();
+  skCheckLatest(true);
 });
 document.getElementById('btnInfo').addEventListener('click', function (e) { e.stopPropagation(); document.getElementById('pop').classList.toggle('on'); });
 document.addEventListener('click', function (e) { var p = document.getElementById('pop'); if (!p.contains(e.target)) p.classList.remove('on'); });
