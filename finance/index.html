@@ -504,6 +504,8 @@ tr.total td{font-weight:800;font-size:15px;border-top:2px solid var(--ink);borde
 .deck{margin-top:10px;outline-offset:4px}
 .deck-stage{container-type:inline-size;overflow:hidden;border-radius:12px;border:1px solid var(--line);background:#e9ebf5;touch-action:pan-y}
 .deck-track{display:flex;transition:transform .5s var(--ease)}
+.sl.sv{padding:0;display:block;background:#fff}
+.sl.sv svg{display:block;width:100%;height:100%}
 .sl{flex:0 0 100%;aspect-ratio:16 / 9;background:#fff;position:relative;overflow:hidden;padding:5cqw 6cqw 7cqw;display:flex;flex-direction:column;color:#111827;user-select:none}
 .sl h4{margin:0 0 2.6cqw;font-size:3.9cqw;font-weight:800;letter-spacing:-.02em;line-height:1.15}
 .sl.cover{background:#2728c0;color:#fff;justify-content:center;padding-bottom:5cqw}
@@ -1606,6 +1608,9 @@ function copTable(t, mi, ti, all) {
     '<button class="btn sm" type="button" data-copy>' + COPY_IC + 'Salin</button></div></div>';
 }
 function copSlide(s, i, n, dk) {
+  // 19 Nov v2: the server draws each slide as SVG with the same code that writes the file (Docs.js), so this is the file.
+  // Its text is escaped on the server; the light formats below stay for slides saved earlier in this visit.
+  if (s.svg && /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/.test(s.svg)) return '<div class="sl sv">' + s.svg + '</div>';
   var ft = i ? '<div class="ft"><span>' + esc(dk.title) + '</span><span>' + (i + 1) + ' / ' + n + '</span></div>' : '';
   if (s.k === 'cover') return '<div class="sl cover"><i></i><h4>' + esc(s.t) + '</h4>' + (s.s ? '<p>' + esc(s.s) + '</p>' : '') + '<p class="dt">Sadya Kersa · ' + esc(tglLong(s.d)) + '</p></div>';
   if (s.k === 'kpi') return '<div class="sl"><h4>' + esc(s.t) + '</h4><div class="kp" style="--n:' + Math.max(1, s.items.length) + '">' + s.items.map(function (x) { return '<div><span>' + esc(x.l) + '</span><b>' + esc(x.v) + '</b>' + (x.n ? '<small>' + esc(x.n) + '</small>' : '') + '</div>'; }).join('') + '</div>' + ft + '</div>';
