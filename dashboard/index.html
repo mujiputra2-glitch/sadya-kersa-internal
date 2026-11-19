@@ -256,30 +256,13 @@ a{color:inherit}
 .psbar .seg button{white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
 .pscount{font-size:11.5px;padding:1px 7px;border-radius:999px;background:#dfe5ee;color:var(--ink2)}
 .seg button.on .pscount{background:var(--brand-soft);color:var(--brand-ink)}
-.pschips{display:flex;flex-wrap:wrap;gap:6px}
-.pschip{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line2);background:#fff;color:var(--ink2);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .18s,color .18s,border-color .18s}
-.pschip i{width:8px;height:8px;border-radius:50%}
-.pschip.on{background:var(--ink);border-color:var(--ink);color:#fff}
 .pscard{border:1px solid var(--line2);border-radius:16px;background:#fff;margin-top:10px;overflow:hidden;animation:rise .45s cubic-bezier(.2,.8,.2,1) both;transition:box-shadow .2s,border-color .2s}
 #psBody.calm .pscard,#psBody.calm .psshop .g{animation:none}
 .pscard:hover{box-shadow:0 12px 28px -16px rgba(15,23,42,.28)}
 .pscard.urgent{border-color:#f5b08e}
 .pscard.late{border-color:#eeaaa3}
-.pshd{width:100%;border:0;background:transparent;text-align:left;font:inherit;color:inherit;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1.15fr) minmax(0,1.3fr) 22px;gap:12px 22px;align-items:center;border-radius:16px}
+.pshd{width:100%;box-sizing:border-box;cursor:pointer;padding:12px 16px;display:grid;grid-template-columns:10px minmax(0,1.5fr) minmax(140px,1fr) auto minmax(120px,auto) 22px;gap:8px 16px;align-items:center;border-radius:16px}
 .pshd:focus-visible{outline:2px solid var(--brand);outline-offset:-2px}
-.psname{display:flex;flex-direction:column;gap:3px;min-width:0}
-.psname b{font-size:15px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:8px;overflow-wrap:anywhere}
-.psname>span{font-size:12px;color:var(--muted)}
-.psurg{width:9px;height:9px;border-radius:50%;background:#e8590c;flex:none;animation:pspulse 1.8s ease-out infinite}
-.pssteps{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-.psst{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
-.psst i{width:22px;height:22px;border-radius:50%;border:2px solid #cbd5e1;background:#fff;color:var(--muted);font-style:normal;font-size:11px;font-weight:800;display:grid;place-items:center;box-sizing:border-box}
-.psst.cur{color:var(--ink)}
-.psst.cur i{background:var(--brand);border-color:var(--brand);color:#fff}
-.psst.done{color:var(--ink)}
-.psst.done i{background:#1f8a3a;border-color:#1f8a3a;color:#fff}
-.psst u{display:inline-block;width:16px;height:2px;border-radius:2px;background:#e2e8f0}
-.psst.done u{background:#1f8a3a}
 .psprog{display:flex;flex-direction:column;gap:6px;min-width:0}
 .psprog .l1{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--ink)}
 .psprog small{font-size:11.5px;color:var(--muted)}
@@ -290,14 +273,11 @@ a{color:inherit}
 .psdl.ok{background:var(--up-bg);color:var(--up)}
 .psdl.sh{background:#e8f0fc;color:#1c5cab}
 .psbarx{height:8px;border-radius:999px;background:#eef1f5;overflow:hidden}
-.pstime{height:4px;border-radius:999px;background:#f1f4f8;overflow:hidden}
 .psbarx i,.pstime i{display:block;height:100%;border-radius:999px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
 .pschev{color:var(--ink2);display:grid;place-items:center;transition:transform .25s}
 .pscard.open .pschev{transform:rotate(180deg)}
 .psnote{padding:0 16px 12px;font-size:12px;color:var(--ink2)}
 .psbody{border-top:1px solid var(--grid);padding:4px 16px 14px;animation:psslide .3s cubic-bezier(.2,.8,.2,1) both}
-.psacts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;padding:10px 0 4px}
-.psacts p{margin:0 auto 0 0;font-size:12.5px;color:var(--ink2)}
 .psit{display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:12px;background:#f8fafc;margin-top:6px;transition:background .3s}
 .psit.done{background:#f0f8f1}
 .psit .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
@@ -335,17 +315,6 @@ a{color:inherit}
 .psshop .ln .r{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .pstag{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;border:1px solid transparent}
 .psdone{height:34px;padding:0 12px;border-radius:10px;border:0;background:#1f8a3a;color:#fff;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
-.psst.bad{color:var(--down)}
-.psst.bad i{background:var(--down);border-color:var(--down);color:#fff}
-.psclock{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:10px;margin:8px 0 4px}
-.psclock .pc{border:1px solid var(--line2);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;background:#fff}
-.psclock .pc b{font-size:12px;color:var(--ink2);text-transform:none}
-.psclock .pcv{font-size:15px;font-weight:800;color:var(--ink)}
-.psclock .pcv.r{color:var(--down)}
-.psclock .pcv.w{color:#a83f12}
-.psclock .pcv.ok{color:var(--up)}
-.psclock small{font-size:12px;color:var(--ink2)}
-.psowed{grid-column:1/-1;font-size:12.5px;font-weight:700;color:var(--down);background:var(--down-bg);border-radius:10px;padding:8px 12px}
 .pssj{margin-top:10px}
 .pscap{font-size:12px;font-weight:800;color:var(--ink2);margin:6px 0 4px}
 .psj{border:1px solid var(--line2);border-radius:12px;padding:10px 12px;margin-top:6px;background:#fff}
@@ -359,6 +328,40 @@ a{color:inherit}
 .psjl li.ok i{background:var(--up-bg);color:var(--up)}
 .psjl li.no i{background:var(--down-bg);color:var(--down)}
 .psmore{margin-top:10px}
+/* 19 Nov: option A, the work queue: groups by the next step, one row and one action per order, the detail in a fixed order */
+.psq{display:flex}
+.psq input{font:inherit;font-size:13px;height:38px;border:1px solid var(--line2);border-radius:11px;padding:0 12px;background:#fff;color:var(--ink);width:260px;max-width:100%;box-sizing:border-box}
+.psq input:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+.psgh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:20px 2px 0;font-size:13.5px;font-weight:800;color:var(--ink)}
+#psBody>.psgh:first-child{margin-top:2px}
+.psgh .n{font-size:12px;font-weight:700;color:var(--muted)}
+.psgh .h{font-size:12.5px;font-weight:500;color:var(--muted)}
+.psgh .lbtn{margin-left:auto}
+.psdot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;flex:none}
+.psdot.r{background:var(--down)}.psdot.w{background:#e8590c}.psdot.ok{background:#1f8a3a}.psdot.b{background:var(--brand)}.psdot.sh{background:#2a78d6}
+.pstog{border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.pstog b{font-size:15px;font-weight:800;color:var(--ink);overflow-wrap:anywhere}
+.pstog span{font-size:12px;color:var(--muted)}
+.pstog:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:6px}
+.psact{display:flex;justify-content:flex-end;min-width:0}
+.psshort{font-size:12.5px;color:var(--ink2);text-align:right}
+.lbtn.badx,.lbtn.pri.badx{background:var(--down);border-color:var(--down);color:#fff}
+.lbtn.badx:hover,.lbtn.pri.badx:hover{background:#951c1c;border-color:#951c1c;color:#fff}
+.psnext{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;border-radius:14px;padding:12px 14px;margin:12px 0 2px;background:var(--brand-soft)}
+.psnext.ok{background:var(--up-bg)}.psnext.w{background:#fdeee7}.psnext.r{background:var(--down-bg)}.psnext.sh,.psnext.n{background:#f1f4f8}
+.psnext .tx{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 280px}
+.psnext .lbl{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+.psnext b{font-size:15px;font-weight:800;color:var(--ink)}
+.psnext .s{font-size:13px;color:var(--ink2)}
+.psbody .psnote{padding:8px 0 0}
+.pssec{margin-top:16px;display:flex;flex-direction:column}
+.pssec>h4{margin:0 0 4px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.pssec>h4 .lbtn{margin-left:auto;text-transform:none;letter-spacing:0}
+.pscount.ok{background:var(--up-bg);color:var(--up)}
+.pstl{display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;padding:8px 0;border-top:1px solid var(--grid);font-size:13px;color:var(--ink2)}
+.pstl b{font-weight:700;color:var(--ink);min-width:92px}
+.pstl .v{font-weight:800;color:var(--ink)}.pstl .v.r{color:var(--down)}.pstl .v.w{color:#a83f12}.pstl .v.ok{color:var(--up)}
+.psline0{font-size:13px;color:var(--ink2);padding:8px 0;border-top:1px solid var(--grid)}
 /* 19 Nov: Kirim barang, Tandai dikirim and Batalkan (surat jalan made here, the same rows as eSKalasi) */
 .lbtn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
 .lbtn.pri:hover{background:var(--brand-ink);border-color:var(--brand-ink);color:#fff}
@@ -394,7 +397,7 @@ a{color:inherit}
 .pstoast .ic{color:#4ade80;display:grid;place-items:center}
 .pstoast button{border:0;background:#fff;color:var(--ink);font:inherit;font-size:12px;font-weight:800;padding:5px 10px;border-radius:8px;cursor:pointer;white-space:nowrap}
 .pstoast.err{background:var(--down)}
-@media (max-width:980px){.pshd{grid-template-columns:minmax(0,1fr) 22px}.pshd .psname{grid-column:1;grid-row:1}.pshd .pschev{grid-column:2;grid-row:1}.pshd .pssteps,.pshd .psprog{grid-column:1/3}}
+@media (max-width:760px){.pshd{grid-template-columns:10px minmax(0,1fr) auto}.pshd .psprog{grid-column:2/4;grid-row:2}.pshd .psdl{grid-column:3;grid-row:1}.pshd .psact{grid-column:2/4;grid-row:3;justify-content:flex-start}.pshd .pschev{display:none}.psq input{width:100%}.psq{flex:1 1 100%}}
 @media (max-width:560px){.pstoast{right:16px;left:16px;bottom:16px}.psseg button{min-width:0;flex:1 1 40%}.psx input.n{width:100%}.psx label{flex:1 1 100%}}
 .psmsg{font-size:12px;color:var(--ink2)}
 .psmsg.err{color:var(--down)}
@@ -911,7 +914,7 @@ html:has(.loader:not(.off)){overflow:hidden}
     </div>
     <div class="grid kpis k4 pskpis" id="psKpis" hidden></div>
     <div class="card" style="--i:4">
-      <div class="psbar"><div class="seg" id="psTabs"></div><div class="pschips" id="psFilter" hidden></div></div>
+      <div class="psbar"><div class="seg" id="psTabs"></div><label class="psq" id="psQBox" hidden><input id="psQ" type="search" placeholder="Cari sekolah atau invoice" aria-label="Cari order" autocomplete="off"></label></div>
       <div id="psBody"></div>
     </div>
     <div class="pstoast" id="psToast" role="status" aria-live="polite" hidden></div>
@@ -3257,7 +3260,7 @@ function skInLevelBox(x, si, d) {
 // (urgent at d.urgent days or less), one-tap status per item and auto-save in place of Simpan. Opens at once
 // from the last copy kept in this browser for this email and refreshes behind it; the dashboard also loads
 // it in the background right after it starts. The same rows as Proses order in eSKalasi (Persiapan.js).
-var SKPS = { data: null, tab: 'order', filter: 'all', sort: 'urgent', open: {}, loading: false, err: '', at: 0, local: false, q: {}, toastT: 0, calm: false };
+var SKPS = { data: null, tab: 'order', find: '', showDone: false, sort: 'urgent', open: {}, loading: false, err: '', at: 0, local: false, q: {}, toastT: 0, calm: false };
 var SKPS_ST = [['Belum', 's-b'], ['Dipesan', 's-d'], ['Sebagian', 's-p'], ['Siap', 's-s']];
 var SKPS_DELAY = 700; // ms after the last keystroke before a quantity, note or date is saved
 var SKPS_OK = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
@@ -3409,19 +3412,8 @@ function skPsKpis(all) {
 function skPsBar(all) {
   var c = skPsCounts(all), shop = skPsShopList();
   skPsSeg('psTabs', [['order', 'Order ', c.all], ['belanja', 'Daftar belanja ', shop.length]], SKPS.tab, function (t) { SKPS.tab = t; SKPS.calm = false; skPsRender(); });
-  var chips = document.getElementById('psFilter');
-  chips.textContent = '';
-  chips.hidden = SKPS.tab !== 'order';
+  document.getElementById('psQBox').hidden = SKPS.tab !== 'order';
   document.getElementById('psSortBox').hidden = SKPS.tab !== 'order';
-  [['all', 'Semua', '#64748b'], ['urgent', 'Mendesak', '#e8590c'], ['ready', 'Siap kirim', '#1f8a3a'], ['partial', 'Sebagian', '#c98a12'], ['todo', 'Belum mulai', '#94a3b8'], ['retur', 'Retur', '#b42323'], ['shipped', 'Dikirim', '#1c5cab'], ['done', 'Selesai', '#006300']].forEach(function (f) {
-    if ((f[0] === 'shipped' || f[0] === 'retur' || f[0] === 'done') && !c[f[0]]) return;
-    var b = skEl('button', 'pschip' + (SKPS.filter === f[0] ? ' on' : '')), dot = skEl('i');
-    b.type = 'button'; b.setAttribute('aria-pressed', SKPS.filter === f[0] ? 'true' : 'false');
-    dot.style.background = f[2]; dot.setAttribute('aria-hidden', 'true');
-    b.appendChild(dot); b.appendChild(document.createTextNode(f[1] + ' (' + c[f[0]] + ')'));
-    b.addEventListener('click', function () { SKPS.filter = f[0]; SKPS.calm = false; skPsRender(); });
-    chips.appendChild(b);
-  });
 }
 function skPsSeg(id, items, cur, onPick) {
   var seg = document.getElementById(id); seg.textContent = '';
@@ -3441,147 +3433,201 @@ function skPsRender() {
   body.classList.toggle('calm', SKPS.calm);
   if (!d) {
     document.getElementById('psKpis').hidden = true; skPsSeg('psTabs', [], '', null);
-    document.getElementById('psFilter').hidden = true; document.getElementById('psSortBox').hidden = true;
+    document.getElementById('psQBox').hidden = true; document.getElementById('psSortBox').hidden = true;
     body.appendChild(skEl('div', 'oempty', SKPS.err ? SKPS.err + '. Tekan Muat ulang.' : 'Memuat order...'));
     return;
   }
   var all = skPsAll();
   skPsKpis(all); skPsBar(all);
   if (SKPS.tab === 'belanja') { skPsShop(body); return; }
-  var list = all.filter(function (v) { return skPsIn(v, SKPS.filter); });
-  list.sort(function (a, b) {
-    if (SKPS.filter === 'shipped' || SKPS.filter === 'done') return String(b.x.got || b.x.sent) < String(a.x.got || a.x.sent) ? -1 : 1;
-    if (SKPS.sort === 'newest') return a.x.date === b.x.date ? (a.x.inv < b.x.inv ? 1 : -1) : a.x.date < b.x.date ? 1 : -1;
-    var ra = a.phase === 'gudang' && a.stage === 2 ? 1 : 0, rb = b.phase === 'gudang' && b.stage === 2 ? 1 : 0; // ready to ship goes last; a retur stays with the open work
-    return ra - rb || a.left - b.left || (a.x.date < b.x.date ? -1 : 1);
+  var q = String(SKPS.find || '').trim().toLowerCase();
+  var list = all.filter(function (v) { return !q || ((v.x.school || '') + ' ' + v.x.inv).toLowerCase().indexOf(q) >= 0; });
+  if (!list.length) { body.appendChild(skEl('div', 'oempty', q ? 'Tidak ada order yang cocok dengan "' + SKPS.find.trim() + '".' : 'Belum ada order sejak ' + skPsDay(d.from) + '.')); return; }
+  var n = 0;
+  SKPS_GROUPS.forEach(function (g) {
+    var l = list.filter(function (v) { return skPsGroup(v) === g.id; });
+    if (!l.length) return;
+    l.sort(function (a, b) {
+      if (g.id === 'jalan' || g.id === 'selesai') return String(b.x.got || b.x.sent) < String(a.x.got || a.x.sent) ? -1 : 1;
+      if (SKPS.sort === 'newest') return a.x.date === b.x.date ? (a.x.inv < b.x.inv ? 1 : -1) : a.x.date < b.x.date ? 1 : -1;
+      return a.left - b.left || (a.x.date < b.x.date ? -1 : 1);
+    });
+    var folded = g.fold && !SKPS.showDone && !q, gh = skEl('div', 'psgh'), dot = skEl('span', 'psdot ' + g.dot);
+    gh.setAttribute('data-grp', g.id); dot.setAttribute('aria-hidden', 'true');
+    gh.appendChild(dot); gh.appendChild(document.createTextNode(g.label)); gh.appendChild(skEl('span', 'n', String(l.length)));
+    if (g.hint) gh.appendChild(skEl('span', 'h', '· ' + g.hint));
+    if (g.fold && !q) {
+      var fb = skEl('button', 'lbtn sm', folded ? 'Tampilkan' : 'Lipat'); fb.type = 'button'; fb.setAttribute('aria-expanded', folded ? 'false' : 'true');
+      fb.addEventListener('click', function () { SKPS.showDone = !SKPS.showDone; SKPS.calm = true; skPsRender(); });
+      gh.appendChild(fb);
+    }
+    body.appendChild(gh);
+    if (!folded) l.forEach(function (v) { body.appendChild(skPsCard(v, n++)); });
   });
-  if (!list.length) { body.appendChild(skEl('div', 'oempty', d.list.length ? 'Tidak ada order di filter ini.' : 'Belum ada order sejak ' + skPsDay(d.from) + '.')); return; }
-  list.forEach(function (v, n) { body.appendChild(skPsCard(v, n)); });
 }
-
+// ---------- 19 Nov: option A, the work queue (Muji: "they pick A"; the team worried that with many orders the admin
+// gets confused, and that an opened order showed its information all over the place). Orders are grouped by what
+// the admin does next, most urgent first in each group; one row and one action per order; one order open at a time,
+// and its detail always in the same order: Langkah berikutnya, Barang, Pengiriman, Waktu (docs/persiapan-3-pilihan.html).
+var SKPS_GROUPS = [
+  { id: 'retur', label: 'Ada masalah dari sekolah', hint: 'kerjakan dulu', dot: 'r' },
+  { id: 'kirim', label: 'Siap dikirim', hint: 'buat atau berangkatkan surat jalan', dot: 'ok' },
+  { id: 'siapkan', label: 'Perlu disiapkan', hint: 'paling mendesak dulu', dot: 'b' },
+  { id: 'jalan', label: 'Di jalan', hint: 'menunggu sekolah menerima', dot: 'sh' },
+  { id: 'selesai', label: 'Selesai', hint: 'diterima benar, 14 hari terakhir', dot: '', fold: true }
+];
+function skPsWaitSj(x) { return (x.sjs || []).filter(function (j) { return j.status === 'Disiapkan'; })[0] || null; }
+function skPsGroup(v) {
+  if (v.phase === 'retur' || v.phase === 'jalan' || v.phase === 'selesai') return v.phase;
+  var left = skPsLeft(v.x).length, known = !!v.x.toSend;
+  if ((v.stage === 2 && (left || !known)) || (skPsWaitSj(v.x) && !left)) return 'kirim';
+  return 'siapkan';
+}
+// The one next step of an order: what to do, why, and its button (act: kirim, ship, allready).
+function skPsNext(v) {
+  var x = v.x, left = skPsLeft(x), known = !!x.toSend, wait = skPsWaitSj(x), t = v.sla || {};
+  if (v.phase === 'retur') {
+    var owed = (t.items || []).filter(function (i) { return i.owed > 0 && (t.badAt || i.sent > 0); });
+    var iss = (t.issues || []).map(function (i) { return i.item + ' ' + String(i.ket || '').toLowerCase() + (i.diff ? ' ' + skPsNum(i.diff) : ''); });
+    return { tone: 'r', title: 'Kirim pengganti' + (owed.length ? ': ' + owed.map(function (i) { return skPsNum(i.owed) + ' ' + i.unit + ' ' + i.item; }).join(', ') : ''),
+      text: iss.length ? 'Sekolah melaporkan: ' + iss.join(', ') + '.' : 'Sekolah melaporkan barang kurang atau bermasalah.',
+      btn: left.length || !known ? 'Kirim pengganti' : '', act: 'kirim', short: 'Kirim pengganti' };
+  }
+  if (v.phase === 'jalan') return { tone: 'sh', title: 'Menunggu sekolah menerima dan mengecek barang', text: 'Tidak ada yang perlu dikerjakan sekarang.', short: 'Menunggu sekolah' };
+  if (v.phase === 'selesai') return { tone: 'ok', title: 'Selesai, semua barang diterima benar', text: '', short: 'Selesai' };
+  if (v.stage === 2 && (left.length || !known)) return { tone: 'ok', title: t.sentAt ? 'Kirim sisa barangnya' : 'Semua barang siap. Kirim barangnya.',
+    text: left.length ? left.length + ' barang belum ada di surat jalan.' : '', btn: 'Kirim barang', act: 'kirim', short: 'Kirim barang' };
+  if (wait && !left.length) return { tone: 'ok', title: 'Tandai ' + wait.no + ' dikirim saat barangnya berangkat', text: 'Surat jalan sudah dibuat, belum dikirim.', btn: 'Tandai dikirim', act: 'ship', no: wait.no, short: 'Tandai dikirim' };
+  if (!v.total) return { tone: 'n', title: 'Barang order ini belum terbaca', text: 'Muat ulang setelah data 2026 dicek.', short: 'Barang belum terbaca' };
+  var miss = (x.items || []).filter(function (it) { return it.status !== 'Siap'; }), by = {}, parts = [];
+  miss.forEach(function (it) { (by[it.status] = by[it.status] || []).push(it); });
+  if (by.Belum) parts.push('Belum dipesan: ' + by.Belum.map(function (it) { return it.item; }).join(', '));
+  if (by.Dipesan) parts.push('Dipesan: ' + by.Dipesan.map(function (it) { return it.item + (it.eta ? ' (datang ' + skPsDay(it.eta) + ')' : ''); }).join(', '));
+  if (by.Sebagian) parts.push('Sebagian: ' + by.Sebagian.map(function (it) { return it.item + ' ' + skPsNum(it.ready) + ' dari ' + skPsNum(it.qty); }).join(', '));
+  return { tone: v.urgent ? 'w' : 'b', title: 'Siapkan ' + miss.length + ' barang lagi', text: parts.join('. ') + '.', btn: 'Tandai semua siap', act: 'allready', second: true,
+    short: miss.length + ' barang belum siap' };
+}
+function skPsDo(v, nx) {
+  if (nx.act === 'allready') skPsAllReady(v.x.inv);
+  else if (nx.act === 'kirim') skPsFormOpen(v.x.inv, 'kirim', '', true);
+  else if (nx.act === 'ship') skPsFormOpen(v.x.inv, 'ship', nx.no, true);
+}
+// The deadline chip of a row (the group already says the stage).
+function skPsChip(v) {
+  var d = +v.x.days || 0;
+  if (v.phase === 'selesai') return v.sla && v.sla.late ? ['r', 'Selesai, lewat ' + (-v.sla.left) + ' hari'] : ['ok', 'Selesai dalam ' + d + ' hari'];
+  if (v.phase === 'jalan') return ['sh', 'SLA berhenti di hari ke-' + d];
+  if (v.left < 0) return ['r', 'Lewat ' + (-v.left) + ' hari'];
+  return [v.left <= skPsCfg().urgent ? 'w' : 'n', 'Sisa ' + v.left + ' hari'];
+}
+// One order open at a time: opening one closes the other.
+function skPsToggle(inv) {
+  var was = !!SKPS.open[inv], prev = Object.keys(SKPS.open).filter(function (p) { return p !== inv; });
+  SKPS.open = {};
+  if (!was) SKPS.open[inv] = true;
+  if (SKPS.form && SKPS.form.inv !== inv) SKPS.form = null;
+  prev.forEach(function (p) { skPsRedraw(p); });
+  var nc = skPsRedraw(inv);
+  if (nc) { var t = nc.querySelector('.pstog'); if (t) t.focus({ preventScroll: true }); if (!was) nc.scrollIntoView({ block: 'nearest' }); }
+}
 function skPsCard(v, n) {
   var x = v.x, open = !!SKPS.open[x.inv];
   var card = skEl('div', 'pscard' + (v.urgent ? ' urgent' : '') + ((v.phase === 'gudang' || v.phase === 'retur') && v.left < 0 ? ' late' : '') + (open ? ' open' : ''));
   card.setAttribute('data-inv', x.inv);
+  card.setAttribute('data-grp', skPsGroup(v));
   card.setAttribute('data-sig', skPsSig(v));
-  card.style.animationDelay = (Math.min(n, 10) * 0.05) + 's';
-  var hd = skEl('button', 'pshd'); hd.type = 'button';
-  hd.setAttribute('aria-expanded', open ? 'true' : 'false');
+  card.style.animationDelay = (Math.min(n, 10) * 0.04) + 's';
+  var hd = skEl('div', 'pshd');
   skPsHead(hd, v);
-  hd.addEventListener('click', function () {
-    SKPS.open[x.inv] = !SKPS.open[x.inv];
-    var o = skPsFind(x.inv); if (!o) return;
-    var nc = skPsCard(skPsX(o), 0); nc.style.animation = 'none';
-    card.parentNode.replaceChild(nc, card); nc.querySelector('.pshd').focus();
-  });
+  hd.addEventListener('click', function (e) { if (e.target.closest('.psgo')) return; skPsToggle(x.inv); });
   card.appendChild(hd);
-  if (x.note) card.appendChild(skEl('div', 'psnote', 'Catatan: ' + x.note));
   if (open) card.appendChild(skPsBody(v));
   return card;
 }
+// The row: who, how far the goods are, the deadline, and the one action (or what it waits for).
 function skPsHead(hd, v) {
-  var x = v.x, cfg = skPsCfg();
+  var x = v.x, nx = skPsNext(v), dl = skPsChip(v), open = !!SKPS.open[x.inv];
   hd.textContent = '';
-  var nm = skEl('div', 'psname'), b = skEl('b');
-  if (v.urgent) { var u = skEl('span', 'psurg'); u.setAttribute('aria-hidden', 'true'); b.appendChild(u); }
-  b.appendChild(document.createTextNode(x.school || x.inv));
-  nm.appendChild(b); nm.appendChild(skEl('span', '', x.inv + ' · order ' + skPsDay(x.date)));
-  hd.appendChild(nm);
-  var st = skEl('div', 'pssteps');
-  var p = v.phase === 'selesai' ? 4 : v.phase === 'jalan' || v.phase === 'retur' ? 2 : v.stage === 2 ? 1 : 0;
-  ['Disiapkan', 'Siap kirim', v.phase === 'retur' ? 'Retur' : 'Dikirim', 'Diterima'].forEach(function (lb, i) {
-    var done = i < p, cur = i === p, bad = cur && v.phase === 'retur';
-    var s = skEl('span', 'psst' + (done ? ' done' : bad ? ' bad' : cur ? ' cur' : '')), dot = skEl('i');
-    if (done) dot.innerHTML = SKPS_OK; else dot.textContent = bad ? '!' : String(i + 1);
-    s.appendChild(dot); s.appendChild(document.createTextNode(lb));
-    if (i < 3) { var ln = skEl('u'); ln.setAttribute('aria-hidden', 'true'); s.appendChild(ln); }
-    st.appendChild(s);
-  });
-  hd.appendChild(st);
-  var pr = skEl('div', 'psprog'), l1 = skEl('div', 'l1'), dl = skPsDeadline(v);
-  l1.appendChild(skEl('span', '', v.total ? v.ready + '/' + v.total + ' siap' : 'Barang belum terbaca'));
-  l1.appendChild(skEl('span', 'psdl ' + dl[0], dl[1]));
-  pr.appendChild(l1);
-  var bar = skEl('div', 'psbarx'), fill = skEl('i');
-  bar.setAttribute('aria-label', v.ready + ' dari ' + v.total + ' barang siap');
+  var dot = skEl('span', 'psdot ' + (v.phase === 'retur' ? 'r' : v.urgent ? 'w' : ''));
+  dot.setAttribute('aria-hidden', 'true'); hd.appendChild(dot);
+  var tog = skEl('button', 'pstog'); tog.type = 'button'; tog.setAttribute('aria-expanded', open ? 'true' : 'false');
+  tog.appendChild(skEl('b', '', x.school || x.inv)); tog.appendChild(skEl('span', '', x.inv + ' · order ' + skPsDay(x.date)));
+  hd.appendChild(tog);
+  var pr = skEl('div', 'psprog'), bar = skEl('div', 'psbarx'), fill = skEl('i');
+  pr.appendChild(skEl('span', 'l1', v.total ? v.ready + ' dari ' + v.total + ' barang siap' : 'Barang belum terbaca'));
+  bar.setAttribute('aria-hidden', 'true');
   fill.style.width = (v.total ? Math.round(v.ready / v.total * 100) : 0) + '%';
   fill.style.background = v.shipped || v.stage === 2 ? '#1f8a3a' : v.urgent ? '#e8590c' : 'var(--brand)';
-  bar.appendChild(fill); pr.appendChild(bar);
-  var tm = skEl('div', 'pstime'), tf = skEl('i');
-  tm.setAttribute('aria-hidden', 'true');
-  tf.style.width = Math.max(0, Math.min(100, Math.round((+x.days || 0) / cfg.target * 100))) + '%';
-  tf.style.background = v.phase === 'jalan' || v.phase === 'selesai' ? '#c5cdd8' : v.left < 0 ? 'var(--down)' : v.left <= cfg.urgent ? '#e8890c' : '#c5cdd8';
-  tm.appendChild(tf); pr.appendChild(tm);
-  pr.appendChild(skEl('small', '', 'SLA admin hari ke-' + x.days + ' dari ' + cfg.target + (v.phase === 'jalan' ? ', berhenti selama di jalan' : v.phase === 'selesai' ? ', selesai' : '')));
-  hd.appendChild(pr);
+  bar.appendChild(fill); pr.appendChild(bar); hd.appendChild(pr);
+  hd.appendChild(skEl('span', 'psdl ' + dl[0], dl[1]));
+  var act = skEl('span', 'psact');
+  if (nx.btn && !nx.second) {
+    var b = skEl('button', 'lbtn sm pri psgo' + (nx.tone === 'r' ? ' badx' : ''), nx.btn); b.type = 'button';
+    b.addEventListener('click', function (e) { e.stopPropagation(); skPsDo(v, nx); });
+    act.appendChild(b);
+  } else act.appendChild(skEl('span', 'psshort', nx.short));
+  hd.appendChild(act);
   var ch = skEl('span', 'pschev');
   ch.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
   hd.appendChild(ch);
 }
+// The open order, always in this order: Langkah berikutnya, Barang, Pengiriman, Waktu.
 function skPsBody(v) {
-  var x = v.x, body = skEl('div', 'psbody'), acts = skEl('div', 'psacts'), sla = v.sla;
-  if (v.phase === 'selesai') acts.appendChild(skEl('p', '', 'Semua barang sudah diterima sekolah dengan benar.'));
-  else if (v.phase === 'jalan') acts.appendChild(skEl('p', '', 'Semua barang sudah dikirim, menunggu sekolah menerima dan mengecek.'));
-  else if (v.phase === 'retur') acts.appendChild(skEl('p', '', 'Sekolah melaporkan barang kurang atau bermasalah. Kirim penggantinya dari sini atau dari eSKalasi.'));
-  else if (!skPsLeft(x).length && (x.sjs || []).some(function (j) { return j.status === 'Disiapkan'; })) acts.appendChild(skEl('p', '', 'Surat jalan sudah dibuat. Tandai dikirim setelah barangnya berangkat.'));
-  else if (v.stage === 2 && sla && sla.sentAt) acts.appendChild(skEl('p', '', 'Sebagian barang sudah dikirim. Sisanya siap dikirim.'));
-  else if (v.stage === 2) acts.appendChild(skEl('p', '', 'Semua barang siap dikirim.'));
-  else if (sla && sla.sentAt) acts.appendChild(skEl('p', '', 'Sebagian barang sudah dikirim.'));
-  // 19 Nov: Kirim barang makes the surat jalan here, the one eSKalasi and SNAPP read (Persiapan.js kirimPersiapan)
-  if ((v.phase === 'gudang' || v.phase === 'retur') && skPsLeft(x).length) {
-    var kb = skEl('button', 'lbtn' + (v.stage === 2 || v.phase === 'retur' ? ' pri' : ''), v.phase === 'retur' ? 'Kirim pengganti' : 'Kirim barang'); kb.type = 'button';
-    kb.setAttribute('aria-expanded', skPsFormIs(x.inv, 'kirim') ? 'true' : 'false');
-    kb.addEventListener('click', function () { skPsFormOpen(x.inv, 'kirim', ''); });
-    acts.appendChild(kb);
+  var x = v.x, body = skEl('div', 'psbody'), nx = skPsNext(v);
+  var nb = skEl('div', 'psnext ' + nx.tone), tx = skEl('div', 'tx');
+  tx.appendChild(skEl('span', 'lbl', 'Langkah berikutnya')); tx.appendChild(skEl('b', '', nx.title));
+  if (nx.text) tx.appendChild(skEl('span', 's', nx.text));
+  nb.appendChild(tx);
+  if (nx.btn) {
+    var b = skEl('button', 'lbtn' + (nx.second ? '' : ' pri') + (nx.tone === 'r' && !nx.second ? ' badx' : ''), nx.btn); b.type = 'button';
+    b.addEventListener('click', function () { skPsDo(v, nx); });
+    nb.appendChild(b);
   }
-  var sj = document.querySelector('.tab[data-tab=aplikasi][data-ax=snapp]');
-  if (v.phase !== 'gudang' && sj && !sj.hidden) {
-    var go = skEl('button', 'lbtn', 'Lihat surat jalan'); go.type = 'button';
-    go.addEventListener('click', function () { skShowTab('aplikasi', sj); });
-    acts.appendChild(go);
-  }
-  if (v.phase === 'gudang' && v.total && v.stage < 2) {
-    var all = skEl('button', 'lbtn', 'Tandai semua siap'); all.type = 'button';
-    all.addEventListener('click', function () { skPsAllReady(x.inv); });
-    acts.appendChild(all);
-  }
-  if (acts.childNodes.length) body.appendChild(acts);
+  body.appendChild(nb);
+  if (x.note) body.appendChild(skEl('div', 'psnote', 'Catatan: ' + x.note));
   if (skPsFormIs(x.inv, 'kirim')) body.appendChild(skPsKirimForm(v));
-  if (sla) body.appendChild(skPsClocks(v));
-  if (sla && sla.sjCount) body.appendChild(skPsSjs(v));
-  if (!v.total) body.appendChild(skEl('div', 'oempty', 'Barang order ini belum terbaca dari tab Data. Muat ulang setelah data 2026 dicek.'));
-  else if (v.phase === 'gudang') (x.items || []).forEach(function (it) { body.appendChild(skPsItem(x.inv, it)); });
+  var bs = skEl('div', 'pssec'), bh = skEl('h4', '', 'Barang');
+  if (v.total) bh.appendChild(skEl('span', 'pscount' + (v.ready === v.total ? ' ok' : ''), v.ready + ' dari ' + v.total + ' siap'));
+  bs.appendChild(bh);
+  if (!v.total) bs.appendChild(skEl('div', 'oempty', 'Barang order ini belum terbaca dari tab Data. Muat ulang setelah data 2026 dicek.'));
+  else if (v.phase === 'gudang' || v.phase === 'retur') (x.items || []).forEach(function (it) { bs.appendChild(skPsItem(x.inv, it)); });
   else {
-    var more = skEl('button', 'lbtn psmore', 'Lihat checklist persiapan (' + v.ready + '/' + v.total + ' siap)'); more.type = 'button';
-    more.addEventListener('click', function () { more.remove(); (x.items || []).forEach(function (it) { body.appendChild(skPsItem(x.inv, it)); }); });
-    body.appendChild(more);
+    var more = skEl('button', 'lbtn psmore', 'Lihat checklist persiapan'); more.type = 'button';
+    more.addEventListener('click', function () { more.remove(); (x.items || []).forEach(function (it) { bs.appendChild(skPsItem(x.inv, it)); }); });
+    bs.appendChild(more);
   }
+  body.appendChild(bs);
+  var ps = skEl('div', 'pssec'), ph = skEl('h4', '', 'Pengiriman'), sj = document.querySelector('.tab[data-tab=aplikasi][data-ax=snapp]');
+  if ((x.sjs || []).length && sj && !sj.hidden) {
+    var go = skEl('button', 'lbtn sm', 'Lihat di SNAPP'); go.type = 'button';
+    go.addEventListener('click', function () { skShowTab('aplikasi', sj); });
+    ph.appendChild(go);
+  }
+  ps.appendChild(ph);
+  if ((x.sjs || []).length) ps.appendChild(skPsSjs(v)); else ps.appendChild(skEl('div', 'psline0', 'Belum ada surat jalan.'));
+  body.appendChild(ps);
+  if (v.sla) body.appendChild(skPsTime(v));
   return body;
 }
-// 18 Nov (Firman and team): the two clocks in words. SLA admin stops while the goods are on the road and carries
+// Waktu: the two clocks in words (18 Nov, Firman and team). SLA admin stops while the goods are on the road and carries
 // on from a problem report; SLA invoice waits for everything received right and the school's Sesuai.
-function skPsClocks(v) {
-  var t = v.sla, cfg = skPsCfg(), box = skEl('div', 'psclock'), a = skEl('div', 'pc'), b = skEl('div', 'pc');
+function skPsTime(v) {
+  var t = v.sla, cfg = skPsCfg(), sec = skEl('div', 'pssec');
+  sec.appendChild(skEl('h4', '', 'Waktu'));
+  var line = function (label, value, cls, note) {
+    var r = skEl('div', 'pstl'); r.appendChild(skEl('b', '', label)); r.appendChild(skEl('span', 'v ' + (cls || ''), value)); if (note) r.appendChild(skEl('span', '', note)); sec.appendChild(r);
+  };
   var at = t.doneAt ? 'selesai ' + skPsDay(t.doneAt) + ', semua barang diterima benar' : t.badAt ? 'jalan lagi sejak ' + skPsDay(t.badAt) + ', sekolah melaporkan masalah' :
     t.allSentAt ? 'berhenti sejak ' + skPsDay(t.allSentAt) + ', semua barang dikirim' : 'berjalan sejak order ' + skPsDay(v.x.date);
-  a.appendChild(skEl('b', '', 'SLA admin'));
-  a.appendChild(skEl('span', 'pcv' + (t.late ? ' r' : t.left <= cfg.urgent && t.running ? ' w' : ''), 'hari ke-' + t.adminDays + ' dari ' + cfg.target));
-  a.appendChild(skEl('small', '', at));
-  var due = t.start ? skPsDay(skPsAdd(t.start, 30)) : '';
-  var bt = t.start ? 'berjalan sejak ' + skPsDay(t.start) + ', jatuh tempo ' + due : t.doneAt ? (t.verif === 'Tidak sesuai' ? 'belum berjalan, sekolah menandai invoice tidak sesuai' : 'belum berjalan, menunggu sekolah mengonfirmasi invoice') :
-    'belum berjalan, menunggu semua barang diterima benar';
-  b.appendChild(skEl('b', '', 'SLA invoice'));
-  b.appendChild(skEl('span', 'pcv' + (t.start ? ' ok' : ''), t.start ? 'berjalan' : 'belum berjalan'));
-  b.appendChild(skEl('small', '', bt));
-  box.appendChild(a); box.appendChild(b);
-  var owed = (t.items || []).filter(function (i) { return i.owed > 0 && (t.badAt || i.sent > 0); });
-  if (t.badAt && owed.length) box.appendChild(skEl('div', 'psowed', 'Perlu dikirim ulang: ' + owed.map(function (i) { return skPsNum(i.owed) + ' ' + i.unit + ' ' + i.item; }).join(', ') + '.'));
-  return box;
+  line('SLA admin', 'hari ke-' + t.adminDays + ' dari ' + cfg.target, t.late ? 'r' : t.left <= cfg.urgent && t.running ? 'w' : '', at);
+  var bt = t.start ? 'berjalan sejak ' + skPsDay(t.start) + ', jatuh tempo ' + skPsDay(skPsAdd(t.start, 30)) : t.doneAt ? (t.verif === 'Tidak sesuai' ? 'sekolah menandai invoice tidak sesuai' : 'menunggu sekolah mengonfirmasi invoice') :
+    'menunggu semua barang diterima benar';
+  line('SLA invoice', t.start ? 'berjalan' : 'belum berjalan', t.start ? 'ok' : '', bt);
+  return sec;
 }
 function skPsAdd(iso, n) { var p = String(iso).split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + n)).toISOString().slice(0, 10); }
 function skPsSjs(v) {
   var wrap = skEl('div', 'pssj');
-  wrap.appendChild(skEl('div', 'pscap', 'Surat jalan (' + (v.x.sjs || []).length + ')'));
   (v.x.sjs || []).forEach(function (sj) {
     var box = skEl('div', 'psj'), hd = skEl('div', 'psjh'), bad = sj.lines.some(function (l) { return l.ok === false; });
     hd.appendChild(skEl('b', '', sj.no));
@@ -3628,17 +3674,20 @@ function skPsLeft(x) { return (x.toSend || []).filter(function (l) { return l.le
 function skPsSig(v) { return [v.stage, v.phase, skPsLeft(v.x).length, (v.x.sjs || []).map(function (j) { return j.no + ':' + j.status; }).join(',')].join('|'); }
 function skPsEditing(card) { var a = document.activeElement; return !!(a && card.contains(a) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
 function skPsFormIs(inv, kind, no) { var fm = SKPS.form; return !!(fm && fm.inv === inv && fm.kind === kind && (no === undefined || fm.no === no)); }
-function skPsFormOpen(inv, kind, no) {
-  SKPS.form = skPsFormIs(inv, kind, no) ? null : { inv: inv, kind: kind, no: no || '' };
+function skPsFormOpen(inv, kind, no, force) {
+  SKPS.form = !force && skPsFormIs(inv, kind, no) ? null : { inv: inv, kind: kind, no: no || '' };
+  var prev = Object.keys(SKPS.open).filter(function (p) { return p !== inv; });
+  SKPS.open = {}; SKPS.open[inv] = true; // one order open at a time
+  prev.forEach(function (p) { skPsRedraw(p); });
   var nc = skPsRedraw(inv), first = nc && SKPS.form ? nc.querySelector('.psform input:not([type=date]):not([type=number]), .psform textarea') : null;
   if (first) setTimeout(function () { first.focus(); }, 40);
-  else if (nc) { var b = nc.querySelector(kind === 'kirim' ? '.psacts .lbtn' : '.psjact .lbtn'); if (b) b.focus(); }
+  else if (nc) { var b = nc.querySelector(kind === 'kirim' ? '.psnext .lbtn' : '.psjact .lbtn'); if (b) b.focus(); }
+  if (nc && force) nc.scrollIntoView({ block: 'nearest' });
 }
 function skPsRedraw(inv) {
   var o = skPsFind(inv), card = null;
   Array.prototype.forEach.call(document.querySelectorAll('#psBody .pscard'), function (c) { if (c.getAttribute('data-inv') === inv) card = c; });
   if (!o || !card) return null;
-  SKPS.open[inv] = true;
   var nc = skPsCard(skPsX(o), 0); nc.style.animation = 'none';
   card.parentNode.replaceChild(nc, card);
   return nc;
@@ -3663,7 +3712,7 @@ function skPsSave(box, call) {
     SKPS.form = null;
     if (d && d.list) { SKPS.data = d; SKPS.at = Date.now(); SKPS.local = false; SKPS.err = ''; skPsKeep(); }
     skPsRefresh();
-    var nc = done ? skPsRedraw(done.inv) : null, fb = nc && (nc.querySelector('.psacts .lbtn') || nc.querySelector('.pshd'));
+    var nc = done ? skPsRedraw(done.inv) : null, fb = nc && (nc.querySelector('.psnext .lbtn') || nc.querySelector('.pstog'));
     if (fb) fb.focus();
     skPsToast(done ? done.no + (done.status === 'Dikirim' ? ' dikirim' : done.status === 'Batal' ? ' dibatalkan' : ' dibuat, belum dikirim') + '. eSKalasi dan SNAPP ikut berubah.' : 'Tersimpan');
   }).withFailureHandler(function (e) {
@@ -3936,6 +3985,17 @@ function skPsRefresh() {
   var all = skPsAll();
   skPsKpis(all); skPsBar(all); skPsTop();
   if (SKPS.tab === 'belanja') { var b = document.getElementById('psBody'); b.textContent = ''; b.classList.add('calm'); skPsShop(b); return; }
+  // 19 Nov (option A): an order whose next step changed group (all ready, sent, received) moves to that group at once,
+  // the open one stays open; never while someone types in the list or an item save is on its way
+  var cards = Array.prototype.slice.call(document.querySelectorAll('#psBody .pscard'));
+  var moved = cards.some(function (c) { var o = skPsFind(c.getAttribute('data-inv')); return o && c.getAttribute('data-grp') !== skPsGroup(skPsX(o)); });
+  var a0 = document.activeElement, typing = !!(a0 && document.getElementById('psBody').contains(a0) && /^(INPUT|TEXTAREA|SELECT)$/.test(a0.tagName));
+  if (moved && !typing && !Object.keys(SKPS.q).length) {
+    SKPS.calm = true; skPsRender();
+    var oc = document.querySelector('#psBody .pscard.open');
+    if (oc) { oc.scrollIntoView({ block: 'nearest' }); var ob = oc.querySelector('.psnext .lbtn') || oc.querySelector('.pstog'); if (ob) ob.focus({ preventScroll: true }); }
+    return;
+  }
   Array.prototype.forEach.call(document.querySelectorAll('#psBody .pscard'), function (card) {
     var x = skPsFind(card.getAttribute('data-inv')); if (!x) return;
     var v = skPsX(x);
@@ -3944,7 +4004,7 @@ function skPsRefresh() {
     if (card.classList.contains('open') && card.getAttribute('data-sig') !== skPsSig(v) && !skPsEditing(card) &&
       !Object.keys(SKPS.q).some(function (k) { return k === '*' || k.indexOf(x.inv + '|') === 0; })) {
       var had = card.contains(document.activeElement), nc = skPsRedraw(x.inv);
-      if (had && nc) { var fb = nc.querySelector('.psacts .lbtn') || nc.querySelector('.pshd'); if (fb) fb.focus(); }
+      if (had && nc) { var fb = nc.querySelector('.psnext .lbtn') || nc.querySelector('.pstog'); if (fb) fb.focus(); }
       return;
     }
     skPsHead(card.querySelector('.pshd'), v);
@@ -4038,6 +4098,7 @@ function skPsToast(msg, err, retry) {
   SKPS.toastT = setTimeout(function () { t.hidden = true; }, err ? 7000 : 2200);
 }
 document.getElementById('psReload').addEventListener('click', function () { SKPS.calm = true; skPsFetch(false); });
+document.getElementById('psQ').addEventListener('input', function (e) { SKPS.find = e.target.value; SKPS.calm = true; skPsRender(); });
 document.getElementById('psSort').addEventListener('change', function (e) { SKPS.sort = e.target.value; SKPS.calm = false; skPsRender(); });
 // A change still waiting to be saved: the browser asks before the page closes.
 window.addEventListener('beforeunload', function (e) { if (skPsBusy()) { e.preventDefault(); e.returnValue = ''; } });
