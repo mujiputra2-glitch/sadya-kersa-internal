@@ -95,6 +95,10 @@ a{color:var(--brand-ink)}
 .ttl{margin-right:auto;min-width:0}
 .ttl h1{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px}
 .ttl p{margin:2px 0 0;color:var(--muted);font-size:12.5px}
+/* 19 Nov: how old the report is, and Perbarui */
+.ttl .sublink{border:0;background:none;padding:12px 6px;margin:-12px -6px;font:inherit;font-weight:700;color:var(--brand-ink);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.ttl .sublink:hover{color:var(--brand)}
+.ttl .sublink:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
 .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .per{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 select,input[type=date],input[type=text]{border:1px solid var(--line2);border-radius:10px;padding:8px 12px;background:var(--surface);min-height:38px;font-size:13px}
@@ -675,7 +679,42 @@ html.cop-lock,html.cop-lock body{overflow:hidden}
   // asking: a Google prompt is open, so calls that end together on SESI_HABIS ask only once.
   var KEY = 'skd_token', started = false, ready = false, asking = false;
   function token() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
-  function setToken(t) { try { if (t) localStorage.setItem(KEY, t); else localStorage.removeItem(KEY); } catch (e) {} }
+  function setToken(t) { keepClear(); try { if (t) localStorage.setItem(KEY, t); else localStorage.removeItem(KEY); } catch (e) {} }
+  // 19 Nov (Muji: "make everything so its really fast"): the last answer of the two big reads (dashboard data, finance
+  // report) is kept in this browser and shown at once on the next open; the server's answer follows a moment later
+  // (marked _same when nothing changed, so the page can skip the redraw). Kept 7 days, 6 answers at most, and cleared
+  // whenever the session changes (sign-in, Keluar, session over), so one account never sees another's copy. A read
+  // with {fresh: true} (Perbarui) never shows the kept copy.
+  var KEEP = { getDashboardData: 1, getFinance: 1 }, KP = 'skd_keep:', KEEP_MAX = 6, KEEP_MS = 7 * 864e5, shown = {};
+  function ymd(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function keepKey(fn, args) {
+    var a = JSON.parse(JSON.stringify(args || []));
+    if (a[0] && typeof a[0] === 'object') {
+      delete a[0].fresh;
+      // "up to today" is one entry from day to day, so the first open of a new day still paints at once
+      if (a[0].to === ymd(new Date())) a[0].to = 'today';
+    }
+    return KP + fn + ':' + JSON.stringify(a);
+  }
+  function keepGet(k) {
+    try {
+      var v = localStorage.getItem(k), i = v ? v.indexOf('|') : -1, at = i > 0 ? +v.slice(0, i) : 0;
+      return at && Date.now() - at < KEEP_MS ? { at: at, txt: v.slice(i + 1) } : null;
+    } catch (e) { return null; }
+  }
+  function keepPut(k, txt, at) {
+    try {
+      var list = JSON.parse(localStorage.getItem(KP + 'list') || '[]').filter(function (x) { return x !== k; });
+      list.push(k);
+      while (list.length > KEEP_MAX) localStorage.removeItem(list.shift());
+      localStorage.setItem(KP + 'list', JSON.stringify(list));
+      localStorage.setItem(k, at + '|' + txt);
+    } catch (e) { keepClear(); /* full or blocked: the page waits for the server, as before */ }
+  }
+  function keepClear() {
+    try { for (var i = localStorage.length - 1; i >= 0; i--) { var k = localStorage.key(i); if (k && k.indexOf(KP) === 0) localStorage.removeItem(k); } } catch (e) {}
+    shown = {};
+  }
   function $(id) { return document.getElementById(id); }
   // 19 Nov: a call that hangs ends with a clear message instead of a loader that spins forever. The Copilot may work
   // up to about 5 minutes (Apps Script stops at 6); a statement upload up to 2.5; everything else 90 s.
@@ -707,8 +746,27 @@ html.cop-lock,html.cop-lock body{overflow:hidden}
       if (name === 'withFailureHandler') return function (f) { return runner(ok, f, user); };
       if (name === 'withUserObject') return function (u) { return runner(ok, fail, u); };
       return function () {
-        post(String(name), Array.prototype.slice.call(arguments)).then(function (d) { if (ok) ok(d, user); },
-          function (e) { if (!e.auth && fail) fail(e, user); });
+        var fn = String(name), args = Array.prototype.slice.call(arguments);
+        var k = KEEP[fn] ? keepKey(fn, args) : '', fresh = !!(args[0] && args[0].fresh === true);
+        // the kept copy, unless this page already shows it (or something newer)
+        var had = k && ok && !fresh ? keepGet(k) : null, early = false;
+        if (had && !(shown[k] >= had.at)) {
+          early = true; shown[k] = had.at;
+          setTimeout(function () { var d; try { d = JSON.parse(had.txt); } catch (e) { return; } if (d && typeof d === 'object') { d._kept = had.at; ok(d, user); } }, 0);
+        }
+        post(fn, args).then(function (d) {
+          if (k && d && typeof d === 'object' && (d.rows || d.reports)) {
+            var txt = JSON.stringify(d), at = Date.now();
+            keepPut(k, txt, at); shown[k] = at;
+            if (early && txt === had.txt) d._same = true;
+          }
+          if (ok) ok(d, user);
+        }, function (e) {
+          if (e.auth) return;
+          // the kept copy stays on screen; the page says it could not be refreshed
+          if (early) { try { document.dispatchEvent(new CustomEvent('skd-stale', { detail: { fn: fn, at: had.at, message: e.message } })); } catch (x) {} return; }
+          if (fail) fail(e, user);
+        });
       };
     } });
   }
@@ -819,31 +877,59 @@ function finSetPeriod(v) {
 }
 
 // ---------- loading ----------
-function finLoad() {
-  $('finSub').textContent = 'Memuat laporan...';
+// 19 Nov (Muji: "make everything so its really fast"): the report comes from the server's 15-minute cache, and on the
+// web the copy kept in this browser shows first. The subtitle says how old the data is; Perbarui reads the Sheets
+// again. A newer answer that arrives after the user started working on the page (an open form, a click) waits
+// behind a button instead of redrawing over their work.
+function finLoad(fresh) {
+  FIN.loading = true; FIN.touched = false; FIN.err = '';
+  if (FIN.data) finStamp(); else $('finSub').textContent = 'Memuat laporan...';
   google.script.run.withSuccessHandler(function (d) {
-    FIN.data = d; FIN.sel = null;
-    var hi = d.count.Tinggi + d.count.Sedang;
-    $('finBadge').hidden = !(d.count.Tinggi + d.count.Sedang + d.count.Rendah); $('finBadge').textContent = d.count.Tinggi + d.count.Sedang + d.count.Rendah;
-    $('finIsi').hidden = !d.can.input;
-    ['ALL', 'ASK', 'SK'].forEach(function (c) {
-      var el = document.querySelector('[data-l="' + c + '"]'), v = d.reports[c].labaRugi.laba;
-      if (el) { el.textContent = jt1(v); el.className = 'v num' + (v < 0 ? ' neg' : ''); el.title = 'Laba bersih periode ini'; }
-    });
-    COP.input = !!d.can.input; COP.viewer = d.viewer || '';
-    copReady();
-    finRender();
+    if (d._kept) { finTake(d); return; } // the copy kept in this browser, shown while the server answers
+    FIN.loading = false;
+    if (d._same && FIN.data) { delete FIN.data._kept; finStamp(); return; } // that copy was already current
+    if (FIN.data && FIN.data._kept && (FIN.touched || document.querySelector('#finMain .fixbox'))) { FIN.next = d; finStamp(); return; }
+    finTake(d);
   }).withFailureHandler(function (e) {
+    FIN.loading = false;
+    if (FIN.data) { FIN.err = e && e.message ? e.message : String(e); finStamp(); return; }
     $('finSub').textContent = '';
     $('finMain').innerHTML = '<div class="card empty"><b>Laporan belum bisa dibuka</b>' + esc(e && e.message ? e.message : e) + '<p><button class="btn" type="button" onclick="finLoad()">Coba lagi</button></p></div>';
-  }).getFinance({ from: FIN.from, to: FIN.to });
+  }).getFinance({ from: FIN.from, to: FIN.to, fresh: fresh === true });
+}
+function finHm(t) { var x = new Date(t); return ('0' + x.getHours()).slice(-2) + ':' + ('0' + x.getMinutes()).slice(-2); }
+// The subtitle: company, period, and how old the data is.
+function finStamp() {
+  var d = FIN.data, el = $('finSub');
+  if (!d) return;
+  var when = d._kept ? 'data tersimpan ' + finHm(d._kept) : 'data ' + esc(d.dimuat || '');
+  var age = FIN.next ? '<button class="sublink" type="button" data-next>Tampilkan data terbaru</button>'
+    : FIN.loading ? '<span>' + (d._kept ? when + ', ' : '') + 'memperbarui...</span>'
+    : FIN.err ? '<span title="' + esc(FIN.err) + '">' + when + ', belum bisa diperbarui</span> <button class="sublink" type="button" data-fresh>Coba lagi</button>'
+    : '<span>' + when + '</span> <button class="sublink" type="button" data-fresh title="Baca ulang jurnal ASK, rekening koran dan order sekarang">Perbarui</button>';
+  el.innerHTML = esc(coName() + ' · ' + tglLong(d.period.from) + ' sampai ' + tglLong(d.period.to)) + ' · ' + age;
+}
+function finTake(d) {
+  FIN.next = null;
+  FIN.data = d; FIN.sel = null;
+  var hi = d.count.Tinggi + d.count.Sedang;
+  $('finBadge').hidden = !(d.count.Tinggi + d.count.Sedang + d.count.Rendah); $('finBadge').textContent = d.count.Tinggi + d.count.Sedang + d.count.Rendah;
+  $('finIsi').hidden = !d.can.input;
+  ['ALL', 'ASK', 'SK'].forEach(function (c) {
+    var el = document.querySelector('[data-l="' + c + '"]'), v = d.reports[c].labaRugi.laba;
+    if (el) { el.textContent = jt1(v); el.className = 'v num' + (v < 0 ? ' neg' : ''); el.title = 'Laba bersih periode ini'; }
+  });
+  COP.input = !!d.can.input; COP.viewer = d.viewer || '';
+  copReady();
+  finRender();
 }
 function finRender() {
+  if (FIN.next) { finTake(FIN.next); return; } // a newer answer was waiting: take it at the next redraw
   if (!FIN.data) return;
   FIN.charts.forEach(function (c) { c.destroy(); }); FIN.charts = [];
   var d = FIN.data;
   $('finTitle').textContent = TITLES[FIN.tab];
-  $('finSub').textContent = coName() + ' · ' + tglLong(d.period.from) + ' sampai ' + tglLong(d.period.to);
+  finStamp();
   var f = { ringkasan: vRingkasan, lr: vLabaRugi, neraca: vNeraca, arus: vArus, proyek: vProyek, bank: vBank, cek: vCek, sumber: vSumber }[FIN.tab];
   $('finMain').innerHTML = '<div class="view">' + f() + '</div>';
   var mn = $('finMain'); mn.onclick = mn.oninput = mn.onchange = mn.onkeydown = null; // Perlu dicek binds these
@@ -1901,6 +1987,17 @@ function skStart() {
     FIN.co = b.getAttribute('data-co'); FIN.sel = null;
     Array.prototype.forEach.call(document.querySelectorAll('#finCo button'), function (x) { x.setAttribute('aria-pressed', String(x === b)); });
     finRender();
+  });
+  // 19 Nov: work started on the page holds a newer answer back (finLoad); the subtitle's Perbarui and Tampilkan buttons
+  ['input', 'change', 'click'].forEach(function (t) { $('finMain').addEventListener(t, function () { FIN.touched = true; }, true); });
+  $('finSub').addEventListener('click', function (e) {
+    if (e.target.closest('[data-fresh]')) finLoad(true);
+    else if (e.target.closest('[data-next]') && FIN.next) finTake(FIN.next);
+  });
+  // the kept copy is on screen and the server did not answer (web shim): keep it, say so
+  document.addEventListener('skd-stale', function (e) {
+    if (!e.detail || e.detail.fn !== 'getFinance') return;
+    FIN.loading = false; FIN.err = e.detail.message || 'server tidak menjawab'; finStamp();
   });
   finLoad();
 }
