@@ -337,8 +337,8 @@ a{color:inherit}
 .psgh .n{font-size:12px;font-weight:700;color:var(--muted)}
 .psgh .h{font-size:12.5px;font-weight:500;color:var(--muted)}
 .psgh .lbtn{margin-left:auto}
-.psdot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;flex:none}
-.psdot.r{background:var(--down)}.psdot.w{background:#e8590c}.psdot.ok{background:#1f8a3a}.psdot.b{background:var(--brand)}.psdot.sh{background:#2a78d6}
+.psqdot{width:9px;height:9px;border-radius:50%;background:#cbd5e1;flex:none}
+.psqdot.r{background:var(--down)}.psqdot.w{background:#e8590c}.psqdot.ok{background:#1f8a3a}.psqdot.b{background:var(--brand)}.psqdot.sh{background:#2a78d6}
 .pstog{border:0;background:none;padding:0;font:inherit;color:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
 .pstog b{font-size:15px;font-weight:800;color:var(--ink);overflow-wrap:anywhere}
 .pstog span{font-size:12px;color:var(--muted)}
@@ -3452,7 +3452,7 @@ function skPsRender() {
       if (SKPS.sort === 'newest') return a.x.date === b.x.date ? (a.x.inv < b.x.inv ? 1 : -1) : a.x.date < b.x.date ? 1 : -1;
       return a.left - b.left || (a.x.date < b.x.date ? -1 : 1);
     });
-    var folded = g.fold && !SKPS.showDone && !q, gh = skEl('div', 'psgh'), dot = skEl('span', 'psdot ' + g.dot);
+    var folded = g.fold && !SKPS.showDone && !q, gh = skEl('div', 'psgh'), dot = skEl('span', 'psqdot ' + g.dot); // not psdot: that class marks the Mendesak KPI card
     gh.setAttribute('data-grp', g.id); dot.setAttribute('aria-hidden', 'true');
     gh.appendChild(dot); gh.appendChild(document.createTextNode(g.label)); gh.appendChild(skEl('span', 'n', String(l.length)));
     if (g.hint) gh.appendChild(skEl('span', 'h', '· ' + g.hint));
@@ -3548,7 +3548,7 @@ function skPsCard(v, n) {
 function skPsHead(hd, v) {
   var x = v.x, nx = skPsNext(v), dl = skPsChip(v), open = !!SKPS.open[x.inv];
   hd.textContent = '';
-  var dot = skEl('span', 'psdot ' + (v.phase === 'retur' ? 'r' : v.urgent ? 'w' : ''));
+  var dot = skEl('span', 'psqdot ' + (v.phase === 'retur' ? 'r' : v.urgent ? 'w' : ''));
   dot.setAttribute('aria-hidden', 'true'); hd.appendChild(dot);
   var tog = skEl('button', 'pstog'); tog.type = 'button'; tog.setAttribute('aria-expanded', open ? 'true' : 'false');
   tog.appendChild(skEl('b', '', x.school || x.inv)); tog.appendChild(skEl('span', '', x.inv + ' · order ' + skPsDay(x.date)));
