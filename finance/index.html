@@ -423,6 +423,20 @@ tr.total td{font-weight:800;font-size:15px;border-top:2px solid var(--ink);borde
 .cop-hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 0 0}
 .hero-bot{width:124px;height:124px;animation:heroIn .7s cubic-bezier(.34,1.56,.64,1) both}
 .cop.full .hero-bot{width:164px;height:164px}
+/* 19 Nov (Muji: "better the mascot is on the left side with whole body visibility, so when he works the animation is
+   running well"): in full screen on a wide window the mascot gets its own stage on the left, whole body, with the
+   status under it; the conversation moves right and the small avatars and the hero copy step aside. */
+.cop-stage{display:none}
+@media (min-width:1100px){
+  .cop.full .cop-stage{display:flex;flex-direction:column;align-items:center;justify-content:center;position:absolute;left:28px;top:72px;bottom:28px;width:320px;pointer-events:none;
+    background:radial-gradient(closest-side,rgba(39,40,192,.07),rgba(39,40,192,0) 72%)}
+  #cop.full .cop-b,#cop.full .cop-f{padding-left:376px}
+  .cop.full .cop-col{max-width:760px}
+  .cop.full .m.a .ava,.cop.full .hero-bot,.cop.full .think .wait{display:none}
+}
+.stage-bot{height:min(340px,44vh);width:100%;animation:heroIn .7s cubic-bezier(.34,1.56,.64,1) both}
+.stage-cap{margin:22px 0 0;max-width:280px;font-size:14px;font-weight:700;color:var(--ink2);text-align:center;min-height:21px;line-height:1.45}
+.cop.busy .stage-cap{color:var(--brand-ink)}
 @keyframes heroIn{from{opacity:0;transform:scale(.4) translateY(30px)}to{opacity:1;transform:none}}
 .cop-hero b{display:block;font-size:20px;font-weight:800;letter-spacing:-.3px;margin-top:4px}
 .cop.full .cop-hero b{font-size:27px;letter-spacing:-.6px}
@@ -646,6 +660,7 @@ html.cop-lock,html.cop-lock body{overflow:hidden}
     <button class="ib" type="button" id="copSize" title="Kecilkan ke samping" aria-label="Kecilkan ke samping"></button>
     <button class="ib" type="button" id="copClose" title="Tutup" aria-label="Tutup Copilot"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
   </div>
+  <div class="cop-stage" id="copStage" aria-hidden="true"><div class="stage-bot" id="copStageBot"></div><p class="stage-cap" id="copStageCap">Siap membantu</p></div>
   <div class="cop-b" id="copBody"><div class="cop-col" id="copCol"></div></div>
   <div class="cop-f"><div class="cop-col">
     <form id="copForm"><textarea id="copIn" rows="1" placeholder="Tanya soal keuangan, atau minta tabel, slide, Google Sheet" aria-label="Pesan untuk Copilot"></textarea>
@@ -662,10 +677,16 @@ html.cop-lock,html.cop-lock body{overflow:hidden}
   function token() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem(KEY, t); else localStorage.removeItem(KEY); } catch (e) {} }
   function $(id) { return document.getElementById(id); }
+  // 19 Nov: a call that hangs ends with a clear message instead of a loader that spins forever. The Copilot may work
+  // up to about 5 minutes (Apps Script stops at 6); a statement upload up to 2.5; everything else 90 s.
+  var LIMIT = { finChat: 330000, finUploadBank: 150000, skdLogin: 30000 };
   function post(fn, args, tok) {
-    return fetch(CFG.api, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args, token: tok === undefined ? token() : tok }) })
+    var ms = LIMIT[fn] || 90000, ctl = typeof AbortController === 'function' ? new AbortController() : null, timer = ctl ? setTimeout(function () { ctl.abort(); }, ms) : null;
+    var slow = function () { return new Error('Server sedang lambat (lebih dari ' + Math.round(ms / 1000) + ' detik tanpa jawaban). Coba lagi sebentar lagi.'); };
+    return fetch(CFG.api, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args, token: tok === undefined ? token() : tok }), signal: ctl ? ctl.signal : undefined })
       .then(function (r) { if (!r.ok) throw new Error('Koneksi bermasalah (HTTP ' + r.status + '). Coba lagi.'); return r.text(); },
-        function () { throw new Error('Tidak ada koneksi internet. Coba lagi.'); })
+        function (e) { if (e && e.name === 'AbortError') throw slow(); throw new Error('Tidak ada koneksi internet. Coba lagi.'); })
+      .then(function (txt) { clearTimeout(timer); return txt; }, function (e) { clearTimeout(timer); throw e && e.name === 'AbortError' ? slow() : e; })
       .then(function (txt) {
         var j; try { j = JSON.parse(txt); } catch (e) { throw new Error('Jawaban server tidak terbaca. Coba lagi.'); }
         if (j && j.ok) return j.data;
@@ -1701,7 +1722,7 @@ function copAppend(html, fresh) {
   return node;
 }
 function copScroll() { var b = $('copBody'); b.scrollTop = b.scrollHeight; }
-function copState(t) { $('copState').textContent = t; }
+function copState(t) { $('copState').textContent = t; var c = $('copStageCap'); if (c) c.textContent = t; }
 function copSend(text) {
   text = String(text || '').trim();
   if (!text || COP.busy) return;
@@ -1775,8 +1796,9 @@ function copOpen(q, mode) {
     if (mode === 'full') copReveal(el, true);
     el.classList.add('open'); el.setAttribute('aria-hidden', 'false'); copLock();
     $('copDock').classList.add('away');
-    var hb = $('copHAv').querySelector('.bot');
-    if (hb) { botSet(hb, 'hi'); setTimeout(function () { if (!COP.busy) botSet(hb, ''); }, 2200); }
+    [$('copHAv').querySelector('.bot'), $('copStageBot').querySelector('.bot')].forEach(function (hb) {
+      if (hb) { botSet(hb, 'hi'); setTimeout(function () { if (!COP.busy) botSet(hb, ''); }, 2400); }
+    });
   } else if (mode !== COP.mode) copMode(mode);
   copSizeBtn();
   setTimeout(function () { $('copIn').focus(); }, 180);
@@ -1818,6 +1840,7 @@ function copBodyClick(e) {
 function copStart() {
   copLoadSaved();
   $('copHAv').innerHTML = botSvg(true);
+  $('copStageBot').innerHTML = botSvg(true);
   $('copBot').innerHTML = botSvg(true);
   $('finAsk').addEventListener('click', function () { copOpen('', 'full'); });
   $('copBot').addEventListener('click', function () { copOpen('', 'full'); });
