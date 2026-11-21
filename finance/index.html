@@ -608,11 +608,10 @@ html.cop-lock,html.cop-lock body{overflow:hidden}
 
 <div class="app">
   <aside class="side" id="finSide" aria-label="Menu keuangan">
-    <div class="brand"><span class="mark"><svg viewBox="-26 -28 156 156" aria-hidden="true"><rect x="-26" y="-28" width="156" height="156" rx="34" fill="#2728c0"/><path d="M104,12 H31 A19,19 0 0 0 31,50 H54" fill="none" stroke="#fff" stroke-width="24" stroke-linejoin="round"/><path d="M52,50 H73 A19,19 0 0 1 73,88 H0" fill="none" stroke="#fb4305" stroke-width="24" stroke-linejoin="round"/></svg></span><div><b>Sadya Kersa</b><small>Keuangan pendiri</small></div></div>
+    <div class="brand"><span class="mark"><svg viewBox="-26 -28 156 156" aria-hidden="true"><rect x="-26" y="-28" width="156" height="156" rx="34" fill="#2728c0"/><path d="M104,12 H31 A19,19 0 0 0 31,50 H54" fill="none" stroke="#fff" stroke-width="24" stroke-linejoin="round"/><path d="M52,50 H73 A19,19 0 0 1 73,88 H0" fill="none" stroke="#fb4305" stroke-width="24" stroke-linejoin="round"/></svg></span><div><b id="finBrand">Sadya Kersa</b><small id="finBrandSub">Keuangan pendiri</small></div></div>
     <div>
       <div class="sh">Perusahaan</div>
       <div class="cos" id="finCo" role="group" aria-label="Perusahaan">
-        <button type="button" data-co="ALL" aria-pressed="true"><span class="n">Gabungan<small>ASK dan sekolah</small></span><span class="v num" data-l="ALL"></span></button>
         <button type="button" data-co="ASK" aria-pressed="false"><span class="n">Proyek (ASK)<small>Renovasi</small></span><span class="v num" data-l="ASK"></span></button>
         <button type="button" data-co="SK" aria-pressed="false"><span class="n">Sekolah (SK)<small>Pengadaan SIPLah</small></span><span class="v num" data-l="SK"></span></button>
       </div>
@@ -627,13 +626,13 @@ html.cop-lock,html.cop-lock body{overflow:hidden}
       </div>
       <div class="sh" style="margin-top:14px">Operasional</div>
       <div class="nav">
-        <button type="button" role="tab" data-tab="proyek" aria-selected="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17V8l7-4 7 4v9"/><path d="M8 17v-5h4v5"/></svg><span>Proyek dan sekolah</span></button>
+        <button type="button" role="tab" data-tab="proyek" aria-selected="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17V8l7-4 7 4v9"/><path d="M8 17v-5h4v5"/></svg><span id="finProyekTab">Proyek dan sekolah</span></button>
         <button type="button" role="tab" data-tab="bank" aria-selected="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="15" height="11" rx="2"/><path d="M2.5 9h15M6 13h3"/></svg><span>Rekening koran</span></button>
         <button type="button" role="tab" data-tab="cek" aria-selected="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5 17.5 16.5h-15L10 3.5z"/><path d="M10 9v3M10 14.3v.2"/></svg><span>Perlu dicek</span><span class="cnt" id="finBadge" hidden></span></button>
         <button type="button" role="tab" data-tab="sumber" aria-selected="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="10" cy="5" rx="6" ry="2.3"/><path d="M4 5v10c0 1.3 2.7 2.3 6 2.3s6-1 6-2.3V5M4 10c0 1.3 2.7 2.3 6 2.3s6-1 6-2.3"/></svg><span>Sumber data</span></button>
       </div>
     </div>
-    <div class="side-foot"><a href="/dashboard/">Dashboard penjualan</a><span id="avatar"></span></div>
+    <div class="side-foot"><a href="/dashboard/" id="finDash">Dashboard penjualan</a><span id="avatar"></span></div>
   </aside>
   <div class="main">
     <header class="topbar">
@@ -647,7 +646,7 @@ html.cop-lock,html.cop-lock body{overflow:hidden}
         </div>
       </div>
     </header>
-    <main id="finMain" class="content" aria-live="polite"><div class="card empty"><b>Memuat laporan...</b>Membaca jurnal ASK, file order 2026 dan rekening koran.</div></main>
+    <main id="finMain" class="content" aria-live="polite"><div class="card empty"><b>Memuat laporan...</b><span id="finLoadTxt">Membaca jurnal ASK, file order 2026 dan rekening koran.</span></div></main>
   </div>
 </div>
 <div class="dock" id="copDock">
@@ -825,7 +824,38 @@ html.cop-lock,html.cop-lock body{overflow:hidden}
 })();
 </script>
 <script>
-var FIN = { data: null, co: 'ALL', tab: 'ringkasan', from: '', to: '', charts: [], bankFilter: 'todo', open: {} };
+// 21 Nov (HANDOFF P40; Muji: "we need to seperate ASK and SK. SK finance still can be open inside the dashboard itself,
+// but ASK finance need to seperate on other domain"): one company per page, set by tools/build_web.node.js
+// (internal.sadyakersa.com/finance/ = SK, opened from the dashboard menu; ask.sadyakersa.com = ASK). No Gabungan. The
+// same API and the same access rows (tab Akses Dashboard) serve both; notes and bank lines are shown per company.
+var FIN_SITE = 'SK', FIN_ASSETS = '/dashboard/assets/';
+var SITE = {
+  SK: { brand: 'Sadya Kersa', sub: 'Keuangan sekolah (SK dan SL)', title: 'Keuangan Sadya Kersa (sekolah)', tab: 'Sekolah', load: 'Membaca file order 2026 dan rekening koran sekolah.', dash: true,
+    chips: [['todo', 'Perlu tindakan'], ['auto', 'Sudah cocok'], ['all', 'Semua']], acc: [['SK', 'BRI a.n. SADYA KERSA (sekolah)']] },
+  ASK: { brand: 'Amanah Sadya Kersa', sub: 'Keuangan ASK (proyek)', title: 'Keuangan Amanah Sadya Kersa (ASK)', tab: 'Proyek', load: 'Membaca jurnal ASK dan rekening koran ASK.', dash: false,
+    chips: [], acc: [['ASK', 'BRI ASK (pembanding Kas Bri)']] }
+}[FIN_SITE];
+var FIN = { data: null, co: FIN_SITE, tab: 'ringkasan', from: '', to: '', charts: [], bankFilter: FIN_SITE === 'ASK' ? 'all' : 'todo', open: {} };
+// The server sends both companies; this page keeps its own notes (f.co, Finance.js) and bank lines, and counts again.
+function finSiteData(d) {
+  d.flags = (d.flags || []).filter(function (f) { return (f.co || 'SK') === FIN_SITE; });
+  var open = d.flags.filter(function (f) { return !f.done; }), n = function (v) { return open.filter(function (f) { return f.sev === v; }).length; };
+  d.count = { Tinggi: n('Tinggi'), Sedang: n('Sedang'), Rendah: n('Rendah'), dicek: d.flags.length - open.length };
+  d.flags.forEach(function (f, i) { f.no = i + 1; });
+  if (d.bank) {
+    d.bank.lines = (d.bank.lines || []).filter(function (l) { return l.account === FIN_SITE; });
+    d.bank.statements = (d.bank.statements || []).filter(function (x) { return x.account === FIN_SITE; });
+  }
+  return d;
+}
+function finSiteUi() {
+  document.title = SITE.title;
+  $('finBrand').textContent = SITE.brand; $('finBrandSub').textContent = SITE.sub;
+  $('finProyekTab').textContent = SITE.tab; TITLES.proyek = SITE.tab;
+  if (!SITE.dash) $('finDash').remove();
+  if ($('finLoadTxt')) $('finLoadTxt').textContent = SITE.load;
+  Array.prototype.forEach.call(document.querySelectorAll('#finCo button'), function (b) { if (b.getAttribute('data-co') !== FIN_SITE) b.remove(); else b.setAttribute('aria-pressed', 'true'); });
+}
 var BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 var BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 var TITLES = { ringkasan: 'Ringkasan', lr: 'Laba rugi', neraca: 'Neraca', arus: 'Arus kas', proyek: 'Proyek dan sekolah', bank: 'Rekening koran', cek: 'Perlu dicek', sumber: 'Sumber data' };
@@ -847,7 +877,7 @@ function jt1(n) { var v = (+n || 0) / 1e6, a = Math.abs(v); return (v < 0 ? '-' 
 function pad(n) { return (n < 10 ? '0' : '') + n; }
 function isoDay(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
 function rep(co) { return FIN.data.reports[co || FIN.co]; }
-function coName(co) { return { ALL: 'Gabungan', ASK: 'Proyek (ASK)', SK: 'Sekolah' }[co || FIN.co]; }
+function coName(co) { return { ASK: 'Proyek (ASK)', SK: 'Sekolah' }[co || FIN.co]; }
 function pct(a, b) { return b ? (Math.round(a / b * 1000) / 10).toString().replace('.', ',') + '%' : ''; }
 function sevPill(s) { return '<span class="pill ' + ({ Tinggi: 't', Sedang: 's', Rendah: 'r' }[s] || 'r') + '">' + esc(s) + '</span>'; }
 
@@ -911,11 +941,11 @@ function finStamp() {
 }
 function finTake(d) {
   FIN.next = null;
-  FIN.data = d; FIN.sel = null;
+  FIN.data = finSiteData(d); FIN.sel = null;
   var hi = d.count.Tinggi + d.count.Sedang;
   $('finBadge').hidden = !(d.count.Tinggi + d.count.Sedang + d.count.Rendah); $('finBadge').textContent = d.count.Tinggi + d.count.Sedang + d.count.Rendah;
   $('finIsi').hidden = !d.can.input;
-  ['ALL', 'ASK', 'SK'].forEach(function (c) {
+  [FIN_SITE].forEach(function (c) {
     var el = document.querySelector('[data-l="' + c + '"]'), v = d.reports[c].labaRugi.laba;
     if (el) { el.textContent = jt1(v); el.className = 'v num' + (v < 0 ? ' neg' : ''); el.title = 'Laba bersih periode ini'; }
   });
@@ -1065,7 +1095,7 @@ function selMonth(i) {
 }
 // ---------- laba rugi ----------
 function vLabaRugi() {
-  var cos = FIN.co === 'ALL' ? ['ASK', 'SK', 'ALL'] : [FIN.co], R = FIN.data.reports, main = R[FIN.co].labaRugi;
+  var cos = [FIN.co], R = FIN.data.reports, main = R[FIN.co].labaRugi;
   var head = '<tr><th>Pos</th>' + cos.map(function (c) { return '<th class="n">' + esc(coName(c)) + '</th>'; }).join('') + '<th class="p">% penjualan</th></tr>';
   var cell = function (c, key, sign) { return '<td class="n">' + rpc(R[c].labaRugi[key] * (sign || 1)) + '</td>'; };
   var share = function (v) { return '<td class="p">' + pct(v, main.bersih) + '</td>'; };
@@ -1179,7 +1209,7 @@ function vBank() {
   var st = b.statements.map(function (s) { return '<div class="kpi"><span class="eyebrow">' + esc(s.name) + '</span><b class="num">' + (s.count ? rp(s.balance) : '-') + '</b><small>' + (s.count ? s.count + ' transaksi, ' + tgl(s.from) + ' sampai ' + tgl(s.to) + '.' : 'Belum ada rekening koran.') + '</small></div>'; }).join('');
   var up = can ? '<div class="drop" id="bkDrop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>' +
     '<div class="t"><b>Upload rekening koran BRI</b><span>Tarik PDF dari IBBIZ ke sini, atau pilih file. Baris yang sudah ada dilewati.</span><p class="msg" id="bkMsg" role="status"></p></div>' +
-    '<select id="bkAcc" aria-label="Rekening"><option value="SK">BRI a.n. SADYA KERSA (sekolah)</option><option value="ASK">BRI ASK (pembanding Kas Bri)</option></select>' +
+    '<select id="bkAcc" aria-label="Rekening">' + SITE.acc.map(function (a) { return '<option value="' + a[0] + '">' + esc(a[1]) + '</option>'; }).join('') + '</select>' +
     '<label class="btn pri" for="bkFile">Pilih PDF</label><input type="file" id="bkFile" accept="application/pdf,.pdf" hidden></div>' : '';
   var flt = { todo: function (l) { return l.status === 'Perlu dicek' || l.status === 'Perlu konfirmasi'; }, all: function () { return true; }, auto: function (l) { return l.status === 'Otomatis' || l.status === 'Dikonfirmasi'; }, ask: function (l) { return l.account === 'ASK'; } }[FIN.bankFilter];
   var ls = b.lines.filter(flt), lastDay = '';
@@ -1192,7 +1222,7 @@ function vBank() {
       '<div class="a' + (inflow ? ' in' : '') + '">' + (inflow ? '+' + rp(l.credit) : '-' + rp(l.debit)) + '<div style="margin-top:4px">' + statusPill(l.status) + '</div></div>' +
       (edit ? '<div class="edit"><select class="bkSel" aria-label="Akun untuk baris ini">' + opt(l.acc) + '</select><button class="btn bkOk" type="button">Konfirmasi</button></div>' : '') + '</div>';
   }).join('');
-  var chips = '<div class="chips" id="bkChips">' + [['todo', 'Perlu tindakan'], ['auto', 'Sudah cocok'], ['ask', 'Rekening ASK'], ['all', 'Semua']].map(function (c) { return '<button type="button" data-v="' + c[0] + '" aria-pressed="' + (FIN.bankFilter === c[0]) + '">' + c[1] + '</button>'; }).join('') + '</div>';
+  var chips = !SITE.chips.length ? '' : '<div class="chips" id="bkChips">' + SITE.chips.map(function (c) { return '<button type="button" data-v="' + c[0] + '" aria-pressed="' + (FIN.bankFilter === c[0]) + '">' + c[1] + '</button>'; }).join('') + '</div>';
   return '<div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:0">' + st + '</div>' + up +
     '<div class="card"><h2>Mutasi</h2><p class="sub">Uang masuk yang nilainya sama dengan Net satu invoice dicocokkan otomatis. Transfer ke Firman dianggap membayar barang sampai dikonfirmasi lain.' + (can ? '' : ' Pengisian akun dilakukan Wildan.') + '</p>' + chips +
     (rows || '<div class="empty"><b>Tidak ada mutasi di pilihan ini</b>' + (FIN.bankFilter === 'todo' ? 'Semua baris sudah punya akun.' : '') + '</div>') +
@@ -1496,11 +1526,12 @@ function toast(t) {
 function vSumber() {
   var s = FIN.data.sources, can = FIN.data.can.input;
   var src = function (ok, title, body) { return '<div class="card"><div class="src"><span class="ic' + (ok ? '' : ' no') + '">' + (ok ? OK_IC : NO_IC) + '</span><div><h2>' + title + '</h2><p>' + body + '</p></div></div></div>'; };
-  return src(!!s.ask, 'Jurnal ASK (proyek)', s.ask ? 'Tersambung ke <a href="' + esc(s.ask.url) + '" target="_blank" rel="noopener">' + esc(s.ask.name) + '</a>: ' + s.ask.lines + ' baris jurnal, transaksi terakhir ' + esc(tgl(s.ask.last)) + '. Jurnal diisi di Google Sheet ini.' : esc(s.askError || 'Belum tersambung.')) +
-    (can ? '<div class="card"><h2>Ganti jurnal ASK</h2><p class="sub">Hanya bila jurnal pindah ke Google Sheet lain. Tempel link Sheet-nya; tab Kode Akun, Jurnal Umum dan Daftar Proyek harus ada.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="askUrl" placeholder="https://docs.google.com/spreadsheets/d/..." aria-label="Link Google Sheet jurnal ASK" style="flex:1;min-width:240px"><button class="btn pri" type="button" id="askGo">Sambungkan</button></div><p class="msg" id="askMsg" role="status"></p></div>' : '') +
-    src(true, 'File order 2026 (sekolah)', s.order.invoices + ' invoice dari data dashboard, terakhir ' + esc(tgl(s.order.last)) + '. Subtotal = penjualan; PPN dan PPh = potongan; HPP; cash back, CB marketing dan insentif = biaya langsung; Tgl Bayar = pelunasan.') +
-    src(s.bankLines > 0, 'Rekening koran', s.bankLines ? s.bankLines + ' baris tersimpan. Tambah lewat Rekening koran.' : 'Belum ada. Upload PDF BRI di bagian Rekening koran.') +
-    src(true, 'Siapa bisa apa', 'Diatur di tab Akses Dashboard, kolom Tab. "Keuangan" = melihat laporan (para pendiri). "Keuangan input" = juga mengisi: upload rekening koran, memilih akun, mengganti jurnal (Wildan).');
+  var bankN = FIN.data.bank.lines.length; // P40: this company's lines only
+  var ask = FIN_SITE !== 'ASK' ? '' : src(!!s.ask, 'Jurnal ASK (proyek)', s.ask ? 'Tersambung ke <a href="' + esc(s.ask.url) + '" target="_blank" rel="noopener">' + esc(s.ask.name) + '</a>: ' + s.ask.lines + ' baris jurnal, transaksi terakhir ' + esc(tgl(s.ask.last)) + '. Jurnal diisi di Google Sheet ini.' : esc(s.askError || 'Belum tersambung.')) +
+    (can ? '<div class="card"><h2>Ganti jurnal ASK</h2><p class="sub">Hanya bila jurnal pindah ke Google Sheet lain. Tempel link Sheet-nya; tab Kode Akun, Jurnal Umum dan Daftar Proyek harus ada.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="askUrl" placeholder="https://docs.google.com/spreadsheets/d/..." aria-label="Link Google Sheet jurnal ASK" style="flex:1;min-width:240px"><button class="btn pri" type="button" id="askGo">Sambungkan</button></div><p class="msg" id="askMsg" role="status"></p></div>' : '');
+  return ask + (FIN_SITE !== 'SK' ? '' : src(true, 'File order 2026 (sekolah)', s.order.invoices + ' invoice dari data dashboard, terakhir ' + esc(tgl(s.order.last)) + '. Subtotal = penjualan; PPN dan PPh = potongan; HPP; cash back, CB marketing dan insentif = biaya langsung; Tgl Bayar = pelunasan.')) +
+    src(bankN > 0, 'Rekening koran', bankN ? bankN + ' baris tersimpan. Tambah lewat Rekening koran.' : 'Belum ada. Upload PDF BRI di bagian Rekening koran.') +
+    src(true, 'Siapa bisa apa', 'Diatur di tab Akses Dashboard, kolom Tab. "Keuangan" = melihat laporan (para pendiri). "Keuangan input" = juga mengisi: upload rekening koran, memilih akun, mengganti jurnal (Wildan dan Muji).');
 }
 function bindSumber() {
   var go = $('askGo');
@@ -1542,7 +1573,7 @@ var SMALL_IC = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strok
 
 // ---------- the mascot ----------
 // The face drawn on pose 1's empty screen; its box comes from tools/build_copilot_sprites.py (pose-idle.png).
-var BOT_FACE = { left: 27.6, top: 25.16, width: 51.81, height: 32.26 }, BOT_POSES = ['idle', 'hi', 'think', 'work', 'done', 'point'], BOT_SRC = '/dashboard/assets/copilot-';
+var BOT_FACE = { left: 27.6, top: 25.16, width: 51.81, height: 32.26 }, BOT_POSES = ['idle', 'hi', 'think', 'work', 'done', 'point'], BOT_SRC = FIN_ASSETS + 'copilot-';
 function botEye_(cx) {
   return '<g class="eye"><ellipse cx="' + cx + '" cy="37.5" rx="11.6" ry="12.6" fill="#fff"/><g class="pp"><circle cx="' + (cx + 1.2) + '" cy="39" r="8.3" fill="#0B1030"/>' +
     '<circle cx="' + (cx + 4.2) + '" cy="34.6" r="3" fill="#fff"/><circle cx="' + (cx - 1.6) + '" cy="42.6" r="1.4" fill="#fff"/></g></g>';
@@ -1851,7 +1882,7 @@ function copSend(text) {
     COP.items.push(m);
     copAppend(copA(m, COP.items.length - 1, true), true);
     botMood('sad', 2200); copState('Ada gangguan, coba lagi');
-  }).finChat(text);
+  }).finChat(text, FIN_SITE);
 }
 function copSize() { var t = $('copIn'); t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 160) + 'px'; t.style.overflowY = t.scrollHeight > 160 ? 'auto' : 'hidden'; }
 function copLock() { document.documentElement.classList.toggle('cop-lock', copIsOpen() && COP.mode === 'full'); }
@@ -1942,7 +1973,7 @@ function copStart() {
   $('copNew').addEventListener('click', function () {
     if (COP.busy) return;
     COP.items = []; copSave(); copRenderAll(); copState('Siap membantu');
-    google.script.run.withSuccessHandler(function () {}).withFailureHandler(function () {}).finChat('baru');
+    google.script.run.withSuccessHandler(function () {}).withFailureHandler(function () {}).finChat('baru', FIN_SITE);
   });
   $('copForm').addEventListener('submit', function (e) { e.preventDefault(); copSend($('copIn').value); });
   $('copIn').addEventListener('input', function () { copSize(); botWake(); });
@@ -1977,6 +2008,7 @@ function finTab(t) {
 }
 var MARK_SVG = '<svg viewBox="-26 -28 156 156" aria-hidden="true"><rect x="-26" y="-28" width="156" height="156" rx="34" fill="#2728c0"/><path d="M104,12 H31 A19,19 0 0 0 31,50 H54" fill="none" stroke="#fff" stroke-width="24" stroke-linejoin="round"/><path d="M52,50 H73 A19,19 0 0 1 73,88 H0" fill="none" stroke="#fb4305" stroke-width="24" stroke-linejoin="round"/></svg>';
 function skStart() {
+  finSiteUi();
   copStart();
   finPeriods();
   $('finIsi').addEventListener('click', function () { finTab('bank'); });
