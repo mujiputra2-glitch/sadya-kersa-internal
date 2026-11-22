@@ -46,6 +46,9 @@
   .btn.teal { background: var(--teal); border-color: var(--teal); color: #fff; }
   .btn.amber { background: var(--amber); border-color: var(--amber); color: #fff; }
   .btn.wa { background: #1DA851; border-color: #1DA851; color: #fff; }
+  .signp { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); margin-top: 10px; }
+  .signp .t { flex: 1; min-width: 0; } .signp .t > * { display: block; } .signp b { color: var(--ink); overflow-wrap: anywhere; }
+  .signp .btn { flex: none; min-height: 44px; padding: 0 14px; }
   .btn.block { width: 100%; }
   .btn.mini { min-height: 40px; padding: 0 12px; font-size: 14px; border-radius: 12px; }
   .paybox { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
@@ -686,7 +689,7 @@ var SKA_ICON = {
   chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>',
   team: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>',
   alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg>',
-  right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  right: '<svg viewBox="0 0 24 24" width="20" height="20" style="flex:none" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>', // 22 Nov: sized (without it the arrow filled the row, e.g. File dari sekolah)
   box: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/></svg>',
   web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 21h8"/></svg>',
   award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.6 13.8L7 22l5-3 5 3-1.6-8.2"/></svg>',
@@ -2695,6 +2698,46 @@ function loadCust() {
   call('skxCustomers', SKA.token).then(function (r) { SKA.custLoading = false; SKA.cust = r; if (SKA.view === 'acust') render(); })
     .catch(function (e) { SKA.custLoading = false; SKA.cust = { err: e.message }; if (SKA.view === 'acust') render(); });
 }
+// 22 Nov: schools sign up in SNAPP themselves (Google, or phone + PIN). Each new login waits here until the Admin
+// picks its school and taps Konfirmasi (after a WhatsApp check with the PIC or Kepala Sekolah), or Tolak. Server: Pelanggan.js.
+function loadSign() {
+  if (SKA.signLoading) return;
+  SKA.signLoading = true;
+  call('skxSignups', SKA.token).then(function (r) { SKA.signLoading = false; SKA.sign = r; if (SKA.view === 'acust') render(); })
+    .catch(function (e) { SKA.signLoading = false; SKA.sign = { err: e.message, waiting: [] }; if (SKA.view === 'acust') render(); });
+}
+function signBlock() {
+  var x = SKA.sign;
+  if (!x) { loadSign(); return ''; }
+  if (x.err) return '<div class="note amber" style="margin-top:14px">Pendaftar baru SNAPP: ' + esc(x.err) + '</div>';
+  var w = x.waiting || [];
+  return w.length ? '<div class="caption">Pendaftar baru SNAPP (' + w.length + ')</div>' + w.map(signCard).join('') : '';
+}
+function signWa(ph, name, school) {
+  var p = phoneOk(ph), msg = 'Halo ' + name + ', kami dari admin SNAPP. Kami ingin memastikan pendaftaran akun SNAPP untuk ' + school + '. Apakah benar Anda yang mendaftar?';
+  return p ? '<a class="btn wa" href="https://wa.me/62' + esc(p.slice(1)) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'WA</a>' : '';
+}
+function signCard(a) {
+  var opts = (a.matches || []).map(function (m, i) { return '<option value="' + esc(m.key) + '"' + (i ? '' : ' selected') + '>' + esc(m.name) + (m.sales ? ' (' + esc(m.sales) + ')' : '') + '</option>'; }).join('');
+  var person = function (label, name, sub, ph) {
+    return '<div class="signp"><span class="t"><span class="muted small">' + label + '</span><b>' + esc(name) + '</b><span class="muted small">' + esc(sub) + '</span></span>' + signWa(ph, name, a.school) + '</div>';
+  };
+  return '<div class="card"><b style="font-size:18px;color:var(--ink)">' + esc(a.school) + '</b><div class="muted small">' + esc(a.area) + ' · daftar ' + esc(stampTxt(a.created)) +
+    ' · ' + esc(a.via) + ': ' + esc(a.via === 'Google' ? a.email : a.phone) + '</div>' +
+    person('PIC', a.pic, a.role + ' · ' + a.picPhone, a.picPhone) + person('Kepala Sekolah', a.kepsek, a.kepsekPhone, a.kepsekPhone) +
+    '<div class="field"><label for="sg_' + esc(a.id) + '">Sekolah di database</label>' + (opts ? '<select id="sg_' + esc(a.id) + '">' + opts + '</select>'
+      : '<p class="muted small" style="margin:0">Tidak ada sekolah yang mirip. Tambahkan sekolahnya dulu di menu Sekolah, lalu muat ulang.</p>') + '</div>' +
+    '<div class="btnrow"><button class="btn" onclick="signDecide(\'' + jsq(a.id) + '\',false)">Tolak</button>' +
+    (opts ? '<button class="btn teal" onclick="signDecide(\'' + jsq(a.id) + '\',true)">Konfirmasi</button>' : '') + '</div></div>';
+}
+function signDecide(id, ok) {
+  var sel = $('sg_' + id), key = ok && sel ? sel.value : '';
+  if (ok && !key) { toast('Pilih sekolahnya dulu.'); return; }
+  if (!confirm(ok ? 'Konfirmasi akun ini untuk ' + sel.options[sel.selectedIndex].text + '? Akun ini akan melihat invoice, kiriman dan rekening sekolah itu.' : 'Tolak pendaftar ini?')) return;
+  busy(true, ok ? 'Mengonfirmasi...' : 'Menolak...');
+  call('skxSignupDecide', SKA.token, id, key, ok).then(function (r) { busy(false); SKA.sign = null; SKA.cust = null; toast(ok ? 'Akun dikonfirmasi untuk ' + r.name + '.' : 'Pendaftar ditolak.'); render(); })
+    .catch(function (e) { busy(false); toast(e.message); });
+}
 function custNeeds(c) { return c.disputes + c.toShip + c.sjOpen + c.sjSent > 0; }
 function vACust(d) {
   setTop('<div><button class="back" onclick="go(\'home\')">' + SKA_ICON.left + 'Beranda</button><h1>Pelanggan</h1><div class="sub">Akun, profil, surat jalan dan verifikasi per sekolah</div></div>');
@@ -2702,7 +2745,7 @@ function vACust(d) {
   if (!x) { loadCust(); return '<p class="muted" style="margin-top:16px">Memuat daftar pelanggan...</p>'; }
   if (x.err) return '<div class="note amber">' + esc(x.err) + '</div><button class="btn block" style="margin-top:12px" onclick="SKA.cust=null;render()">Coba lagi</button>';
   var l = x.customers, fl = SKA.custFilter || 'act', n = function (f) { return l.filter(f).length; };
-  return '<button class="item" style="margin-top:14px" onclick="go(\'afile\')"><span class="t"><b>File dari sekolah</b><span>Order sekolah dalam Excel, PDF atau foto</span></span>' + SKA_ICON.right + '</button>' +
+  return signBlock() + '<button class="item" style="margin-top:14px" onclick="go(\'afile\')"><span class="t"><b>File dari sekolah</b><span>Order sekolah dalam Excel, PDF atau foto</span></span>' + SKA_ICON.right + '</button>' +
     '<input type="search" style="margin-top:14px" placeholder="Cari sekolah" value="' + esc(SKA.custSearch || '') + '" oninput="SKA.custSearch=this.value;drawCust()">' +
     '<div class="seg">' + [['act', 'Perlu tindakan (' + n(custNeeds) + ')'], ['all', 'Semua (' + l.length + ')'], ['noacc', 'Belum punya akun (' + n(function (c) { return c.account === 'belum'; }) + ')']].map(function (y) {
       return '<button class="chip' + (fl === y[0] ? ' on' : '') + '" onclick="SKA.custFilter=\'' + y[0] + '\';render()">' + esc(y[1]) + '</button>';
