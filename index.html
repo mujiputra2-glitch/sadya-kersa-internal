@@ -2713,27 +2713,42 @@ function signBlock() {
   var w = x.waiting || [];
   return w.length ? '<div class="caption">Pendaftar baru SNAPP (' + w.length + ')</div>' + w.map(signCard).join('') : '';
 }
-function signWa(ph, name, school) {
-  var p = phoneOk(ph), msg = 'Halo ' + name + ', kami dari admin SNAPP. Kami ingin memastikan pendaftaran akun SNAPP untuk ' + school + '. Apakah benar Anda yang mendaftar?';
-  return p ? '<a class="btn wa" href="https://wa.me/62' + esc(p.slice(1)) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'WA</a>' : '';
-}
+// 22 Nov (audit): what the applicant typed is shown as text only. The WhatsApp check goes to the numbers we
+// already hold for the school picked (sales tracker, school profile), so a stranger cannot answer for it.
 function signCard(a) {
   var opts = (a.matches || []).map(function (m, i) { return '<option value="' + esc(m.key) + '"' + (i ? '' : ' selected') + '>' + esc(m.name) + (m.sales ? ' (' + esc(m.sales) + ')' : '') + '</option>'; }).join('');
-  var person = function (label, name, sub, ph) {
-    return '<div class="signp"><span class="t"><span class="muted small">' + label + '</span><b>' + esc(name) + '</b><span class="muted small">' + esc(sub) + '</span></span>' + signWa(ph, name, a.school) + '</div>';
+  var person = function (label, name, sub) {
+    return '<div class="signp"><span class="t"><span class="muted small">' + label + '</span><b>' + esc(name) + '</b><span class="muted small">' + esc(sub) + '</span></span></div>';
   };
-  return '<div class="card"><b style="font-size:18px;color:var(--ink)">' + esc(a.school) + '</b><div class="muted small">' + esc(a.area) + ' · daftar ' + esc(stampTxt(a.created)) +
+  var who = a.name + ' (' + (a.via === 'Google' ? a.email : a.phone) + ')';
+  var known = (a.matches || []).map(function (m, i) {
+    var rows = (m.known || []).map(function (k) {
+      var p = phoneOk(k.phone), msg = 'Halo ' + (k.name || 'Bapak/Ibu') + ', kami dari admin SNAPP. Ada pendaftaran akun SNAPP untuk ' + m.name + ' atas nama ' + who + '. Apakah benar orang ini dari sekolah Bapak/Ibu?';
+      return '<div class="signp"><span class="t"><span class="muted small">' + esc(k.label) + '</span><b>' + esc(k.name || '-') + '</b><span class="muted small">' + esc(k.phone) + '</span></span>' +
+        (p ? '<a class="btn wa" href="https://wa.me/62' + esc(p.slice(1)) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Cek</a>' : '') + '</div>';
+    }).join('');
+    return '<div class="sgk" data-k="' + esc(m.key) + '"' + (i ? ' hidden' : '') + '>' +
+      (rows ? '<div class="caption" style="margin-top:10px">Cek lewat kontak yang sudah kami punya</div>' + rows +
+        (m.same ? '' : '<div class="note amber">Nomor yang diketik pendaftar tidak ada di data kami. Jangan konfirmasi hanya lewat nomor pendaftar.</div>')
+        : '<div class="note amber">Belum ada kontak ' + esc(m.name) + ' di data kami. Cek dulu lewat sales sekolah' + (m.sales ? ' (' + esc(m.sales) + ')' : '') + ' sebelum konfirmasi.</div>') + '</div>';
+  }).join('');
+  return '<div class="card" id="sgc_' + esc(a.id) + '"><b style="font-size:18px;color:var(--ink)">' + esc(a.school) + '</b><div class="muted small">' + esc(a.area) + ' · daftar ' + esc(stampTxt(a.created)) +
     ' · ' + esc(a.via) + ': ' + esc(a.via === 'Google' ? a.email : a.phone) + '</div>' +
-    person('PIC', a.pic, a.role + ' · ' + a.picPhone, a.picPhone) + person('Kepala Sekolah', a.kepsek, a.kepsekPhone, a.kepsekPhone) +
-    '<div class="field"><label for="sg_' + esc(a.id) + '">Sekolah di database</label>' + (opts ? '<select id="sg_' + esc(a.id) + '">' + opts + '</select>'
-      : '<p class="muted small" style="margin:0">Tidak ada sekolah yang mirip. Tambahkan sekolahnya dulu di menu Sekolah, lalu muat ulang.</p>') + '</div>' +
+    person('PIC (diketik pendaftar)', a.pic, a.role + ' · ' + a.picPhone) + person('Kepala Sekolah (diketik pendaftar)', a.kepsek, a.kepsekPhone) +
+    '<div class="field"><label for="sg_' + esc(a.id) + '">Sekolah di database</label>' + (opts ? '<select id="sg_' + esc(a.id) + '" onchange="signPick(\'' + jsq(a.id) + '\')">' + opts + '</select>'
+      : '<p class="muted small" style="margin:0">Tidak ada sekolah yang mirip. Tambahkan sekolahnya dulu di menu Sekolah, lalu muat ulang.</p>') + '</div>' + known +
     '<div class="btnrow"><button class="btn" onclick="signDecide(\'' + jsq(a.id) + '\',false)">Tolak</button>' +
     (opts ? '<button class="btn teal" onclick="signDecide(\'' + jsq(a.id) + '\',true)">Konfirmasi</button>' : '') + '</div></div>';
+}
+function signPick(id) {
+  var sel = $('sg_' + id), card = $('sgc_' + id);
+  if (!sel || !card) return;
+  Array.prototype.forEach.call(card.querySelectorAll('.sgk'), function (d) { d.hidden = d.getAttribute('data-k') !== sel.value; });
 }
 function signDecide(id, ok) {
   var sel = $('sg_' + id), key = ok && sel ? sel.value : '';
   if (ok && !key) { toast('Pilih sekolahnya dulu.'); return; }
-  if (!confirm(ok ? 'Konfirmasi akun ini untuk ' + sel.options[sel.selectedIndex].text + '? Akun ini akan melihat invoice, kiriman dan rekening sekolah itu.' : 'Tolak pendaftar ini?')) return;
+  if (!confirm(ok ? 'Sudah dicek lewat kontak sekolah yang kami punya? Konfirmasi akun ini untuk ' + sel.options[sel.selectedIndex].text + '? Akun ini akan melihat invoice dan kiriman sekolah itu.' : 'Tolak pendaftar ini? Data loginnya dihapus.')) return;
   busy(true, ok ? 'Mengonfirmasi...' : 'Menolak...');
   call('skxSignupDecide', SKA.token, id, key, ok).then(function (r) { busy(false); SKA.sign = null; SKA.cust = null; toast(ok ? 'Akun dikonfirmasi untuk ' + r.name + '.' : 'Pendaftar ditolak.'); render(); })
     .catch(function (e) { busy(false); toast(e.message); });
@@ -2784,6 +2799,13 @@ function vACustD(d) {
     '<button class="btn" onclick="custAccount(\'' + (a.active ? 'off' : 'on') + '\')">' + (a.active ? 'Nonaktifkan' : 'Aktifkan') + '</button></div>'
     : '<p class="muted small" style="margin:0">Sekolah ini belum punya akun. Dengan akun, sekolah bisa melihat status order, surat jalan dan invoice, lalu mengonfirmasi barang diterima.</p>' +
       '<button class="btn teal block" style="margin-top:12px" onclick="custAccount(\'create\')">Buat akun sekolah</button>') + '</div>';
+  var lg = x.logins || [];
+  if (lg.length) h += '<div class="caption">Login yang dibuat sekolah (' + lg.length + ')</div>' + lg.map(function (l) {
+    return '<div class="card"><b style="color:var(--ink)">' + esc(l.name) + '</b><div class="muted small">' + esc(l.via) + ': ' + esc(l.via === 'Google' ? l.email : l.phone) +
+      ' · terakhir masuk ' + esc(stampTxt(l.lastLogin) || 'belum pernah') + '</div><div class="btnrow">' +
+      (l.phone ? '<button class="btn" onclick="schoolLogin(\'' + jsq(l.id) + '\',\'pin\')">Buat PIN baru</button>' : '') +
+      '<button class="btn" onclick="schoolLogin(\'' + jsq(l.id) + '\',\'remove\')">Hapus login</button></div></div>';
+  }).join('');
   h += '<div class="caption">Profil (database pelanggan)</div><div class="card"><dl class="kv"><dt>PIC</dt><dd>' + esc(p.pic || '-') + (p.role ? '<br><span class="muted small">' + esc(p.role) + '</span>' : '') + '</dd>' +
     '<dt>No HP PIC</dt><dd>' + esc(p.phone || '-') + '</dd><dt>Email</dt><dd>' + esc(p.email || '-') + '</dd><dt>Alamat kirim</dt><dd style="white-space:pre-wrap">' + esc(p.address || '-') + '</dd>' +
     '<dt>Rekening sekolah</dt><dd>' + (p.account ? esc(p.bank) + '<br>' + esc(p.account) + '<br><span class="muted small">a.n. ' + esc(p.holder) + '</span>' : '-') + '</dd></dl>' +
@@ -2814,7 +2836,7 @@ function vACustD(d) {
 function custAccount(action) {
   var key = SKA.custKey, x = (SKA.custD || {})[key] || {};
   if (action === 'reset' && !confirm('Buat PIN baru? Semua HP sekolah ini harus masuk lagi dengan PIN baru.')) return;
-  if (action === 'off' && !confirm('Nonaktifkan akun ' + (x.name || 'sekolah ini') + '? Sekolah tidak bisa masuk sampai diaktifkan lagi.')) return;
+  if (action === 'off' && !confirm('Nonaktifkan akun ' + ((x.account && x.account.user) || x.name || 'sekolah ini') + '? Username ini tidak bisa masuk sampai diaktifkan lagi. Login yang dibuat sekolah sendiri tidak ikut; hapus satu per satu di bawah.')) return;
   busy(true, 'Menyimpan...');
   call('skxCustomerAccount', SKA.token, key, action).then(function (r) {
     busy(false);
@@ -2831,6 +2853,29 @@ function pinSheet(x, r) {
     '<dl class="kv"><dt>Username</dt><dd>' + esc(r.user) + '</dd><dt>PIN</dt><dd class="pinv">' + esc(r.pin) + '</dd></dl>' +
     (ph ? '<a class="btn wa block" style="margin-top:14px" href="https://wa.me/62' + esc(ph.slice(1)) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Kirim ke PIC lewat WhatsApp</a>'
       : '<p class="muted small">Nomor PIC belum ada; isi di profil agar bisa dikirim lewat WhatsApp.</p>') +
+    '<button class="btn block" style="margin-top:10px" onclick="closeSheet()">Tutup</button>');
+}
+// 22 Nov: a login the school made itself forgot its PIN, or the person no longer acts for the school.
+// The new PIN goes only to that login's own number. Server: skxSchoolLogin (Pelanggan.js).
+function schoolLogin(id, action) {
+  var key = SKA.custKey, x = (SKA.custD || {})[key] || {}, l = (x.logins || []).filter(function (y) { return y.id === id; })[0];
+  if (!l) return;
+  if (!confirm(action === 'pin' ? 'Buat PIN baru untuk ' + l.name + ' (' + l.phone + ')? PIN lama langsung tidak berlaku. Kirim PIN baru hanya ke nomor ini.'
+    : 'Hapus login ' + l.name + '? Orang ini tidak bisa lagi melihat data ' + (x.name || 'sekolah ini') + '.')) return;
+  busy(true, 'Menyimpan...');
+  call('skxSchoolLogin', SKA.token, id, action).then(function (r) {
+    busy(false);
+    if (r.pin) loginPinSheet(x, r); else toast('Login dihapus.');
+    custRefresh(key);
+  }).catch(function (e) { busy(false); toast(e.message); });
+}
+function loginPinSheet(x, r) {
+  var ph = phoneOk(r.phone), link = (SKA.data.settings || {}).custLink || '';
+  var msg = 'Selamat ' + waktu() + ' Bapak/Ibu ' + r.name + ', berikut PIN baru aplikasi SNAPP untuk ' + (x.name || 'sekolah') + ':\nNomor HP: ' + r.phone + '\nPIN: ' + r.pin +
+    (link ? '\nAplikasi: ' + link : '') + '\nPIN lama sudah tidak berlaku. Mohon jangan berikan PIN ini kepada siapa pun. Terima kasih.';
+  openSheet('<h2>PIN baru</h2><p class="muted small" style="margin-top:-4px">PIN hanya tampil sekali ini. Kirim hanya ke nomor HP login ini, jangan ke nomor lain.</p>' +
+    '<dl class="kv"><dt>Nama</dt><dd>' + esc(r.name) + '</dd><dt>Nomor HP</dt><dd>' + esc(r.phone) + '</dd><dt>PIN</dt><dd class="pinv">' + esc(r.pin) + '</dd></dl>' +
+    (ph ? '<a class="btn wa block" style="margin-top:14px" href="https://wa.me/62' + esc(ph.slice(1)) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Kirim lewat WhatsApp ke ' + esc(r.phone) + '</a>' : '') +
     '<button class="btn block" style="margin-top:10px" onclick="closeSheet()">Tutup</button>');
 }
 function custProfileSheet() {
