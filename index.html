@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.7","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.7.9","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -1734,6 +1734,17 @@ function waText(s) {
   return tpl.replace(/\{waktu\}/g, waktu()).replace(/\{pic\}/g, s.pic || '').replace(/\{sales\}/g, d.me.name)
     .replace(/\{sekolah\}/g, s.name).replace(/\{katalog\}/g, d.settings.catalog || '').replace(/Bapak\/Ibu\s+,/g, 'Bapak/Ibu,').replace(/\n{3,}/g, '\n\n').trim();
 }
+// 24 Nov (Muji): "Undang ke SNAPP" on the school page sends Pengaturan "Pesan WA undang SNAPP" to the PIC, with the
+// SNAPP Play Store link ({snapp}: "Link aplikasi pelanggan" when it is a Play Store link, else the listing).
+var SKA_SNAPP_PLAY = 'https://play.google.com/store/apps/details?id=id.sadyakersa.pelanggan';
+function waSnappText(s) {
+  var st = (SKA.data && SKA.data.settings) || {}, tpl = st.waSnapp || '', link = /^https:\/\/play\.google\.com\//.test(st.custLink || '') ? st.custLink : SKA_SNAPP_PLAY;
+  if (!tpl) tpl = 'Selamat {waktu} Bapak/Ibu {pic}, saya {sales} dari Sadya Kersa.\nSekarang {sekolah} bisa cek status order, surat jalan dan invoice sendiri lewat aplikasi SNAPP. Daftarnya kurang dari 1 menit, cukup pakai nomor HP.\nDownload di Play Store: {snapp}\nKalau ada kendala, kabari saya ya. Terima kasih.';
+  if (/^(bu|ibu|pak|bapak|bpk|bp)\.?\s/i.test(s.pic || '')) tpl = tpl.replace(/Bapak\/Ibu\s+\{pic\}/g, '{pic}');
+  return tpl.replace(/\{waktu\}/g, waktu()).replace(/\{pic\}/g, s.pic || '').replace(/\{sales\}/g, SKA.data.me.name).replace(/\{sekolah\}/g, s.name)
+    .replace(/\{snapp\}/g, link).replace(/Bapak\/Ibu\s+,/g, 'Bapak/Ibu,').replace(/\n{3,}/g, '\n\n').trim();
+}
+function waSnappHref(s) { var p = phoneOk(s.picPhone); return 'https://wa.me/' + (p ? '62' + p.slice(1) : '') + '?text=' + encodeURIComponent(waSnappText(s)); }
 function waHref(s) {
   var p = String(s.picPhone || '').replace(/\D+/g, ''); if (/^0/.test(p)) p = '62' + p.slice(1);
   return 'https://wa.me/' + p + '?text=' + encodeURIComponent(waText(s));
@@ -1786,6 +1797,8 @@ function vSchool(d) {
     '<div class="muted small" style="margin-top:6px">Tersambung dengan aplikasi SNAPP sekolah: perubahan terakhir, dari sales atau dari sekolah, yang dipakai di kedua aplikasi dan di surat jalan.</div>' +
     '<div class="btnrow"><a class="btn' + (s.picPhone ? '' : ' off') + '" href="tel:' + esc(s.picPhone) + '" target="_blank">' + SKA_ICON.phone + 'Telepon</a>' +
     '<a class="btn wa' + (s.picPhone ? '' : ' off') + '" href="' + esc(waHref(s)) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'WhatsApp</a></div>' +
+    (phoneOk(s.picPhone) ? '<a class="btn wa block" style="margin-top:10px" href="' + esc(waSnappHref(s)) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Undang ke SNAPP</a>' +
+      '<div class="muted small" style="margin-top:6px">Kirim link download SNAPP ke PIC, supaya sekolah bisa cek order, surat jalan dan invoice sendiri.</div>' : '') +
     (s.picPhone ? (d.settings.catalog ? '<div class="muted small" style="margin-top:8px">Tombol WhatsApp mengirim pesan follow up dengan link katalog.</div>'
       : '<div class="muted small" style="margin-top:8px">' + (mgr ? 'Link katalog belum diisi di Pengaturan; pesan WA dikirim tanpa katalog.' : 'Link katalog belum ada; tombol WhatsApp mengirim salam perkenalan saja.') + '</div>')
       : '<div class="muted small" style="margin-top:8px">Isi No HP PIC dulu untuk telepon dan WhatsApp.</div>') + '</div>';
