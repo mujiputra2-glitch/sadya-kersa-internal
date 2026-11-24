@@ -2713,13 +2713,14 @@ function signBlock() {
   var w = x.waiting || [];
   return w.length ? '<div class="caption">Pendaftar baru SNAPP (' + w.length + ')</div>' + w.map(signCard).join('') : '';
 }
-// 22 Nov (audit): what the applicant typed is shown as text only. The WhatsApp check goes to the numbers we
-// already hold for the school picked (sales tracker, school profile), so a stranger cannot answer for it.
+// 22 Nov (audit): what the applicant typed is shown as text only. 24 Nov (Muji: "its ribet ... mostly we dont have
+// existing phone number from school"): the WhatsApp check goes to the numbers we hold for the school when there are
+// any, and always also to the Kepala Sekolah and PIC numbers the applicant typed; "Sekolah baru" adds a school we do
+// not know yet. The school bank account stays Admin-only, so a wrong confirmation exposes invoices, never money.
 function signCard(a) {
-  var opts = (a.matches || []).map(function (m, i) { return '<option value="' + esc(m.key) + '"' + (i ? '' : ' selected') + '>' + esc(m.name) + (m.sales ? ' (' + esc(m.sales) + ')' : '') + '</option>'; }).join('');
-  var person = function (label, name, sub) {
-    return '<div class="signp"><span class="t"><span class="muted small">' + label + '</span><b>' + esc(name) + '</b><span class="muted small">' + esc(sub) + '</span></span></div>';
-  };
+  var NEW = '__baru__', ms = a.matches || [];
+  var opts = ms.map(function (m, i) { return '<option value="' + esc(m.key) + '"' + (i ? '' : ' selected') + '>' + esc(m.name) + (m.sales ? ' (' + esc(m.sales) + ')' : '') + '</option>'; }).join('') +
+    '<option value="' + NEW + '"' + (ms.length ? '' : ' selected') + '>Sekolah baru: ' + esc(a.school) + '</option>';
   var who = a.name + ' (' + (a.via === 'Google' ? a.email : a.phone) + ')';
   var known = (a.matches || []).map(function (m, i) {
     var rows = (m.known || []).map(function (k) {
@@ -2730,15 +2731,26 @@ function signCard(a) {
     return '<div class="sgk" data-k="' + esc(m.key) + '"' + (i ? ' hidden' : '') + '>' +
       (rows ? '<div class="caption" style="margin-top:10px">Cek lewat kontak yang sudah kami punya</div>' + rows +
         (m.same ? '' : '<div class="note amber">Nomor yang diketik pendaftar tidak ada di data kami. Jangan konfirmasi hanya lewat nomor pendaftar.</div>')
-        : '<div class="note amber">Belum ada kontak ' + esc(m.name) + ' di data kami. Cek dulu lewat sales sekolah' + (m.sales ? ' (' + esc(m.sales) + ')' : '') + ' sebelum konfirmasi.</div>') + '</div>';
-  }).join('');
+        : '') + '</div>';
+  }).join('') + '<div class="sgk" data-k="' + NEW + '"' + (ms.length ? ' hidden' : '') + '></div>';
+  // the numbers the applicant typed: the Kepala Sekolah first (the person who can say yes for the school)
+  var typedRow = function (label, name, phone, msg) {
+    var p = phoneOk(phone);
+    return '<div class="signp"><span class="t"><span class="muted small">' + label + '</span><b>' + esc(name || '-') + '</b><span class="muted small">' + esc(phone || '-') + '</span></span>' +
+      (p ? '<a class="btn wa" href="https://wa.me/62' + esc(p.slice(1)) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Cek</a>' : '') + '</div>';
+  };
+  var typed = '<div class="caption" style="margin-top:10px">Cek lewat nomor dari pendaftar</div>' +
+    typedRow('Kepala Sekolah', a.kepsek, a.kepsekPhone, 'Halo Bapak/Ibu ' + (a.kepsek || '') + ', kami dari admin SNAPP (Sadya Kersa). ' + (a.pic || a.name) + (a.role ? ' (' + a.role + ')' : '') +
+      ' mendaftarkan ' + a.school + ' di aplikasi SNAPP. Apakah benar beliau dari sekolah Bapak/Ibu? Setelah dikonfirmasi, akun ini bisa melihat invoice dan kiriman sekolah.') +
+    typedRow('PIC' + (a.role ? ' · ' + a.role : ''), a.pic, a.picPhone, 'Halo ' + (a.pic || 'Bapak/Ibu') + ', terima kasih sudah daftar SNAPP untuk ' + a.school + '. Kami dari admin SNAPP, mau memastikan dulu: benar Bapak/Ibu ' +
+      (a.role ? a.role + ' ' : '') + 'di ' + a.school + '?') +
+    '<p class="muted small" style="margin:8px 0 0">Paling aman tanya Kepala Sekolah. Rekening sekolah tetap hanya bisa diubah admin.</p>';
   return '<div class="card" id="sgc_' + esc(a.id) + '"><b style="font-size:18px;color:var(--ink)">' + esc(a.school) + '</b><div class="muted small">' + esc(a.area) + ' · daftar ' + esc(stampTxt(a.created)) +
     ' · ' + esc(a.via) + ': ' + esc(a.via === 'Google' ? a.email : a.phone) + '</div>' +
-    person('PIC (diketik pendaftar)', a.pic, a.role + ' · ' + a.picPhone) + person('Kepala Sekolah (diketik pendaftar)', a.kepsek, a.kepsekPhone) +
-    '<div class="field"><label for="sg_' + esc(a.id) + '">Sekolah di database</label>' + (opts ? '<select id="sg_' + esc(a.id) + '" onchange="signPick(\'' + jsq(a.id) + '\')">' + opts + '</select>'
-      : '<p class="muted small" style="margin:0">Tidak ada sekolah yang mirip. Tambahkan sekolahnya dulu di menu Sekolah, lalu muat ulang.</p>') + '</div>' + known +
+    '<div class="field"><label for="sg_' + esc(a.id) + '">Sekolah di database</label><select id="sg_' + esc(a.id) + '" onchange="signPick(\'' + jsq(a.id) + '\')">' + opts + '</select>' +
+      (ms.length ? '' : '<p class="muted small" style="margin:6px 0 0">Belum ada sekolah yang mirip. Konfirmasi menambahkannya sebagai sekolah baru.</p>') + '</div>' + known + typed +
     '<div class="btnrow"><button class="btn" onclick="signDecide(\'' + jsq(a.id) + '\',false)">Tolak</button>' +
-    (opts ? '<button class="btn teal" onclick="signDecide(\'' + jsq(a.id) + '\',true)">Konfirmasi</button>' : '') + '</div></div>';
+    '<button class="btn teal" onclick="signDecide(\'' + jsq(a.id) + '\',true)">Konfirmasi</button></div></div>';
 }
 function signPick(id) {
   var sel = $('sg_' + id), card = $('sgc_' + id);
@@ -2748,9 +2760,11 @@ function signPick(id) {
 function signDecide(id, ok) {
   var sel = $('sg_' + id), key = ok && sel ? sel.value : '';
   if (ok && !key) { toast('Pilih sekolahnya dulu.'); return; }
-  if (!confirm(ok ? 'Sudah dicek lewat kontak sekolah yang kami punya? Konfirmasi akun ini untuk ' + sel.options[sel.selectedIndex].text + '? Akun ini akan melihat invoice dan kiriman sekolah itu.' : 'Tolak pendaftar ini? Data loginnya dihapus.')) return;
+  var isNew = key === '__baru__', label = ok && sel ? sel.options[sel.selectedIndex].text.replace(/^Sekolah baru: /, '') : '';
+  if (!confirm(!ok ? 'Tolak pendaftar ini? Data loginnya dihapus.' : isNew ? 'Sudah dicek lewat WhatsApp? ' + label + ' ditambahkan sebagai sekolah baru dan akun ini dikonfirmasi untuk sekolah itu.'
+    : 'Sudah dicek lewat WhatsApp? Konfirmasi akun ini untuk ' + label + '? Akun ini akan melihat invoice dan kiriman sekolah itu.')) return;
   busy(true, ok ? 'Mengonfirmasi...' : 'Menolak...');
-  call('skxSignupDecide', SKA.token, id, key, ok).then(function (r) { busy(false); SKA.sign = null; SKA.cust = null; toast(ok ? 'Akun dikonfirmasi untuk ' + r.name + '.' : 'Pendaftar ditolak.'); render(); })
+  call('skxSignupDecide', SKA.token, id, key, ok).then(function (r) { busy(false); SKA.sign = null; SKA.cust = null; toast(ok ? (r.baru ? r.name + ' ditambahkan sebagai sekolah baru, akun dikonfirmasi.' : 'Akun dikonfirmasi untuk ' + r.name + '.') : 'Pendaftar ditolak.'); render(); })
     .catch(function (e) { busy(false); toast(e.message); });
 }
 function custNeeds(c) { return c.disputes + c.toShip + c.sjOpen + c.sjSent > 0; }
