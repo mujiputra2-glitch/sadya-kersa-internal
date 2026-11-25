@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.8.1","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
+<script>window.SKX_API = {"url":"https://script.google.com/macros/s/AKfycbwzm6vI7CH0DHvUhK8n6pCoSvNnOQgrvN453tYC5upts-OmrElAP5eH-1k0rrLAGQy5/exec","version":"1.8.2","mode":"prod","privacy":"https://internal.sadyakersa.com/privasi/"};</script>
 <meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -1025,6 +1025,8 @@ function remindList(d) {
   if (fu.due.length) out.push([fu.due.length + ' follow up sudah jatuh tempo', 'follow', 'cal', 'a',
     f0 ? f0.school + (f0.late ? ', lewat ' + f0.late + ' hari' : ', hari ini') + (fu.due.length > 1 ? ', dan ' + (fu.due.length - 1) + ' lainnya' : '') : '']);
   if ((n = overdueCount(d))) out.push([n + ' tagihan lewat jatuh tempo', 'tagihan', 'bill', '', w && w.school ? 'Terlama ' + w.age + ' hari: ' + w.school + (n > 1 ? ', dan ' + (n - 1) + ' lainnya' : '') : '']);
+  // 25 Nov (Muji): SNAPP sign-ups wait for the Manajer, first on his list
+  if (isMgr(d) && d.signupsWaiting) out.unshift([d.signupsWaiting + ' sekolah daftar SNAPP, menunggu konfirmasi', 'msign', 'user', 'a', 'Cek lewat WhatsApp, lalu Konfirmasi atau Tolak.']);
   if (!isMgr(d) && d.kpi && d.kpi.fc && d.kpi.fc.pendingCount) out.push([d.kpi.fc.pendingCount + ' tagihan jatuh tempo bulan ini', 'kp', 'wallet', 'g', (d.kpi.fc.pendingRp ? rp(d.kpi.fc.pendingRp) + '. ' : '') + 'Ingatkan sekolahnya sebelum jatuh tempo.']);
   return out;
 }
@@ -1137,7 +1139,7 @@ function go(view, key) {
 // A school detail goes back to the screen it was opened from (a category, the list, Beranda); a
 // category goes back to Beranda.
 function goBack() { go(SKA.view === 'school' ? SKA.from || 'schools' : 'home'); }
-function navOf(v) { return v === 'kp' || v === 'kpteam' ? (isMgr(SKA.data) ? 'kpteam' : 'kp') : SKA_CATS[v] ? 'home' : v === 'ainvoice' ? 'ainvoices' : v === 'acustd' || v === 'asj' || v === 'asjnew' || v === 'afile' ? 'acust' : v; }
+function navOf(v) { return v === 'kp' || v === 'kpteam' ? (isMgr(SKA.data) ? 'kpteam' : 'kp') : SKA_CATS[v] ? 'home' : v === 'ainvoice' ? 'ainvoices' : v === 'acustd' || v === 'asj' || v === 'asjnew' || v === 'afile' ? 'acust' : v === 'msign' ? 'home' : v; }
 // Dashboard pages the admin opens from Beranda (Firman 10 Nov menu: data, aging, apps).
 var SKA_DASH = 'https://internal.sadyakersa.com/dashboard/';
 function render() {
@@ -1164,6 +1166,7 @@ function render() {
   else if (SKA.view === 'afile') m.innerHTML = vAFile(d);
   else if (SKA.view === 'kp') m.innerHTML = vKp(d);
   else if (SKA.view === 'kpteam') m.innerHTML = vKpTeam(d);
+  else if (SKA.view === 'msign') m.innerHTML = vMSign(d);
   else if (SKA_CATS[SKA.view]) m.innerHTML = vCat(d, SKA.view);
   else m.innerHTML = vHome(d);
   m.classList.toggle('anim', SKA.shown !== SKA.view); // cards rise in when a screen opens, not on every redraw
@@ -1225,7 +1228,9 @@ function tipCard(i) {
 function salesHome(d) {
   var t = d.totals, Y = d.today.slice(0, 4), od = overdueCount(d), fu = d.follow || { due: [], soon: [] }, n = (d.recommend || d.priority || []).length;
   var h = '<div class="float lift rise" style="--i:0"><div class="stats">' +
-    '<div><i class="si">' + SKA_ICO.cal + '</i><b>' + (t.visitsWeek || 0) + '</b><span>kegiatan minggu ini</span></div>' +
+    // 25 Nov (Firman via Muji): with a daily visit target the first number is today's schools visited against it
+    (t.visit && t.visit.target > 0 ? '<div' + (t.visit.today >= t.visit.target ? ' class="ok"' : '') + '><i class="si">' + SKA_ICO.cal + '</i><b>' + t.visit.today + '/' + t.visit.target + '</b><span>kunjungan hari ini</span></div>'
+      : '<div><i class="si">' + SKA_ICO.cal + '</i><b>' + (t.visitsWeek || 0) + '</b><span>kegiatan minggu ini</span></div>') +
     '<div><i class="si o">' + SKA_ICO.wallet + '</i><b>' + esc(nbRp(rp(ytdOf(d)))) + '</b><span>order ' + Y + '</span></div>' +
     '<div' + (od ? ' class="warn"' : '') + '><i class="si">' + SKA_ICO.clock + '</i><b>' + od + '</b><span>tagihan lewat tempo</span></div></div>';
   if (t.target > 0) {
@@ -1284,11 +1289,14 @@ function ownerHome(d) {
       dy > 0 ? 'up' : dy < 0 ? 'down' : '', 'cal') +
     srow('tagihan', 'Tagihan lewat tempo', rp(t.overdue), od + ' invoice' + (t.unpaid > t.overdue ? ', dari ' + rp(t.unpaid) + ' belum lunas' : ''), od ? 'down' : '', 'bill') + '</div>';
   var waiting = d.dealsWaiting ? '<div class="note">' + d.dealsWaiting + ' deal dari sales menunggu diinput admin sebagai order.</div>' : '';
+  if (d.signupsWaiting) waiting += '<div class="float rise" style="--i:1"><button class="attn" onclick="go(\'msign\')"><span class="ai a">' + SKA_ICON.user + '</span><span class="t"><b>' +
+    d.signupsWaiting + ' sekolah daftar SNAPP, menunggu konfirmasi Anda</b><span class="adv">Cek lewat WhatsApp, lalu Konfirmasi atau Tolak.</span></span>' + SKA_ICON.right + '</button></div>';
   return h + homeNotes(d) + waiting + (d.insights ? insightCard(d) : attentionCard(d, sales)) + teamKpiCard(d, sales) + trendCard(d) + '<div class="caption">Detail</div><div class="tiles">' +
     tile('tasks', 'target', 'Rekomendasi tim', (d.recommend || d.priority || []).length + ' sekolah minggu ini', '', 5) +
     tile('tim', 'team', 'Detail tim', sales.length + ' sales, Kantor, tanpa sales', '', 6) +
     tile('schools', 'school', 'Semua sekolah', d.schools.length + ' sekolah' + (t.red ? ', ' + t.red + ' perlu dihubungi' : ''), '', 7) +
-    tile('kabar', 'news', 'Kabar', kabarLine(d), '', 8) + dashTile(d, 9) + '</div>';
+    tile('kabar', 'news', 'Kabar', kabarLine(d), '', 8) + dashTile(d, 9) +
+    tile('msign', 'user', 'Pendaftar SNAPP', d.signupsWaiting ? d.signupsWaiting + ' menunggu konfirmasi' : 'Tidak ada yang menunggu', d.signupsWaiting ? 'amber' : '', 10) + '</div>';
 }
 // The KPI of the sales who hold schools (the Play Reviewer holds none), by name.
 function kpTeamShown(d) {
@@ -1310,7 +1318,7 @@ function teamKpiCard(d, sales) {
     var cur = k.months[k.months.length - 1] || {}, om = cur.omzet || 0, tg = cur.target || (k.rules && k.rules.target) || 0, r = row[k.name.toLowerCase()] || {};
     sumO += om; sumT += tg;
     return '<button class="prow" onclick="SKA.kpName=\'' + jsq(k.name) + '\';SKA.kpPrev=false;go(\'kp\')"><span class="av">' + esc(k.name.charAt(0).toUpperCase()) + '</span><span class="t"><b>' + esc(k.name) + ' ' + kstTag(k) + '</b><span>' +
-      esc(nbRp(rp(om) + ' dari ' + rp(tg) + ' (' + kpc(tg ? om / tg : null) + ') · ' + (r.visits7 || 0) + ' kegiatan 7 hari' + (r.overdue ? ' · ' + rp(r.overdue) + ' lewat tempo' : ''))) + '</span></span>' + SKA_ICON.right + '</button>';
+      esc(nbRp(rp(om) + ' dari ' + rp(tg) + ' (' + kpc(tg ? om / tg : null) + ') · ' + (r.visits7 || 0) + ' kegiatan 7 hari' + (r.visit ? ' · kunjungan hari ini ' + r.visit.today + '/' + r.visit.target : '') + (r.overdue ? ' · ' + rp(r.overdue) + ' lewat tempo' : ''))) + '</span></span>' + SKA_ICON.right + '</button>';
   });
   var pct = sumT ? Math.min(100, Math.round(sumO / sumT * 100)) : 0;
   return '<div class="caption">Tim sales ' + esc(SKA_BULAN_PANJANG[+d.today.slice(5, 7) - 1]) + '</div><div class="float rise" style="--i:2"><div class="lbl" style="margin-top:0">' +
@@ -1682,7 +1690,8 @@ function vSchools(d) {
   setTop('<div><div class="sub">' + (SKA.filter !== 'all' ? shown + ' dari ' + base.length + ' sekolah · ' + esc(cur[1]) : base.length + ' sekolah') + esc(who) + '</div><h1>' + (mgr ? 'Semua Sekolah' : 'Sekolah Saya') + '</h1></div>');
   // Firman 10 Nov: "Baru" sits beside the search field (as on Catat), not in the header
   var h = '<div class="pickrow" style="margin-top:14px"><input id="sSearch" type="search" placeholder="Cari nama sekolah" value="' + esc(SKA.search) + '" oninput="SKA.search=this.value;searchSoon()">' +
-    '<button class="btn" onclick="addSchoolSheet()">+ Baru</button></div>';
+    '<button class="btn" onclick="addSchoolSheet()">+ Baru</button></div>' +
+    (mgr ? '' : '<p class="muted small" style="margin:8px 0 0">Sekolah yang dipegang marketing lain ikut muncul saat Anda mencari, supaya tidak diinput dua kali.</p>');
   // Chip rows scroll sideways and the colour key is folded, so a small phone (or large text) still
   // shows the first schools on the first screen.
   if (mgr && (d.team ? d.team.length : d.salesNames.length)) {
@@ -1720,6 +1729,43 @@ function drawSchoolList() {
       (s.tier ? '<span class="tl"><i class="tier t' + esc(s.tier) + '">' + esc(tierLabel(s.tier)) + '</i></span>' : '') + '<span class="mt">' + SKA_ICON.clock + esc(meta) + '</span></span>' +
       '<span class="r"><b>' + (v ? rp(v) : 'Rp 0') + '</b>' + (by12 ? '12 bulan' : Y) + '</span><span class="chev">' + SKA_ICON.right + '</span></button>';
   }).join('') : '<p class="muted">Tidak ada sekolah yang cocok.</p>';
+  // 25 Nov (Firman via Muji): a search also shows the schools other marketing hold (name, wilayah, who), so nobody adds them again
+  if (!mgr && q.length >= 3) {
+    var dir = SKA.dir;
+    if (!dir) { loadDir(); el.innerHTML += '<p class="muted small" style="margin-top:12px">Mencari juga di sekolah marketing lain...</p>'; return; }
+    var others = (dir.schools || []).filter(function (x) { return !x.mine && x.name.toLowerCase().indexOf(q) >= 0; }).slice(0, 15);
+    if (others.length) el.innerHTML += '<div class="caption">Dipegang marketing lain (' + others.length + ')</div>' + others.map(dirRow).join('') +
+      '<p class="muted small" style="margin-top:8px">Sekolah ini tidak bisa diinput lagi. Hubungi Mas Firman kalau perlu dipindah.</p>';
+  }
+}
+function dirRow(x) {
+  var areas = (SKA.data.lists && SKA.data.lists.areas) || {}, area = areas[x.area] || x.area || '';
+  return '<div class="item" style="cursor:default"><span class="t"><b>' + esc(x.name) + '</b><span>' + esc((area ? area + ' · ' : '') + (x.sales ? 'Pegangan ' + x.sales : 'Belum ada marketing')) + '</span></span></div>';
+}
+function loadDir() {
+  if (SKA.dirLoading) return;
+  SKA.dirLoading = true;
+  call('skxSchoolDir', SKA.token).then(function (r) { SKA.dirLoading = false; SKA.dir = r; if (SKA.view === 'schools') drawSchoolList(); if ($('nsHint')) nsHint(); })
+    .catch(function (e) { SKA.dirLoading = false; SKA.dir = { err: e.message, schools: [] }; });
+}
+// The same words the server compares (SMP Negeri 2 = SMPN 2, 03 = 3), for the hint while typing a new school.
+function nameWords(v) {
+  return String(v || '').toUpperCase().replace(/\bNEGERI\b/g, 'N').replace(/\bSWASTA\b/g, 'S').replace(/\b(SD|SMP|SMA|SMK)\s+(N|S)\b/g, '$1$2')
+    .replace(/\b0+(\d)/g, '$1').replace(/[^A-Z0-9]+/g, ' ').trim().split(' ').filter(function (w) { return w && w !== 'KOTA' && w !== 'KAB' && w !== 'KABUPATEN'; });
+}
+function nsHint() {
+  var el = $('nsHint'), inp = $('nsName');
+  if (!el || !inp) return;
+  var t = nameWords(inp.value), num = function (w) { return w.filter(function (x) { return /\d/.test(x); }).sort().join(' '); }, tn = num(t);
+  if (t.length < 2) { el.innerHTML = ''; return; }
+  if (!SKA.dir) { loadDir(); return; }
+  var hits = (SKA.dir.schools || []).map(function (x) {
+    var w = nameWords(x.name), hit = t.filter(function (y) { return w.indexOf(y) >= 0; }).length;
+    return { x: x, s: num(w) === tn ? hit / Math.max(t.length, w.length) : 0 };
+  }).filter(function (h) { return h.s >= 0.6; }).sort(function (a, b) { return b.s - a.s; }).slice(0, 3);
+  el.innerHTML = hits.length ? '<div class="note amber" style="margin-top:8px">' + hits.map(function (h) {
+    return (h.s === 1 ? 'Sudah ada: ' : 'Mirip: ') + '<b>' + esc(h.x.name) + '</b>, ' + esc(h.x.mine ? 'pegangan Anda' : h.x.sales ? 'pegangan ' + h.x.sales : 'belum ada marketing');
+  }).join('<br>') + '</div>' : '';
 }
 
 // Intro message from Pengaturan "Pesan WA". Without a catalog link the lines about the catalog are
@@ -2716,8 +2762,22 @@ function loadCust() {
 function loadSign() {
   if (SKA.signLoading) return;
   SKA.signLoading = true;
-  call('skxSignups', SKA.token).then(function (r) { SKA.signLoading = false; SKA.sign = r; if (SKA.view === 'acust') render(); })
-    .catch(function (e) { SKA.signLoading = false; SKA.sign = { err: e.message, waiting: [] }; if (SKA.view === 'acust') render(); });
+  call('skxSignups', SKA.token).then(function (r) { SKA.signLoading = false; SKA.sign = r; if (SKA.view === 'msign') render(); })
+    .catch(function (e) { SKA.signLoading = false; SKA.sign = { err: e.message, waiting: [] }; if (SKA.view === 'msign') render(); });
+}
+// 25 Nov (Muji: "the one who can approve is only firman side"): the Manajer's own screen, from Beranda and the reminder.
+function vMSign(d) {
+  if (!isMgr(d)) { SKA.view = 'home'; return vHome(d); }
+  setTop('<div><button class="back" onclick="go(\'home\')">' + SKA_ICON.left + 'Beranda</button><h1>Pendaftar SNAPP</h1><div class="sub">Sekolah yang daftar sendiri di SNAPP</div></div>');
+  var x = SKA.sign;
+  if (!x) { loadSign(); return '<p class="muted" style="margin-top:16px">Memuat pendaftar...</p>'; }
+  if (x.err) return '<div class="note amber" style="margin-top:14px">' + esc(x.err) + '</div><button class="btn block" style="margin-top:12px" onclick="SKA.sign=null;render()">Coba lagi</button>';
+  var w = x.waiting || [], dn = (x.decided || []).slice(0, 10);
+  return (w.length ? '<div class="note" style="margin-top:14px">Cek dulu lewat WhatsApp ke Kepala Sekolah atau PIC, lalu Konfirmasi atau Tolak. Yang tidak dikonfirmasi dalam 14 hari terhapus otomatis.</div>' +
+    '<div class="caption">Menunggu konfirmasi (' + w.length + ')</div>' + w.map(signCard).join('') : '<div class="note" style="margin-top:14px">Tidak ada pendaftar yang menunggu.</div>') +
+    (dn.length ? '<div class="caption">Sudah diputuskan</div>' + dn.map(function (a) {
+      return '<div class="item" style="cursor:default"><span class="t"><b>' + esc(a.school) + '</b><span>' + esc(a.status + (a.decidedBy ? ' oleh ' + a.decidedBy : '') + ' · ' + stampTxt(a.decided) + (a.marketing ? ' · marketing ' + a.marketing : '')) + '</span></span></div>';
+    }).join('') : '');
 }
 function signBlock() {
   var x = SKA.sign;
@@ -2741,11 +2801,14 @@ function signCard(a) {
       return '<div class="signp"><span class="t"><span class="muted small">' + esc(k.label) + '</span><b>' + esc(k.name || '-') + '</b><span class="muted small">' + esc(k.phone) + '</span></span>' +
         (p ? '<a class="btn wa" href="https://wa.me/62' + esc(p.slice(1)) + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener">' + SKA_ICON.wa + 'Cek</a>' : '') + '</div>';
     }).join('');
-    return '<div class="sgk" data-k="' + esc(m.key) + '"' + (i ? ' hidden' : '') + '>' +
+    // 25 Nov: who holds the school against the marketing the applicant named (the holder never changes by itself)
+    var hold = m.sales && a.marketing && m.sales.toLowerCase() !== a.marketing.toLowerCase() ? '<div class="note amber" style="margin-top:10px">' + esc(m.name) + ' dipegang ' + esc(m.sales) +
+      ', pendaftar menyebut marketing ' + esc(a.marketing) + '. Pegangan sekolah tidak berubah otomatis.</div>' : !m.sales && a.marketing ? '<div class="note" style="margin-top:10px">Sekolah ini belum ada marketing. Setelah dikonfirmasi jadi pegangan ' + esc(a.marketing) + '.</div>' : '';
+    return '<div class="sgk" data-k="' + esc(m.key) + '"' + (i ? ' hidden' : '') + '>' + hold +
       (rows ? '<div class="caption" style="margin-top:10px">Cek lewat kontak yang sudah kami punya</div>' + rows +
         (m.same ? '' : '<div class="note amber">Nomor yang diketik pendaftar tidak ada di data kami. Jangan konfirmasi hanya lewat nomor pendaftar.</div>')
         : '') + '</div>';
-  }).join('') + '<div class="sgk" data-k="' + NEW + '"' + (ms.length ? ' hidden' : '') + '></div>';
+  }).join('') + '<div class="sgk" data-k="' + NEW + '"' + (ms.length ? ' hidden' : '') + '>' + (a.marketing ? '<div class="note" style="margin-top:10px">Sekolah baru ini jadi pegangan ' + esc(a.marketing) + '.</div>' : '') + '</div>';
   // the numbers the applicant typed: the Kepala Sekolah first (the person who can say yes for the school)
   var typedRow = function (label, name, phone, msg) {
     var p = phoneOk(phone);
@@ -2760,6 +2823,7 @@ function signCard(a) {
     '<p class="muted small" style="margin:8px 0 0">Paling aman tanya Kepala Sekolah. Rekening sekolah tetap hanya bisa diubah admin.</p>';
   return '<div class="card" id="sgc_' + esc(a.id) + '"><b style="font-size:18px;color:var(--ink)">' + esc(a.school) + '</b><div class="muted small">' + esc(a.area) + ' · daftar ' + esc(stampTxt(a.created)) +
     ' · ' + esc(a.via) + ': ' + esc(a.via === 'Google' ? a.email : a.phone) + '</div>' +
+    '<div class="small" style="margin-top:6px">Marketing: <b>' + esc(a.marketing || 'belum diisi (aplikasi versi lama)') + '</b></div>' +
     '<div class="field"><label for="sg_' + esc(a.id) + '">Sekolah di database</label><select id="sg_' + esc(a.id) + '" onchange="signPick(\'' + jsq(a.id) + '\')">' + opts + '</select>' +
       (ms.length ? '' : '<p class="muted small" style="margin:6px 0 0">Belum ada sekolah yang mirip. Kalau dikonfirmasi, sekolah ini masuk sebagai sekolah baru.</p>') + '</div>' + known + typed +
     '<div class="btnrow"><button class="btn" onclick="signDecide(\'' + jsq(a.id) + '\',false)">Tolak</button>' +
@@ -2777,7 +2841,7 @@ function signDecide(id, ok) {
   if (!confirm(!ok ? 'Tolak pendaftar ini? Data loginnya dihapus.' : isNew ? 'Sudah dicek lewat WhatsApp? ' + label + ' ditambahkan sebagai sekolah baru dan akun ini dikonfirmasi untuk sekolah itu.'
     : 'Sudah dicek lewat WhatsApp? Konfirmasi akun ini untuk ' + label + '? Akun ini akan melihat invoice dan kiriman sekolah itu.')) return;
   busy(true, ok ? 'Mengonfirmasi...' : 'Menolak...');
-  call('skxSignupDecide', SKA.token, id, key, ok).then(function (r) { busy(false); SKA.sign = null; SKA.cust = null; toast(ok ? (r.baru ? r.name + ' ditambahkan sebagai sekolah baru, akun dikonfirmasi.' : 'Akun dikonfirmasi untuk ' + r.name + '.') : 'Pendaftar ditolak.'); render(); })
+  call('skxSignupDecide', SKA.token, id, key, ok).then(function (r) { busy(false); SKA.sign = null; SKA.cust = null; SKA.dir = null; if (SKA.data && SKA.data.signupsWaiting) SKA.data.signupsWaiting--; toast(ok ? (r.baru ? r.name + ' ditambahkan sebagai sekolah baru, akun dikonfirmasi.' : 'Akun dikonfirmasi untuk ' + r.name + '.') : 'Pendaftar ditolak.'); render(); })
     .catch(function (e) { busy(false); toast(e.message); });
 }
 function custNeeds(c) { return c.disputes + c.toShip + c.sjOpen + c.sjSent > 0; }
@@ -2787,7 +2851,7 @@ function vACust(d) {
   if (!x) { loadCust(); return '<p class="muted" style="margin-top:16px">Memuat daftar pelanggan...</p>'; }
   if (x.err) return '<div class="note amber">' + esc(x.err) + '</div><button class="btn block" style="margin-top:12px" onclick="SKA.cust=null;render()">Coba lagi</button>';
   var l = x.customers, fl = SKA.custFilter || 'act', n = function (f) { return l.filter(f).length; };
-  return signBlock() + '<button class="item" style="margin-top:14px" onclick="go(\'afile\')"><span class="t"><b>File dari sekolah</b><span>Order sekolah dalam Excel, PDF atau foto</span></span>' + SKA_ICON.right + '</button>' +
+  return '<button class="item" style="margin-top:14px" onclick="go(\'afile\')"><span class="t"><b>File dari sekolah</b><span>Order sekolah dalam Excel, PDF atau foto</span></span>' + SKA_ICON.right + '</button>' +
     '<input type="search" style="margin-top:14px" placeholder="Cari sekolah" value="' + esc(SKA.custSearch || '') + '" oninput="SKA.custSearch=this.value;drawCust()">' +
     '<div class="seg">' + [['act', 'Perlu diproses (' + n(custNeeds) + ')'], ['all', 'Semua (' + l.length + ')'], ['noacc', 'Belum punya akun (' + n(function (c) { return c.account === 'belum'; }) + ')']].map(function (y) {
       return '<button class="chip' + (fl === y[0] ? ' on' : '') + '" onclick="SKA.custFilter=\'' + y[0] + '\';render()">' + esc(y[1]) + '</button>';
@@ -3374,7 +3438,7 @@ $('sheet').addEventListener('click', function (e) { if (e.target === $('sheet'))
 function addSchoolSheet(fromLog) {
   openSheet('<h2>Sekolah baru</h2><p class="muted small" style="margin-top:-4px">Sekolah prospek yang belum ada di daftar. ' +
     (isMgr(SKA.data) ? 'Masuk daftar sebagai Belum ada sales. Isi nama sales di Sales Tracker, kolom Sales.' : 'Langsung menjadi pegangan Anda.') + '</p>' +
-    '<div class="field"><label for="nsName">Nama sekolah</label><input id="nsName" type="text" placeholder="Contoh: SMPN 2 Cimahi" value="' + esc(fromLog && SKA.form ? SKA.form.q : '') + '"></div>' +
+    '<div class="field"><label for="nsName">Nama sekolah</label><input id="nsName" type="text" placeholder="Contoh: SMPN 2 Cimahi" oninput="nsHint()" value="' + esc(fromLog && SKA.form ? SKA.form.q : '') + '"><div id="nsHint"></div></div>' +
     '<div class="field"><label for="nsType">Jenjang</label><select id="nsType"><option value="">Pilih</option>' + ['TK / KB / PAUD', 'SD', 'SMP', 'SMA', 'SMK', 'PKBM', 'SLB', 'Lainnya'].map(function (x) { return '<option>' + x + '</option>'; }).join('') + '</select></div>' +
     '<div class="field"><label for="nsStud">Jumlah siswa <span class="muted small">(boleh kosong)</span></label><input id="nsStud" type="text" inputmode="numeric" placeholder="Contoh: 640"></div>' +
     '<div class="field"><label for="nsArea">Wilayah</label><select id="nsArea"><option value="">Pilih</option>' + areaOptions() + '</select></div>' +
@@ -3389,10 +3453,20 @@ function areaOptions() {
   return Object.keys(a).map(function (c) { return '<option value="' + esc(c) + '">' + esc(a[c] + (c === 'KBB' ? ' (KBB)' : '')) + '</option>'; }).join('') +
     '<option value="Lainnya">Lainnya</option>';
 }
-function saveSchool(fromLog) {
+function saveSchool(fromLog, force) {
   var s = { name: $('nsName').value, type: $('nsType').value, area: $('nsArea').value, pic: $('nsPic').value, picPhone: $('nsPhone').value, students: $('nsStud').value };
+  if (force) s.force = true;
   busy(true, 'Menyimpan...');
   call('skxAddSchool', SKA.token, s).then(function (r) {
+    // 25 Nov: a similar school already exists; the sales says first whether this one is really different
+    if (r.similar) {
+      busy(false);
+      var l = r.similar.map(function (x) { return x.name + (x.sales ? ' (pegangan ' + x.sales + ')' : ''); }).join('\n');
+      if (confirm('Mirip dengan sekolah yang sudah ada:\n' + l + '\n\nIni sekolah yang berbeda? Pilih OK untuk tetap menambahkan.')) saveSchool(fromLog, true);
+      else { var e0 = $('nsErr'); if (e0) { e0.textContent = 'Tidak ditambahkan. Kalau sekolahnya sama, cari di daftar atau hubungi Mas Firman.'; e0.classList.remove('hide'); } }
+      return;
+    }
+    SKA.dir = null;
     closeSheet(); toast(r.existed ? 'Sekolah sudah ada di daftar Anda.' : 'Sekolah ditambahkan.');
     return call('skxHome', SKA.token).then(function (d) {
       SKA.data = d; store('skx_home', JSON.stringify(d)); busy(false);
